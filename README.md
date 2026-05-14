@@ -1,2 +1,2 @@
-# red-tetris
-I love tetris ! 
+I love Tetris !
+tfreydie & Garivo
