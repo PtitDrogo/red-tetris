@@ -14,7 +14,7 @@ function App() {
   return (
     <>
      <div className="size-48 bg-amber-500">
-        <ul className="size-10"> welcome to my tetris game, I am {test.name} and I am {test.age} years old</ul>
+        <p className="size-10"> welcome to my tetris game, I am {test.name} and I am {test.age} years old</p>
      </div>
     </>
   )
