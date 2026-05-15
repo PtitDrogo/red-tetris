@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
-    "test": "npm test --prefix client && npm test --prefix server",
+    "test": "echo '\\033[1;32mRUNNING CLIENT TESTS\\033[0m' && npm test --prefix client && echo '\\033[1;36mRUNNING SERVER TESTS\\033[0m' && npm test --prefix server",
     "coverage": "npm run coverage --prefix client && npm run coverage --prefix server"
   },
   "repository": {
