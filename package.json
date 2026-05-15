@@ -1,0 +1,22 @@
+{
+  "name": "red-tetris",
+  "version": "1.0.0",
+  "description": "I love Tetris ! tfreydie & Garivo",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "test": "npm test --prefix client && npm test --prefix server",
+    "coverage": "npm run coverage --prefix client && npm run coverage --prefix server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PtitDrogo/red-tetris.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PtitDrogo/red-tetris/issues"
+  },
+  "homepage": "https://github.com/PtitDrogo/red-tetris#readme"
+}
