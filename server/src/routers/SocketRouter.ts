@@ -25,7 +25,9 @@ export class SocketRouter {
 
             socket.on(ClientMessage.CREATE_ROOM, (playerName: string) => {
                 const room = NavigationController.create(socket.id, playerName);
+                socket.join(room.id);
                 this.updateRoomAndLobby(room);
+                console.log(`Created Room with roomId ${room.id}`);
             });
 
             socket.on(
@@ -43,6 +45,7 @@ export class SocketRouter {
 
             socket.on(ClientMessage.LEAVE_ROOM, () => {
                 try {
+                    //Leave Socket room !!!!!!!!!!!!!!! IMPORTANT
                     const room = NavigationController.leave(socket.id);
                     this.updateRoomAndLobby(room);
                 } catch (error) {
