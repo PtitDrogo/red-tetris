@@ -28,7 +28,7 @@ function Home() {
                 <div className="flex flex-row gap-2">
                     <input
                         type="text"
-                        className="border-2 border-black px-3 py-3"
+                        className="border border-black px-3 py-3"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={(e) => {

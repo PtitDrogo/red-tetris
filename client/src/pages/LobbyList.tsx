@@ -28,7 +28,7 @@ function LobbyList() {
                 <div>Welcome {playerName}</div>
                 <input
                     type="button"
-                    className="border-2 border-black"
+                    className="border border-black px-3"
                     value="Create a lobby"
                     onClick={() => createLobby()}
                 ></input>
