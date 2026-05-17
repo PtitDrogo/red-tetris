@@ -1,9 +1,12 @@
 import { GameStatus, Room } from "../../../shared/types";
 
-class RoomManager {
+export class RoomManager {
     private rooms: Map<string, Room> = new Map();
 
     create(roomId: string) {
+        if (this.rooms.has(roomId)) {
+            throw new Error(`Room "${roomId}" already exists`);
+        }
         const newRoom: Room = {
             id: roomId,
             players: [],
