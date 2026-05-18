@@ -1,12 +1,17 @@
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
+import { useState, useEffect } from "react";
+
+import { setGrids, setMyGrid, type gridState } from "../redux/gameSlice";
 
 const cellColor: Record<number, string> = {
     0: "",
     1: "bg-amber-300",
     2: "bg-red-400",
     3: "bg-blue-400",
+    4: "bg-green-300",
+    5: "bg-cyan-300",
 };
 
 function MainGrid({
@@ -64,52 +69,56 @@ function OpponentGrid({
 function Game() {
     const navigate = useNavigate();
     const playerName = useSelector((state: RootState) => state.player.name);
+    const gameGrids = useSelector((state: RootState) => state.game.grids);
+    const myGrid = useSelector((state: RootState) => state.game.myGrid);
+    const dispatch = useDispatch();
 
-    const gridMock = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 2, 2, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 2, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    ];
+    const emptyGrid = Array.from({ length: 20 }, (_, index) =>
+        Array(10).fill(0),
+    );
+
+    useEffect(() => {
+        const grids = Array.from({ length: 5 }, (_, index) =>
+            Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
+        );
+
+        const gridsState: gridState[] = Array.from(
+            { length: 4 },
+            (_, index) => ({
+                player: `player${index + 1}`,
+                grid: grids[index],
+            }),
+        );
+        const myGrid: gridState = { player: "Me", grid: grids[4] };
+        dispatch(setGrids(gridsState));
+        dispatch(setMyGrid(myGrid));
+    }, []);
 
     return (
         <>
             <div className="flex justify-center items-center pt-20 gap-40">
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
-                        opponentName="pablo"
-                        grid={gridMock}
+                        opponentName={gameGrids[0]?.player ?? "Empty"}
+                        grid={gameGrids[0]?.grid ?? emptyGrid}
                     ></OpponentGrid>
                     <OpponentGrid
-                        opponentName="pablo"
-                        grid={gridMock}
+                        opponentName={gameGrids[1]?.player ?? "Empty"}
+                        grid={gameGrids[1]?.grid ?? emptyGrid}
                     ></OpponentGrid>
                 </div>
-                <MainGrid playerName={playerName} grid={gridMock}></MainGrid>
+                <MainGrid
+                    playerName={myGrid?.player}
+                    grid={myGrid?.grid ?? emptyGrid}
+                ></MainGrid>
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
-                        opponentName="pablo"
-                        grid={gridMock}
+                        opponentName={gameGrids[2]?.player ?? "Empty"}
+                        grid={gameGrids[2]?.grid ?? emptyGrid}
                     ></OpponentGrid>
                     <OpponentGrid
-                        opponentName="pablo"
-                        grid={gridMock}
+                        opponentName={gameGrids[3]?.player ?? "Empty"}
+                        grid={gameGrids[3]?.grid ?? emptyGrid}
                     ></OpponentGrid>
                 </div>
             </div>
