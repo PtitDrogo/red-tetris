@@ -73,9 +73,9 @@ function Game() {
     const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const dispatch = useDispatch();
 
-    const emptyGrid = Array.from({ length: 20 }, (_, index) =>
-        Array(10).fill(0),
-    );
+    useEffect(() => {
+        if (!playerName) navigate("/");
+    }, [playerName]);
 
     useEffect(() => {
         const grids = Array.from({ length: 5 }, (_, index) =>
@@ -89,11 +89,14 @@ function Game() {
                 grid: grids[index],
             }),
         );
-        const myGrid: gridState = { player: "Me", grid: grids[4] };
+        const myGrid: gridState = { player: playerName, grid: grids[4] };
         dispatch(setGrids(gridsState));
         dispatch(setMyGrid(myGrid));
     }, []);
 
+    const emptyGrid = Array.from({ length: 20 }, () =>
+        Array(10).fill(0),
+    );
     return (
         <>
             <div className="flex justify-center items-center pt-20 gap-40">

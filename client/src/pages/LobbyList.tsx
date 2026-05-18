@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
-import { useState } from "react";
+import { useEffect } from "react";
 import { setLobbies } from "../redux/lobbiesSlice";
 import type { LobbyState } from "../redux/lobbiesSlice";
 
@@ -22,6 +22,10 @@ function LobbyList() {
         dispatch(setLobbies([...lobbies, newLobby]));
     };
 
+    useEffect(() => {
+        if (!playerName) navigate("/");
+    }, [playerName]);
+
     return (
         <>
             <div className="flex flex-col items-center justify-start pt-15 gap-4">
@@ -32,19 +36,17 @@ function LobbyList() {
                     value="Create a lobby"
                     onClick={() => createLobby()}
                 ></input>
-                {lobbies.map((lobby, index) => (
-                    <div className="w-96">
+                {lobbies.map((lobby, _) => (
+                    <div key={lobby.name} className="w-96">
                         <button
-                            key={index}
                             type="button"
                             className="border-2 border-black px-15 w-full"
-                            value={lobby.name}
                             onClick={() => navigate("/game")}
                         >
                             <div>{lobby.name}</div>
                             <div className="grid grid-cols-2 gap-1 w-full py-3">
-                                {Array.from({ length: 4 }, (value, index) => (
-                                    <div className="border-">
+                                {Array.from({ length: 4 }, (_, index) => (
+                                    <div key={index} className="border">
                                         {lobby.players[index] ?? "Empty"}
                                     </div>
                                 ))}
