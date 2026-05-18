@@ -20,3 +20,4 @@ const playerSlice = createSlice({
 
 export const { setPlayerName } = playerSlice.actions;
 export default playerSlice.reducer;
+
