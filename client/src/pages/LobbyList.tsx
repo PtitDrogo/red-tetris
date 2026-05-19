@@ -4,6 +4,7 @@ import { RootState } from "../redux";
 import { useEffect } from "react";
 import { setLobbies } from "../redux/lobbiesSlice";
 import type { LobbyState } from "../redux/lobbiesSlice";
+import { socket } from "../socket";
 
 function LobbyList() {
     const navigate = useNavigate();
@@ -24,6 +25,7 @@ function LobbyList() {
 
     useEffect(() => {
         if (!playerName) navigate("/");
+        socket.on("disconnect", () => navigate("/"));
     }, [playerName]);
 
     return (

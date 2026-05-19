@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
 import { useState, useEffect } from "react";
+import { socket } from "../socket";
 
 import { setGrids, setMyGrid, type gridState } from "../redux/gameSlice";
 
@@ -75,6 +76,7 @@ function Game() {
 
     useEffect(() => {
         if (!playerName) navigate("/");
+        socket.on("disconnect", () => navigate("/"));
     }, [playerName]);
 
     useEffect(() => {
@@ -94,9 +96,7 @@ function Game() {
         dispatch(setMyGrid(myGrid));
     }, []);
 
-    const emptyGrid = Array.from({ length: 20 }, () =>
-        Array(10).fill(0),
-    );
+    const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (
         <>
             <div className="flex justify-center items-center pt-20 gap-40">

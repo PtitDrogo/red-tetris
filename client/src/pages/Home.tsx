@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
 import { setPlayerName } from "../redux/playerSlice";
 import { useState } from "react";
+import { socket } from "../socket";
 
 function Home() {
     const navigate = useNavigate();
@@ -13,12 +14,17 @@ function Home() {
     const [error, setError] = useState("");
 
     const handleStart = () => {
-        if (inputValue.length < 3){
-            setError("Your name must contain at least 3 characters")
+        if (inputValue.length < 3) {
+            setError("Your name must contain at least 3 characters");
             return;
         }
         dispatch(setPlayerName(inputValue));
-        navigate("/lobbylist");
+        socket.off("connect");
+        socket.on("connect", () => {
+            navigate("/lobbylist");
+            socket.off("connect");
+        });
+        socket.connect();
     };
 
     return (
@@ -36,7 +42,9 @@ function Home() {
                         }}
                     ></input>
                 </div>
-                {error && <p className="text-red-500 text-sm">Invalid: {error}</p>}
+                {error && (
+                    <p className="text-red-500 text-sm">Invalid: {error}</p>
+                )}
             </div>
         </>
     );
