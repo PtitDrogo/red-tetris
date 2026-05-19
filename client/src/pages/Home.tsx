@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
 import { setPlayerName } from "../redux/playerSlice";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { socket } from "../socket";
 
 function Home() {
@@ -13,6 +13,10 @@ function Home() {
     const [inputValue, setInputValue] = useState("");
     const [error, setError] = useState("");
 
+    useEffect(() => {
+        socket.disconnect();
+    }, []);
+    
     const handleStart = () => {
         if (inputValue.length < 3) {
             setError("Your name must contain at least 3 characters");
