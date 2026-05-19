@@ -12,6 +12,13 @@ export enum ClientMessage {
     PLAYER_INPUT = "i",
 }
 
+export enum gameInput {
+    LEFT = 0,
+    RIGHT = 1,
+    DOWN = 2,
+    SPACE = 3,
+}
+
 export enum ServerMessage {
     GAME_STATE = "gs",
     LOBBY_STATE = "ls", //all rooms
@@ -20,9 +27,9 @@ export enum ServerMessage {
 }
 
 export type Room = {
-    id: string; //This is lowkey the ID.
+    id: string;
     players: LobbyPlayers[];
-    game: Game; //not 100% sure about this
+    game: Game;
 };
 
 export type Game = {

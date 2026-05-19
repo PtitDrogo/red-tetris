@@ -118,10 +118,22 @@ export class Piece {
     }
 
     static rotate(piece: Piece): Piece {
+        if (piece.type === PieceType.O) {
+            return new Piece(piece.type, piece.pivot, piece.cells);
+        }
+
         const newCells = piece.cells.map(({ x, y }) => ({
             x: y,
             y: -x,
         }));
+
+        if (piece.type === PieceType.I) {
+            const newCells = piece.cells.map(({ x, y }) => ({
+                x: -y + 1,
+                y: -x + 1,
+            }));
+            return new Piece(piece.type, piece.pivot, newCells);
+        }
 
         return new Piece(piece.type, piece.pivot, newCells);
     }

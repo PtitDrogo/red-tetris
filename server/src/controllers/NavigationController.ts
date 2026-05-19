@@ -1,14 +1,8 @@
-import { DefaultEventsMap, Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { GameStatus } from "../../../shared/types";
 import { roomManager } from "../services/RoomManager";
 import { UpdateManager } from "../services/UpdatesManager";
-
-type SocketType = Socket<
-    DefaultEventsMap,
-    DefaultEventsMap,
-    DefaultEventsMap,
-    any
->;
+import { SocketType } from "../types/types";
 
 export class NavigationController {
     static leave(socket: SocketType, io: Server) {

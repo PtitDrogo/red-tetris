@@ -158,7 +158,7 @@ describe("Piece.rotate", () => {
         });
     });
 
-    // ─── Special rules checking (Expect these to fail right now) ─────────────
+    // ─── Special rules checking ─────────────
 
     it("I piece: 2 rotations return to the original shape", () => {
         const piece = new Piece(PieceType.I, { x: 5, y: 5 });

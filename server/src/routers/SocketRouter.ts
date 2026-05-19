@@ -3,6 +3,7 @@ import { ClientMessage, ServerMessage } from "../../../shared/types";
 import { getErrorMessage } from "../../../shared/utils";
 import { NavigationController } from "../controllers/NavigationController";
 import { roomManager } from "../services/RoomManager";
+import { InputController } from "../controllers/InputController";
 
 export class SocketRouter {
     private io: Server;
@@ -65,6 +66,12 @@ export class SocketRouter {
 
             socket.on(ClientMessage.PLAYER_INPUT, (input) => {
                 console.log(`User is trying to do the input ${input}`);
+                try {
+                    
+                    InputController.handleInput(socket, input);
+                } catch (error) {
+                    socket.emit(ServerMessage.ERROR, getErrorMessage(error));
+                }
             });
         });
     }
