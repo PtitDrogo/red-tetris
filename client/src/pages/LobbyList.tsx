@@ -6,6 +6,8 @@ import { setLobbies } from "../redux/lobbiesSlice";
 import type { LobbyState } from "../redux/lobbiesSlice";
 import { socket } from "../socket";
 
+import { ClientMessage, ServerMessage } from "../../../shared/types";
+
 function LobbyList() {
     const navigate = useNavigate();
     const playerName = useSelector((state: RootState) => state.player.name);
@@ -20,13 +22,20 @@ function LobbyList() {
             name: newId,
             players: ["p1", "p2", "p3"],
         };
-        dispatch(setLobbies([...lobbies, newLobby]));
+        socket.emit(ClientMessage.CREATE_ROOM, playerName);
+        //dispatch(setLobbies([...lobbies, newLobby]));
     };
 
     useEffect(() => {
         if (!playerName) navigate("/");
         socket.on("disconnect", () => navigate("/"));
     }, [playerName]);
+
+    useEffect(() => {
+        socket.on(ServerMessage.LOBBY_STATE, (payload) => {
+            
+        })
+    })
 
     return (
         <>
