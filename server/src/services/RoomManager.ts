@@ -62,7 +62,7 @@ export class RoomManager {
             (room) => room.game.status === GameStatus.WAITING,
         );
         const LobbiesState: LobbyState[] = allWaitingRooms.map((room) => ({
-            name: room.id,
+            id: room.id,
             players: room.players.map((player) => player.name),
         }));
         return LobbiesState;

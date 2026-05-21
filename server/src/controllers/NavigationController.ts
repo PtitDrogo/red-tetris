@@ -1,5 +1,5 @@
 import { DefaultEventsMap, Server, Socket } from "socket.io";
-import { GameStatus } from "../../../shared/types";
+import { GameStatus, ServerMessage } from "../../../shared/types";
 import { roomManager } from "../services/RoomManager";
 import { UpdateManager } from "../services/UpdatesManager";
 
@@ -20,6 +20,7 @@ export class NavigationController {
         }
         const updatedRoom = roomManager.deletePlayer(socket.id);
         socket.leave(room.id);
+        socket.emit(ServerMessage.LEAVE_ROOM);
         UpdateManager.updateRoomAndLobby(updatedRoom, io);
     }
 
@@ -52,8 +53,8 @@ export class NavigationController {
             name: playerName,
             socketId: socket.id,
         });
-
         socket.join(roomID);
+        socket.emit(ServerMessage.JOIN_ROOM, roomID);
         UpdateManager.updateRoomAndLobby(room, io);
     }
 

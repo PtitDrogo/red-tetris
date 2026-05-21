@@ -35,12 +35,13 @@ export class SocketRouter {
 
             socket.on(
                 ClientMessage.JOIN_ROOM,
-                (roomID: string, playerName: string) => {
+                (payload: { roomID: string; playerName: string }) => {
                     try {
+                        console.log("Player try : ", payload.roomID);
                         NavigationController.join(
                             socket,
-                            roomID,
-                            playerName,
+                            payload.roomID,
+                            payload.playerName,
                             this.io,
                         );
                     } catch (error) {
