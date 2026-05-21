@@ -19,13 +19,30 @@ function LobbyList() {
         socket.emit(ClientMessage.CREATE_ROOM, playerName);
     };
 
+    const joinLobby = (id: string) => {
+        socket.emit(ClientMessage.JOIN_ROOM, {
+            roomID: id,
+            playerName: playerName,
+        });
+    };
+
     useAuthGuard();
 
     useEffect(() => {
+        //temp
+        socket.on(ServerMessage.ERROR, (payload) => {
+            console.log(payload);
+        });
+
         socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
             dispatch(setLobbies(payload));
         });
+        socket.on(ServerMessage.JOIN_ROOM, (payload: string) =>
+            navigate("/game"),
+        );
         return () => {
+            socket.off(ServerMessage.ERROR);
+
             socket.off(ServerMessage.LOBBY_STATE);
         };
     }, []);
@@ -41,13 +58,13 @@ function LobbyList() {
                     onClick={() => createLobby()}
                 ></input>
                 {lobbies.map((lobby, _) => (
-                    <div key={lobby.name} className="w-96">
+                    <div key={lobby.id} className="w-96">
                         <button
                             type="button"
                             className="border-2 border-black px-15 w-full"
-                            onClick={() => navigate("/game")}
+                            onClick={() => joinLobby(lobby.id)}
                         >
-                            <div>{lobby.name}</div>
+                            <div>{lobby.id}</div>
                             <div className="grid grid-cols-2 gap-1 w-full py-3">
                                 {Array.from({ length: 4 }, (_, index) => (
                                     <div key={index} className="border">

@@ -6,6 +6,7 @@ import { socket } from "../socket";
 
 import { setGrids, setMyGrid, type gridState } from "../redux/gameSlice";
 import { useAuthGuard } from "../hooks/useAuthGuard";
+import { ServerMessage } from "../../../shared/types";
 
 const cellColor: Record<number, string> = {
     0: "",
@@ -94,6 +95,12 @@ function Game() {
         dispatch(setGrids(gridsState));
         dispatch(setMyGrid(myGrid));
     }, []);
+
+    useEffect(() => {
+        return () => {
+            socket.emit(ServerMessage.LEAVE_ROOM);
+        };
+    });
 
     const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (
