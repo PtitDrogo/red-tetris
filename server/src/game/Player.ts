@@ -4,12 +4,11 @@ import { Piece } from "./Piece";
 
 export class Player {
     private socketId: string;
-    private activePiece: Piece;
     private board: Board;
+    //Lots more data later here.
 
-    constructor(socketId: string, activePiece: Piece, board: Board) {
+    constructor(socketId: string, board: Board) {
         this.socketId = socketId;
-        this.activePiece = activePiece;
         this.board = board;
     }
 
@@ -17,31 +16,12 @@ export class Player {
         return this.socketId;
     }
 
-    //This needs to check against the board actually.
+    getBoard() {
+        return this.board;
+    }
+
     static handleInput(player: Player, input: gameInput): Player {
-        let newPiece = null;
-        
-        switch (input) {
-            case gameInput.LEFT:
-                newPiece = Piece.left(player.activePiece);
-                break;
-                
-            case gameInput.RIGHT:
-                newPiece = Piece.right(player.activePiece);
-                break;
-                
-            case gameInput.DOWN:
-                newPiece = Piece.down(player.activePiece);
-                break;
-                
-            case gameInput.SPACE:
-                newPiece = Piece.rotate(player.activePiece);
-                break;
-        }
-
-        
-
-        return new Player(player.socketId, newPiece, player.board);
-
+        const newBoard = Board.handleGameInput(input, player.getBoard());
+        return new Player(player.socketId, newBoard);
     }
 }

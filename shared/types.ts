@@ -17,6 +17,7 @@ export enum gameInput {
     RIGHT = 1,
     DOWN = 2,
     SPACE = 3,
+    ROTATE = 4,
 }
 
 export enum ServerMessage {
@@ -47,3 +48,12 @@ export type LobbyPlayers = {
     socketId: string;
     //Maybe more stuff idk, so far this is frontend stuff, only the frontend might care about this.
 };
+
+export enum GRID_STATES  {
+    EMPTY= 0,
+    RED= 1,
+    BLUE= 2,
+    GREEN= 3,
+    ORANGE= 4,
+    //Whatever colors we are using add them here.
+}

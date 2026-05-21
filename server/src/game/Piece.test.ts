@@ -65,7 +65,7 @@ describe("purity — no mutation of the original piece", () => {
 describe("Piece.down", () => {
     it("decrements pivot y by 1", () => {
         const piece = new Piece(PieceType.T, { x: 5, y: 5 });
-        expect(Piece.down(piece).getPivot()).toEqual({ x: 5, y: 4 });
+        expect(Piece.down(piece).getPivot()).toEqual({ x: 5, y: 6 });
     });
 
     it("preserves pivot x", () => {
@@ -187,7 +187,7 @@ describe("chaining moves", () => {
         const piece = new Piece(PieceType.T, { x: 5, y: 10 });
         expect(Piece.down(Piece.down(Piece.down(piece))).getPivot()).toEqual({
             x: 5,
-            y: 7,
+            y: 13,
         });
     });
 

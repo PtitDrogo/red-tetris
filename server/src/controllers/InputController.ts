@@ -1,4 +1,3 @@
-import { GameInput } from "../../../shared/types";
 import { gameService } from "../services/GameService";
 import { SocketType } from "../types/types";
 import { isGameInput } from "../validators/gameInput";
@@ -22,21 +21,5 @@ export class InputController {
         if (!game) {
             throw new Error("Could not find the game");
         }
-
-        game.
-
-        // switch (input) {
-        //     case GameInput.DOWN:
-        //         break;
-        //     case GameInput.LEFT:
-        //         break;
-        //     case GameInput.RIGHT:
-        //         break;
-        //     case GameInput.SPACE:
-        //         break;
-
-        //     default:
-        //         throw new Error("Unexpected error");
-        // }
     }
 }

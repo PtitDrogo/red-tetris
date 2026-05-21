@@ -4,6 +4,7 @@ import { getErrorMessage } from "../../../shared/utils";
 import { NavigationController } from "../controllers/NavigationController";
 import { roomManager } from "../services/RoomManager";
 import { InputController } from "../controllers/InputController";
+import { UpdateManager } from "../services/UpdatesManager";
 
 export class SocketRouter {
     private io: Server;
@@ -15,6 +16,7 @@ export class SocketRouter {
     init() {
         this.io.on("connection", (socket) => {
             console.log("user connected:", socket.id);
+            UpdateManager.updateLobby(this.io);
 
             socket.on("disconnect", () => {
                 console.log("user disconnected:", socket.id);
