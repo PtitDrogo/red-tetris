@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
-import { setPlayerName } from "../redux/playerSlice";
 import { useState, useEffect } from "react";
+import { setPlayerName } from "../redux/playerSlice";
+import { setLobbies } from "../redux/lobbiesSlice";
 import { socket } from "../socket";
+import { LobbyState, ServerMessage } from "../../../shared/types";
 
 function Home() {
     const navigate = useNavigate();
@@ -30,6 +32,15 @@ function Home() {
         });
         socket.connect();
     };
+
+    useEffect(() => {
+            socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
+                dispatch(setLobbies(payload));
+            });
+            return () => {
+                socket.off(ServerMessage.LOBBY_STATE);
+            };
+        }, []);
 
     return (
         <>

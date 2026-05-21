@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { socket } from "../socket";
 
 import { setGrids, setMyGrid, type gridState } from "../redux/gameSlice";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 
 const cellColor: Record<number, string> = {
     0: "",
@@ -74,11 +75,9 @@ function Game() {
     const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        if (!playerName) navigate("/");
-        socket.on("disconnect", () => navigate("/"));
-    }, [playerName]);
+    useAuthGuard();
 
+    //temp
     useEffect(() => {
         const grids = Array.from({ length: 5 }, (_, index) =>
             Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),

@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export interface LobbyState {
-    name: string;
-    players: string[];
-}
+import { type LobbyState } from "../../../shared/types";
+// export interface LobbyState {
+//     name: string;
+//     players: string[];
+// }
 
 interface LobbiesState {
     list: LobbyState[];

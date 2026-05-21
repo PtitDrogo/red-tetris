@@ -3,10 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
 import { useEffect } from "react";
 import { setLobbies } from "../redux/lobbiesSlice";
-import type { LobbyState } from "../redux/lobbiesSlice";
+import type { LobbyState } from "../../../shared/types";
 import { socket } from "../socket";
 
 import { ClientMessage, ServerMessage } from "../../../shared/types";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 
 function LobbyList() {
     const navigate = useNavigate();
@@ -14,28 +15,20 @@ function LobbyList() {
     const lobbies = useSelector((state: RootState) => state.lobbies.list);
     const dispatch = useDispatch();
 
-    //Temporary
     const createLobby = () => {
-        const id = lobbies.length + 1;
-        const newId = `lobby - ${id}`;
-        const newLobby: LobbyState = {
-            name: newId,
-            players: ["p1", "p2", "p3"],
-        };
         socket.emit(ClientMessage.CREATE_ROOM, playerName);
-        //dispatch(setLobbies([...lobbies, newLobby]));
     };
 
-    useEffect(() => {
-        if (!playerName) navigate("/");
-        socket.on("disconnect", () => navigate("/"));
-    }, [playerName]);
+    useAuthGuard();
 
     useEffect(() => {
-        socket.on(ServerMessage.LOBBY_STATE, (payload) => {
-            
-        })
-    })
+        socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
+            dispatch(setLobbies(payload));
+        });
+        return () => {
+            socket.off(ServerMessage.LOBBY_STATE);
+        };
+    }, []);
 
     return (
         <>
