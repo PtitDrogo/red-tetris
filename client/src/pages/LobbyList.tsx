@@ -40,6 +40,7 @@ function LobbyList() {
         socket.on(ServerMessage.JOIN_ROOM, (payload: string) =>
             navigate("/game"),
         );
+        
         return () => {
             socket.off(ServerMessage.ERROR);
 

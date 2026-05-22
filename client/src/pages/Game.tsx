@@ -100,7 +100,7 @@ function Game() {
         return () => {
             socket.emit(ServerMessage.LEAVE_ROOM);
         };
-    });
+    }, []);
 
     const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (
