@@ -15,10 +15,15 @@ export type Coordinate = {
     y: number;
 };
 
-const SPAWN_Y = 0;
-const SPAWN_X = 5;
+export const SPAWN_COOR: Coordinate = {
+    x: 5,
+    y: 0,
+};
 
-export const Shapes: Record<PieceType, { cells: Coordinate[] }> = {
+export const Shapes: Record<
+    PieceType,
+    { cells: Coordinate[]; color: GRID_STATES }
+> = {
     //□□□□
     [PieceType.I]: {
         cells: [
@@ -27,6 +32,7 @@ export const Shapes: Record<PieceType, { cells: Coordinate[] }> = {
             { x: 1, y: 0 },
             { x: 2, y: 0 },
         ],
+        color: GRID_STATES.BLUE,
     },
 
     // □□
@@ -38,6 +44,7 @@ export const Shapes: Record<PieceType, { cells: Coordinate[] }> = {
             { x: 0, y: 1 },
             { x: 1, y: 1 },
         ],
+        color: GRID_STATES.GREEN,
     },
 
     // □□□
@@ -49,6 +56,7 @@ export const Shapes: Record<PieceType, { cells: Coordinate[] }> = {
             { x: 1, y: 0 },
             { x: 1, y: 1 },
         ],
+        color: GRID_STATES.ORANGE,
     },
 
     // □□□
@@ -60,6 +68,7 @@ export const Shapes: Record<PieceType, { cells: Coordinate[] }> = {
             { x: 1, y: 0 },
             { x: -1, y: 1 },
         ],
+        color: GRID_STATES.RED,
     },
 
     //  □□
@@ -71,6 +80,7 @@ export const Shapes: Record<PieceType, { cells: Coordinate[] }> = {
             { x: -1, y: 1 },
             { x: 0, y: 1 },
         ],
+        color: GRID_STATES.GREEN,
     },
 
     // □□
@@ -82,6 +92,7 @@ export const Shapes: Record<PieceType, { cells: Coordinate[] }> = {
             { x: 0, y: 1 },
             { x: 1, y: 1 },
         ],
+        color: GRID_STATES.ORANGE,
     },
 
     // □□□
@@ -93,6 +104,7 @@ export const Shapes: Record<PieceType, { cells: Coordinate[] }> = {
             { x: 1, y: 0 },
             { x: 0, y: 1 },
         ],
+        color: GRID_STATES.GREEN,
     },
 };
 
@@ -106,7 +118,7 @@ export class Piece {
         this.type = piece;
         this.pivot = pivot;
         this.cells = cells ?? Shapes[piece].cells;
-        this.color = GRID_STATES.BLUE; //For now everything is blue Ill do a random thing here later.
+        this.color = Shapes[piece].color;
     }
 
     getPivot() {
@@ -176,9 +188,5 @@ export class Piece {
             x: piece.pivot.x + 1,
             y: piece.pivot.y,
         });
-    }
-
-    static space(piece: Piece): Piece {
-        
     }
 }

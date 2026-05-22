@@ -1,17 +1,17 @@
 import { COLS, ROWS } from "../../../shared/constants";
 import { gameInput, GRID_STATES } from "../../../shared/types";
-import { Coordinate, Piece } from "./Piece";
+import { Coordinate, Piece, PieceType, Shapes, SPAWN_COOR } from "./Piece";
 
 export class Board {
     private grid: number[][];
     private activePiece: Piece;
-    private ghostPiece: Piece; // always kept in sync
+    private ghostPiece: Piece;
 
-    constructor(activePiece: Piece, grid?: number[][]) {
+    constructor(activePiece?: Piece, grid?: number[][]) {
         this.grid =
             grid ?? Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-        this.activePiece = activePiece;
-        this.ghostPiece = Board.computeGhost(activePiece, this.grid);
+        this.activePiece = activePiece ?? new Piece(PieceType.T, SPAWN_COOR); //TODO Have an actual random Piece spawn.
+        this.ghostPiece = Board.computeGhost(this.activePiece, this.grid);
     }
 
     getActivePiece() {
@@ -45,8 +45,13 @@ export class Board {
             oldPiece.getComputedCoordinates().forEach(({ x, y }) => {
                 newGrid[y][x] = color;
             });
-            // const nextPiece = //Idk yet how Im doing the next piece implementation.
-            return new Board(board.getGhostPiece(), newGrid);
+
+            //WARNING - THIS SUCKS - BUT MAKING A PURE RANDOM GENERATOR FUNCTION IS BREAKING MY BRAIN
+            const pieceTypes = Object.keys(Shapes) as PieceType[];
+            const randomIndex = Math.floor(Math.random() * pieceTypes.length);
+            const randomPieceType = pieceTypes[randomIndex];
+
+            return new Board(new Piece(randomPieceType, SPAWN_COOR), newGrid);
         }
 
         const newPiece = moves[newInput]();
@@ -89,7 +94,6 @@ export class Board {
             if (!isValid) return candidate;
             candidate = next;
         }
-        return candidate;
     }
 
     private static isCoordinateInBound({ x, y }: Coordinate) {

@@ -114,7 +114,7 @@ describe("Board.handleGameInput LEFT", () => {
         const board = makeBoard(piece);
         const newBoard = Board.handleGameInput(gameInput.LEFT, board);
 
-        expect(countCells(newBoard.getGrid(), GRID_STATES.BLUE)).toBe(4);
+        expect(countCells(newBoard.getGrid(), Shapes[PieceType.T].color)).toBe(4);
     });
 });
 
@@ -145,7 +145,7 @@ describe("Board.handleGameInput RIGHT", () => {
         const board = makeBoard(piece);
         const newBoard = Board.handleGameInput(gameInput.RIGHT, board);
 
-        expect(countCells(newBoard.getGrid(), GRID_STATES.BLUE)).toBe(4);
+        expect(countCells(newBoard.getGrid(), Shapes[PieceType.T].color)).toBe(4);
     });
 });
 
@@ -175,7 +175,7 @@ describe("Board.handleGameInput DOWN", () => {
         const board = makeBoard(piece);
         const newBoard = Board.handleGameInput(gameInput.DOWN, board);
 
-        expect(countCells(newBoard.getGrid(), GRID_STATES.BLUE)).toBe(4);
+        expect(countCells(newBoard.getGrid(), Shapes[PieceType.T].color)).toBe(4);
     });
 });
 
@@ -304,7 +304,7 @@ describe("Grid cell count invariant", () => {
 
         for (const input of inputs) {
             const next = Board.handleGameInput(input, board);
-            expect(countCells(next.getGrid(), GRID_STATES.BLUE)).toBe(4);
+            expect(countCells(next.getGrid(), Shapes[PieceType.I].color)).toBe(4);
             board = next;
         }
     });

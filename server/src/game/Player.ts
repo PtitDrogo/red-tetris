@@ -1,6 +1,5 @@
 import { gameInput } from "../../../shared/types";
 import { Board } from "./Board";
-import { Piece } from "./Piece";
 
 export class Player {
     private socketId: string;
