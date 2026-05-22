@@ -1,4 +1,4 @@
-import { gameInput } from "../../../shared/types";
+import { GameInput } from "../../../shared/types";
 import { Board } from "./Board";
 
 export class Player {
@@ -19,7 +19,7 @@ export class Player {
         return this.board;
     }
 
-    static handleInput(player: Player, input: gameInput): Player {
+    static handleInput(player: Player, input: GameInput): Player {
         const newBoard = Board.handleGameInput(input, player.getBoard());
         return new Player(player.socketId, newBoard);
     }

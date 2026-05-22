@@ -1,5 +1,11 @@
 import { GameInput } from "../../../shared/types";
 
 export function isGameInput(value: unknown): value is GameInput {
-    return typeof value === "number" && value in GameInput;
+    const num = typeof value === "string" ? Number(value) : value;
+
+    return (
+        typeof num === "number" &&
+        !isNaN(num) &&
+        Object.values(GameInput).includes(num)
+    );
 }

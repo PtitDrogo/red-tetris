@@ -1,8 +1,12 @@
 import { Server } from "socket.io";
-import { GameStatus } from "../../../shared/types";
+import { GameStatus, Room } from "../../../shared/types";
 import { roomManager } from "../services/RoomManager";
 import { UpdateManager } from "../services/UpdatesManager";
 import { SocketType } from "../types/types";
+import { gameService } from "../services/GameService";
+import { Game } from "../game/Game";
+import { Player } from "../game/Player";
+import { Board } from "../game/Board";
 
 export class NavigationController {
     static leave(socket: SocketType, io: Server) {
@@ -67,9 +71,19 @@ export class NavigationController {
         if (room.game.status !== GameStatus.WAITING) {
             throw new Error("This game already started");
         }
-        room.game.status = GameStatus.ONGOING;
-        //Add rest of Starting game procedure.
 
+        //This now needs to create a Game object, then run start on it.
+        //It will need a lot of fucking info out of my ass to make that happen.
+        room.game.status = GameStatus.ONGOING;
+
+        const players = room.players.map((player) => {
+            return new Player(player.socketId, new Board())
+        })
+        const newGame = Game.createGame(players, io, room)
+        
         UpdateManager.updateRoomAndLobby(room, io);
+        newGame.start();
     }
+
+    
 }

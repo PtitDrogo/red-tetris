@@ -3,12 +3,24 @@ import { Game } from "../game/Game";
 class GameService {
     private games: Game[];
 
+    constructor() {
+        this.games = [];
+    }
+
     findGame(socketid: string) {
         return this.games.find((game) =>
             game
                 .getPlayers()
                 .some((player) => player.getSocketId() === socketid),
         );
+    }
+
+    addGame(game: Game) {
+        this.games.push(game);
+    }
+
+    removeGame() {
+        //Todo, remove later !
     }
 }
 

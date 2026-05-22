@@ -1,311 +1,126 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { Board } from "./Board";
-import { Piece, PieceType, Shapes } from "./Piece";
+import { describe, it, expect, vi } from "vitest";
+import { Board } from "./Board"; // Adjust path if necessary
+import { Piece, PieceType, SPAWN_COOR } from "./Piece";
+import { GameInput, GRID_STATES } from "../../../shared/types";
 import { COLS, ROWS } from "../../../shared/constants";
-import { gameInput, GRID_STATES } from "../../../shared/types";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+describe("Board Class", () => {
+    // Helper to generate an empty grid
+    const createEmptyGrid = () =>
+        Array.from({ length: ROWS }, () => Array(COLS).fill(GRID_STATES.EMPTY));
 
-/** Build a fresh T-piece spawned at (5, 0) — a safe, central position. */
-function makePiece(
-    type: PieceType = PieceType.T,
-    pivot = { x: 5, y: 5 },
-): Piece {
-    return new Piece(type, pivot);
-}
-
-/** Return a blank Board with the given active piece. */
-function makeBoard(piece: Piece): Board {
-    return new Board(piece);
-}
-
-/**
- * Count how many cells in the grid equal the given state.
- */
-function countCells(grid: number[][], state: GRID_STATES): number {
-    return grid.flat().filter((v) => v === state).length;
-}
-
-// ---------------------------------------------------------------------------
-// Constructor
-// ---------------------------------------------------------------------------
-
-describe("Board constructor", () => {
-    it("creates an empty ROWS×COLS grid when no grid is supplied", () => {
-        const board = makeBoard(makePiece());
-        const grid = board.getGrid();
-
-        expect(grid).toHaveLength(ROWS);
-        grid.forEach((row) => expect(row).toHaveLength(COLS));
-    });
-
-    it("all cells start as GRID_STATES.EMPTY when no grid is supplied", () => {
-        const board = makeBoard(makePiece());
-        const grid = board.getGrid();
-
-        expect(countCells(grid, GRID_STATES.EMPTY)).toBe(ROWS * COLS);
-    });
-
-    it("accepts a custom grid and preserves it", () => {
-        const piece = makePiece();
-        const customGrid = Array.from({ length: ROWS }, () =>
-            Array(COLS).fill(GRID_STATES.BLUE),
-        );
-        const board = new Board(piece, customGrid);
-
-        expect(countCells(board.getGrid(), GRID_STATES.BLUE)).toBe(ROWS * COLS);
-    });
-
-    it("stores the active piece", () => {
-        const piece = makePiece();
-        const board = makeBoard(piece);
-
-        expect(board.getActivePiece()).toBe(piece);
-    });
-});
-
-// ---------------------------------------------------------------------------
-// getGrid — deep-copy contract
-// ---------------------------------------------------------------------------
-
-describe("Board.getGrid", () => {
-    it("returns a deep copy — mutating the returned grid does not affect the board", () => {
-        const board = makeBoard(makePiece());
-        const grid = board.getGrid();
-
-        grid[0][0] = GRID_STATES.BLUE;
-
-        expect(board.getGrid()[0][0]).toBe(GRID_STATES.EMPTY);
-    });
-
-    it("returns a new array reference on every call", () => {
-        const board = makeBoard(makePiece());
-
-        expect(board.getGrid()).not.toBe(board.getGrid());
-    });
-});
-
-// ---------------------------------------------------------------------------
-// handleGameInput — LEFT
-// ---------------------------------------------------------------------------
-
-describe("Board.handleGameInput LEFT", () => {
-    it("moves the active piece one column to the left", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.LEFT, board);
-
-        expect(newBoard.getActivePiece().getPivot().x).toBe(4);
-    });
-
-    it("returns the same board when moving left would go out of bounds", () => {
-        // T-piece at x=0 — leftmost cell at x=-1 would be out of bounds
-        const piece = makePiece(PieceType.T, { x: 1, y: 5 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.LEFT, board);
-
-        expect(newBoard).toBe(board);
-    });
-
-    it("keeps the piece colour cells in the grid after moving", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.LEFT, board);
-
-        expect(countCells(newBoard.getGrid(), Shapes[PieceType.T].color)).toBe(4);
-    });
-});
-
-// ---------------------------------------------------------------------------
-// handleGameInput — RIGHT
-// ---------------------------------------------------------------------------
-
-describe("Board.handleGameInput RIGHT", () => {
-    it("moves the active piece one column to the right", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.RIGHT, board);
-
-        expect(newBoard.getActivePiece().getPivot().x).toBe(6);
-    });
-
-    it("returns the same board when moving right would go out of bounds", () => {
-        // T-piece cells span [-1..+1] relative to pivot; rightmost at pivot.x+1
-        const piece = makePiece(PieceType.T, { x: COLS - 2, y: 5 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.RIGHT, board);
-
-        expect(newBoard).toBe(board);
-    });
-
-    it("keeps the piece colour cells in the grid after moving", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.RIGHT, board);
-
-        expect(countCells(newBoard.getGrid(), Shapes[PieceType.T].color)).toBe(4);
-    });
-});
-
-// ---------------------------------------------------------------------------
-// handleGameInput — DOWN
-// ---------------------------------------------------------------------------
-
-describe("Board.handleGameInput DOWN", () => {
-    it("moves the active piece one row up (y - 1 as implemented)", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.DOWN, board);
-
-        expect(newBoard.getActivePiece().getPivot().y).toBe(6);
-    });
-
-    it("returns the same board when moving down would go out of bounds (y < 0)", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: ROWS - 2 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.DOWN, board);
-
-        expect(newBoard).toBe(board);
-    });
-
-    it("keeps the piece colour cells in the grid after moving", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        const board = makeBoard(piece);
-        const newBoard = Board.handleGameInput(gameInput.DOWN, board);
-
-        expect(countCells(newBoard.getGrid(), Shapes[PieceType.T].color)).toBe(4);
-    });
-});
-
-// ---------------------------------------------------------------------------
-// handleGameInput — SPACE (rotate)
-// ---------------------------------------------------------------------------
-
-// describe("Board.handleGameInput SPACE (rotate)", () => {
-//     it("rotates the active piece", () => {
-//         const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-//         const board = makeBoard(piece);
-//         const newBoard = Board.handleGameInput(gameInput.SPACE, board);
-
-//         const originalCells = piece.getCells();
-//         const rotatedCells = newBoard.getActivePiece().getCells();
-
-//         expect(rotatedCells).not.toEqual(originalCells);
-//     });
-
-//     it("O-piece does not change cells after rotation", () => {
-//         const piece = makePiece(PieceType.O, { x: 5, y: 5 });
-//         const board = makeBoard(piece);
-//         const newBoard = Board.handleGameInput(gameInput.SPACE, board);
-
-//         expect(newBoard.getActivePiece().getCells()).toEqual(piece.getCells());
-//     });
-
-//     it("pivot stays unchanged after rotation", () => {
-//         const pivot = { x: 5, y: 5 };
-//         const piece = makePiece(PieceType.T, pivot);
-//         const board = makeBoard(piece);
-//         const newBoard = Board.handleGameInput(gameInput.SPACE, board);
-
-//         expect(newBoard.getActivePiece().getPivot()).toEqual(pivot);
-//     });
-
-//     it("keeps exactly 4 coloured cells in the grid after rotating", () => {
-//         const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-//         const board = makeBoard(piece);
-//         const newBoard = Board.handleGameInput(gameInput.SPACE, board);
-
-//         expect(countCells(newBoard.getGrid(), GRID_STATES.BLUE)).toBe(4);
-//     });
-
-//     it("returns same board if rotation would move piece out of bounds", () => {
-//         // Push the T piece to the far right so a rotation cell goes out of bounds
-//         const piece = makePiece(PieceType.T, { x: COLS - 1, y: 5 });
-//         const board = makeBoard(piece);
-//         const newBoard = Board.handleGameInput(gameInput.SPACE, board);
-
-//         // Either it stays as-is, or the pivot is unchanged — either way the
-//         // original board reference is returned when invalid.
-//         expect(newBoard).toBe(board);
-//     });
-// });
-
-// ---------------------------------------------------------------------------
-// handleGameInput — collision with locked cells
-// ---------------------------------------------------------------------------
-
-describe("Board.handleGameInput — collision with existing filled cells", () => {
-    it("does not move into a cell already occupied by another colour", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        // Manually build a grid with a blocking cell directly to the left
-        const grid = Array.from({ length: ROWS }, () =>
-            Array(COLS).fill(GRID_STATES.EMPTY),
-        );
-        // Block the cells the piece would land on after moving left
-        const leftPiece = Piece.left(piece);
-        leftPiece.getComputedCoordinates().forEach(({ x, y }) => {
-            grid[y][x] = GRID_STATES.BLUE;
+    describe("Constructor & Initialization", () => {
+        it("should initialize with default parameters", () => {
+            const board = new Board();
+            expect(board.getActivePiece()).toBeInstanceOf(Piece);
+            expect(board.getLockedGrid()).toHaveLength(20);
+            expect(board.getLockedGrid()[0]).toHaveLength(10);
         });
 
-        const board = new Board(piece, grid);
-        const newBoard = Board.handleGameInput(gameInput.LEFT, board);
+        it("should use the provided active piece and grid layout", () => {
+            const customPiece = new Piece(PieceType.I, { x: 3, y: 3 });
+            const customGrid = createEmptyGrid();
+            customGrid[19][0] = GRID_STATES.RED; // Place a block at the bottom-left
 
-        // The board must be returned unchanged because the destination is occupied
-        expect(newBoard).toBe(board);
-    });
-});
-
-// ---------------------------------------------------------------------------
-// Immutability — original board is never mutated
-// ---------------------------------------------------------------------------
-
-describe("Board immutability", () => {
-    it("handleGameInput never mutates the original board's grid", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        const board = makeBoard(piece);
-        const gridBefore = board.getGrid();
-
-        Board.handleGameInput(gameInput.LEFT, board);
-        Board.handleGameInput(gameInput.RIGHT, board);
-        Board.handleGameInput(gameInput.DOWN, board);
-        // Board.handleGameInput(gameInput.SPACE, board);
-
-        expect(board.getGrid()).toEqual(gridBefore);
+            const board = new Board(customPiece, customGrid);
+            expect(board.getActivePiece().getType()).toBe(PieceType.I);
+            expect(board.getActivePiece().getPivot()).toEqual({ x: 3, y: 3 });
+            expect(board.getLockedGrid()[19][0]).toBe(GRID_STATES.RED);
+        });
     });
 
-    it("handleGameInput never mutates the original board's active piece", () => {
-        const piece = makePiece(PieceType.T, { x: 5, y: 5 });
-        const board = makeBoard(piece);
+    describe("Grid Rendering (getFullGrid)", () => {
+        it("should correctly layer the ghost piece and active piece over the locked grid", () => {
+            // Setup a clean board with a T-piece spawned at {5, 0}
+            // A T-piece at {5,0} with cells [{-1,0}, {0,0}, {1,0}, {0,1}] will occupy:
+            // (4,0), (5,0), (6,0) and (5,1)
+            const activePiece = new Piece(PieceType.T, { x: 5, y: 0 });
+            const grid = createEmptyGrid();
 
-        Board.handleGameInput(gameInput.LEFT, board);
+            // Lock a block at the bottom center to catch the ghost piece early
+            grid[5][5] = GRID_STATES.RED;
 
-        expect(board.getActivePiece().getPivot()).toEqual({ x: 5, y: 5 });
+            const board = new Board(activePiece, grid);
+            const fullGrid = board.getFullGrid();
+
+            // 1. Verify Active Piece color placement (T-piece is GRID_STATES.GREEN)
+            expect(fullGrid[0][4]).toBe(GRID_STATES.GREEN);
+            expect(fullGrid[0][5]).toBe(GRID_STATES.GREEN);
+            expect(fullGrid[0][6]).toBe(GRID_STATES.GREEN);
+            expect(fullGrid[1][5]).toBe(GRID_STATES.GREEN);
+
+            // 2. Verify Ghost Piece placement
+            // With a blocker at (5,5), the T-piece can only drop down until its lowest cell (5,1) hits above it.
+            // So the lowest cell of the ghost piece will sit at (5,4).
+            // This means the ghost pivot is at { x: 5, y: 3 }
+            // Ghost cells: (4,3), (5,3), (6,3), and (5,4)
+            expect(fullGrid[3][4]).toBe(GRID_STATES.GHOST);
+            expect(fullGrid[3][5]).toBe(GRID_STATES.GHOST);
+            expect(fullGrid[3][6]).toBe(GRID_STATES.GHOST);
+            expect(fullGrid[4][5]).toBe(GRID_STATES.GHOST);
+
+            // 3. Verify Existing Locked Blocks remain untouched
+            expect(fullGrid[5][5]).toBe(GRID_STATES.RED);
+        });
     });
-});
 
-// ---------------------------------------------------------------------------
-// Grid cell count invariant
-// ---------------------------------------------------------------------------
+    describe("Game Input Processing (handleGameInput)", () => {
+        it("should return a new board state on a valid movement input (LEFT)", () => {
+            const initialPiece = new Piece(PieceType.T, { x: 5, y: 5 });
+            const board = new Board(initialPiece);
 
-describe("Grid cell count invariant", () => {
-    it("always has exactly 4 coloured cells after any valid move sequence", () => {
-        let board = makeBoard(makePiece(PieceType.I, { x: 5, y: 5 }));
+            const nextBoard = Board.handleGameInput(GameInput.LEFT, board);
 
-        const inputs = [
-            gameInput.LEFT,
-            gameInput.RIGHT,
-            gameInput.RIGHT,
-            // gameInput.SPACE,
-            gameInput.DOWN,
-            gameInput.LEFT,
-        ];
+            // Functional check: Board should be a completely separate instance
+            expect(nextBoard).not.toBe(board);
+            expect(nextBoard.getActivePiece().getPivot().x).toBe(4);
+        });
 
-        for (const input of inputs) {
-            const next = Board.handleGameInput(input, board);
-            expect(countCells(next.getGrid(), Shapes[PieceType.I].color)).toBe(4);
-            board = next;
-        }
+        it("should return a new board state on a valid rotation input (ROTATE)", () => {
+            const initialPiece = new Piece(PieceType.T, { x: 5, y: 5 });
+            const board = new Board(initialPiece);
+
+            const nextBoard = Board.handleGameInput(GameInput.ROTATE, board);
+
+            // Check that cells transformed correctly away from their original layouts
+            expect(nextBoard.getActivePiece().getCells()).not.toEqual(
+                initialPiece.getCells(),
+            );
+        });
+
+        it("should return the exact same board reference if a movement breaks wall boundaries", () => {
+            // Push a piece right up against the left wall
+            const initialPiece = new Piece(PieceType.T, { x: 1, y: 5 }); // Cell at x=-1 makes total X = 0
+            const board = new Board(initialPiece);
+
+            // Attempting to go left further will step out of bounds (x = -1)
+            const nextBoard = Board.handleGameInput(GameInput.LEFT, board);
+
+            expect(nextBoard).toBe(board); // Returns identical instance
+        });
+
+        it("should return the exact same board reference if a movement collides with locked blocks", () => {
+            const initialPiece = new Piece(PieceType.T, { x: 5, y: 5 });
+            const grid = createEmptyGrid();
+            grid[5][3] = GRID_STATES.RED; // Place barrier immediately to the left of the piece cluster
+
+            const board = new Board(initialPiece, grid);
+            const nextBoard = Board.handleGameInput(GameInput.LEFT, board);
+
+            expect(nextBoard).toBe(board);
+        });
+    });
+
+    describe("Boundary and Collision Utilities", () => {
+        // We evaluate ghost generation behavior indirectly to hit full branch coverage
+        // on the internal static `computeGhost` loop conditions.
+        it("should drop the ghost piece cleanly to the floor when no blocks are present", () => {
+            const activePiece = new Piece(PieceType.T, { x: 5, y: 0 });
+            const board = new Board(activePiece);
+
+            // Bottom row is index 19. Lowest cell of T piece is y + 1.
+            // So if pivot y=18, lowest cell is 19 (perfect fit at the floor).
+            expect(board.getGhostPiece().getPivot().y).toBe(ROWS - 2);
+        });
     });
 });

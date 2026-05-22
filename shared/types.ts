@@ -12,7 +12,7 @@ export enum ClientMessage {
     PLAYER_INPUT = "i",
 }
 
-export enum gameInput {
+export enum GameInput {
     LEFT = 0,
     RIGHT = 1,
     DOWN = 2,
@@ -49,11 +49,21 @@ export type LobbyPlayers = {
     //Maybe more stuff idk, so far this is frontend stuff, only the frontend might care about this.
 };
 
-export enum GRID_STATES  {
-    EMPTY= 0,
-    RED= 1,
-    BLUE= 2,
-    GREEN= 3,
-    ORANGE= 4,
+export enum GRID_STATES {
+    EMPTY = 0,
+    RED = 1,
+    BLUE = 2,
+    GREEN = 3,
+    ORANGE = 4,
+    GHOST = 10,
     //Whatever colors we are using add them here.
 }
+
+export type GameState = {
+    //Could be lots of thing in there, adding as I go.
+    players: {
+        name: string;
+        score: string;
+        board: number[][];
+    }[];
+};
