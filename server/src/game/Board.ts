@@ -6,6 +6,7 @@ export class Board {
     private lockedGrid: number[][];
     private activePiece: Piece;
     private ghostPiece: Piece;
+    private isDead: boolean = false;
 
     constructor(activePiece?: Piece, grid?: number[][]) {
         this.lockedGrid =
@@ -15,10 +16,16 @@ export class Board {
             );
         this.activePiece = activePiece ?? new Piece(PieceType.T, SPAWN_COOR); //TODO implement bag system
         this.ghostPiece = Board.computeGhost(this.activePiece, this.lockedGrid);
+
+        this.lockedGrid = Board.handleNewGameState(this.lockedGrid);
     }
 
     getActivePiece() {
         return this.activePiece;
+    }
+
+    getIsDead() {
+        return this.isDead;
     }
 
     getFullGrid(): number[][] {
@@ -45,15 +52,46 @@ export class Board {
         return this.ghostPiece;
     }
 
+    //Todo, make the checking of the bool pure somehow later.
+    private static handleNewGameState(grid: number[][]): number[][] {
+        //Main idea, when you create a new board, youll be given a grid, but maybe
+        //the board will be wrong, the piece will be clashing with currently existing
+        // Cells.
+        //So we try to push it up top by one.
+        //If we cant push it by one, probably means its gg
+        //Also - If theres a full grid, we get rid of it
+        //What we do first is the check for if its clashing with the grid.
+
+        //I have 12 minutes Im doing the line check first.
+
+        grid.map((line) => {
+            const isFull = line.every((cell) => {
+                cell !== GRID_STATES.EMPTY && cell !== GRID_STATES.GHOST;
+            });
+        });
+
+        const filteredRows = grid.filter((row) =>
+            row.every(
+                (cell) =>
+                    cell !== GRID_STATES.EMPTY && cell !== GRID_STATES.GHOST,
+            ),
+        );
+
+        const numRemovedRows = grid.length - filteredRows.length;
+
+        const emptyRows = Array.from({ length: numRemovedRows }, () =>
+            new Array(COLS).fill(GRID_STATES.EMPTY),
+        );
+        //Also need to handle that the other board are going to be penalized by me owning.
+
+        return [...emptyRows, ...filteredRows];
+    }
+
     //This either returns a Board with the new Piece and returns the board unchanged if newPiece isnt valid.
     static handleGameInput(newInput: GameInput, board: Board): Board {
         const oldPiece = board.getActivePiece();
-        console.log("In HandleGameInput");
-        console.log(`Game input with value ${newInput} is now compared to the value ${GameInput.SPACE}`)
-        console.log(`${typeof newInput} is type of newInput - ${typeof GameInput.SPACE} is type of enum`)
 
         if (newInput === GameInput.SPACE) {
-            console.log("In Space handler");
             const newLocked = board.getLockedGrid();
             board
                 .getGhostPiece()
@@ -63,16 +101,10 @@ export class Board {
                 });
             const pieceTypes = Object.keys(Shapes) as PieceType[];
             const randomPieceType =
-                pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
+                pieceTypes[Math.floor(Math.random() * pieceTypes.length)]; //TODO, remove math.random().
             const newBoard = new Board(
                 new Piece(randomPieceType, SPAWN_COOR),
                 newLocked,
-            );
-            console.log("NewBoard full grid = ", newBoard.getFullGrid());
-            console.log("Get locked grid = ", newBoard.getLockedGrid());
-            console.log(
-                "Active Piece Data",
-                JSON.stringify(newBoard.getActivePiece, null, 2),
             );
             return newBoard;
         }
@@ -95,8 +127,7 @@ export class Board {
             );
 
         if (!isValid) return board;
-        console.log("Did I get all the way here ?");
-        console.log(newPiece);
+
         return new Board(newPiece, board.getLockedGrid());
     }
 

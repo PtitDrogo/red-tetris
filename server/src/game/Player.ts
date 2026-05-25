@@ -4,9 +4,11 @@ import { Board } from "./Board";
 export class Player {
     private socketId: string;
     private board: Board;
+    private isDead: boolean;
     //Lots more data later here.
 
-    constructor(socketId: string, board: Board) {
+    constructor(isDead: boolean, socketId: string, board: Board) {
+        this.isDead = isDead;
         this.socketId = socketId;
         this.board = board;
     }
@@ -19,8 +21,15 @@ export class Player {
         return this.board;
     }
 
+    getIsDead() {
+        return this.isDead
+    }
+
     static handleInput(player: Player, input: GameInput): Player {
+        if (player.getIsDead()) {
+            return player;
+        }
         const newBoard = Board.handleGameInput(input, player.getBoard());
-        return new Player(player.socketId, newBoard);
+        return new Player(newBoard.getIsDead(), player.socketId, newBoard);
     }
 }

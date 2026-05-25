@@ -173,23 +173,26 @@ export class Piece {
     }
 
     static down(piece: Piece): Piece {
-        return new Piece(piece.type, {
-            x: piece.pivot.x,
-            y: piece.pivot.y + 1,
-        });
+        return new Piece(
+            piece.type,
+            { x: piece.pivot.x, y: piece.pivot.y + 1 },
+            piece.cells,
+        );
     }
 
     static left(piece: Piece): Piece {
-        return new Piece(piece.type, {
-            x: piece.pivot.x - 1,
-            y: piece.pivot.y,
-        });
+        return new Piece(
+            piece.type,
+            { x: piece.pivot.x - 1, y: piece.pivot.y },
+            piece.cells,
+        );
     }
 
     static right(piece: Piece): Piece {
-        return new Piece(piece.type, {
-            x: piece.pivot.x + 1,
-            y: piece.pivot.y,
-        });
+        return new Piece(
+            piece.type,
+            { x: piece.pivot.x + 1, y: piece.pivot.y },
+            piece.cells,
+        );
     }
 }
