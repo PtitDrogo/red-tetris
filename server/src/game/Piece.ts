@@ -17,7 +17,7 @@ export type Coordinate = {
 
 export const SPAWN_COOR: Coordinate = {
     x: 5,
-    y: 0,
+    y: 1,
 };
 
 export const Shapes: Record<
@@ -27,8 +27,8 @@ export const Shapes: Record<
     //□□□□
     [PieceType.I]: {
         cells: [
-            { x: -1, y: 0 },
             { x: 0, y: 0 },
+            { x: -1, y: 0 },
             { x: 1, y: 0 },
             { x: 2, y: 0 },
         ],
@@ -47,26 +47,28 @@ export const Shapes: Record<
         color: GRID_STATES.GREEN,
     },
 
+    // □
     // □□□
-    //   □
+
     [PieceType.J]: {
         cells: [
+            { x: -1, y: -1 },
             { x: -1, y: 0 },
             { x: 0, y: 0 },
             { x: 1, y: 0 },
-            { x: 1, y: 1 },
         ],
         color: GRID_STATES.ORANGE,
     },
 
+    //   □
     // □□□
-    // □
+
     [PieceType.L]: {
         cells: [
             { x: -1, y: 0 },
             { x: 0, y: 0 },
             { x: 1, y: 0 },
-            { x: -1, y: 1 },
+            { x: +1, y: -1 },
         ],
         color: GRID_STATES.RED,
     },
@@ -75,10 +77,10 @@ export const Shapes: Record<
     // □□
     [PieceType.S]: {
         cells: [
+            { x: -1, y: 0 },
             { x: 0, y: 0 },
-            { x: 1, y: 0 },
-            { x: -1, y: 1 },
-            { x: 0, y: 1 },
+            { x: 0, y: -1 },
+            { x: 1, y: -1 },
         ],
         color: GRID_STATES.GREEN,
     },
@@ -87,22 +89,23 @@ export const Shapes: Record<
     //  □□
     [PieceType.Z]: {
         cells: [
-            { x: -1, y: 0 },
+            { x: -1, y: -1 },
+            { x: 0, y: -1 },
             { x: 0, y: 0 },
-            { x: 0, y: 1 },
-            { x: 1, y: 1 },
+            { x: 1, y: 0 },
         ],
         color: GRID_STATES.ORANGE,
     },
 
-    // □□□
     //  □
+    // □□□
+
     [PieceType.T]: {
         cells: [
             { x: -1, y: 0 },
             { x: 0, y: 0 },
             { x: 1, y: 0 },
-            { x: 0, y: 1 },
+            { x: 0, y: -1 },
         ],
         color: GRID_STATES.GREEN,
     },
