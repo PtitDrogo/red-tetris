@@ -71,7 +71,7 @@ export class Game {
                 players: playersData,
             };
 
-            this.io.to(this.roomId).emit(ServerMessage.GAME_STATE, gameUpdate); //What the fuck will this.players even return, [Object/Object] ????
+            this.io.to(this.roomId).emit(ServerMessage.GAME_STATE, gameUpdate);
         }, UPDATE_DELAY_MS);
     }
 }
