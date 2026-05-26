@@ -141,13 +141,18 @@ export class Piece {
     }
 
     //This may be out of bound, as it doesnt know what board is.
-    getComputedCoordinates() {
-        const computedCoordinates: Coordinate[] = this.cells.map((cell) => {
-            return {
-                x: this.pivot.x + cell.x,
-                y: this.pivot.y + cell.y,
-            };
-        });
+    static getComputedCoordinates(
+        pivot: Coordinate,
+        coordinates: Coordinate[],
+    ) {
+        const computedCoordinates: Coordinate[] = coordinates.map(
+            (coordinate) => {
+                return {
+                    x: pivot.x + coordinate.x,
+                    y: pivot.y + coordinate.y,
+                };
+            },
+        );
         return computedCoordinates;
     }
 

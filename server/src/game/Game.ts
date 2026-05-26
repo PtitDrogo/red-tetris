@@ -31,9 +31,10 @@ export class Game {
     }
 
     handleGameInput(newInput: GameInput, socketId: string) {
+        const currTime = Date.now()
         this.players = this.players.map((player) =>
             player.getSocketId() === socketId
-                ? Player.handleInput(player, newInput)
+                ? Player.handleInput(player, newInput, currTime)
                 : player,
         );
 
@@ -58,6 +59,10 @@ export class Game {
             }
         */
         //I technically only need the RoomId and the Server.
+        if (this.players.length === 0) {
+            throw new Error("Cannot start a game with no players")
+        }
+
 
         this.gameLoop = setInterval(() => {
             const playersData = this.players.map((player) => {
@@ -70,6 +75,10 @@ export class Game {
             const gameUpdate: GameState = {
                 players: playersData,
             };
+
+
+
+
 
             this.io.to(this.roomId).emit(ServerMessage.GAME_STATE, gameUpdate);
         }, UPDATE_DELAY_MS);

@@ -4,13 +4,12 @@ import { Board } from "./Board";
 export class Player {
     private socketId: string;
     private board: Board;
-    private isDead: boolean;
     //Lots more data later here.
 
-    constructor(isDead: boolean, socketId: string, board: Board) {
-        this.isDead = isDead;
+    constructor(socketId: string, board: Board) {
         this.socketId = socketId;
         this.board = board;
+        console.log(`Heres my board ${JSON.stringify(this.board, null, 2)}`);
     }
 
     getSocketId() {
@@ -21,15 +20,19 @@ export class Player {
         return this.board;
     }
 
-    getIsDead() {
-        return this.isDead
-    }
-
-    static handleInput(player: Player, input: GameInput): Player {
-        if (player.getIsDead()) {
+    static handleInput(
+        player: Player,
+        input: GameInput,
+        currTime: number,
+    ): Player {
+        if (!player.getBoard().getIsAlive()) {
             return player;
         }
-        const newBoard = Board.handleGameInput(input, player.getBoard());
-        return new Player(newBoard.getIsDead(), player.socketId, newBoard);
+        const newBoard = Board.handleGameInput(
+            input,
+            player.getBoard(),
+            currTime,
+        );
+        return new Player(player.socketId, newBoard);
     }
 }
