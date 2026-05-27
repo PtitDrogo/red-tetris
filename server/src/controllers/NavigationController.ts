@@ -77,7 +77,7 @@ export class NavigationController {
         room.game.status = GameStatus.ONGOING;
 
         const players = room.players.map((player) => {
-            return new Player(player.socketId, new Board(Date.now()));
+            return new Player(player.socketId, new Board(), 0);
         });
         const newGame = Game.createGame(players, io, room);
 

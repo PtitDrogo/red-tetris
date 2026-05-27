@@ -14,6 +14,7 @@ const UPDATE_DELAY_MS = 100;
 
 export class Game {
     private players: Player[];
+    private speed: number = 1200; //Make this dynamic later //This the time between each down press by the game Loop. big = easy, low = hard.
     private seed: PRNG;
     private io: Server;
     private roomId: string;
@@ -30,57 +31,71 @@ export class Game {
         return this.players;
     }
 
+    getSpeed() {
+        return this.speed;
+    }
+
+    private sendDataToPlayers() {
+        const playersData = this.players.map((player) => {
+            return {
+                name: "PlayerTest",
+                score: "ScoreTest",
+                board: player.getBoard().getFullGrid(),
+                isAlive: player.getBoard().getIsAlive(),
+            };
+        });
+        const gameUpdate: GameState = {
+            players: playersData,
+        };
+        this.io.to(this.roomId).emit(ServerMessage.GAME_STATE, gameUpdate);
+    }
+
     handleGameInput(newInput: GameInput, socketId: string) {
-        const currTime = Date.now()
+        const currTime = Date.now();
         this.players = this.players.map((player) =>
             player.getSocketId() === socketId
                 ? Player.handleInput(player, newInput, currTime)
                 : player,
         );
 
-        console.log(
-            "Handle game input now has players:",
-            JSON.stringify(this.players, null, 2),
-        );
+        this.sendDataToPlayers();
     }
 
     static createGame(players: Player[], io: Server, room: Room) {
         const newGame = new Game(players, "RandomString", io, room.id);
-        const gameManager = gameService.addGame(newGame);
+        gameService.addGame(newGame);
         return newGame;
     }
 
     start() {
-        //End goal, Sending updates to a bunch of sockets.
-        //Presumabely with the same update method ->
-        /*
-            static updateRoom(room: Room, io: Server) {
-                io.to(room.id).emit(ServerMessage.ROOM_STATE, room /data);
-            }
-        */
-        //I technically only need the RoomId and the Server.
         if (this.players.length === 0) {
-            throw new Error("Cannot start a game with no players")
+            throw new Error("Cannot start a game with no players");
         }
 
+        this.sendDataToPlayers();
+
+        //Put this in an INIT Function later if it gets too long
+        this.players.forEach((player) => {
+            const currTime = Date.now();
+            player.setLastDownTime(currTime);
+        });
 
         this.gameLoop = setInterval(() => {
-            const playersData = this.players.map((player) => {
-                return {
-                    name: "PlayerTest",
-                    score: "ScoreTest",
-                    board: player.getBoard().getFullGrid(),
-                };
+            const currTime = Date.now();
+            let didUpdate = false;
+
+            this.players = this.players.map((player) => {
+                if (currTime - player.getLastDownTime() > this.getSpeed()) {
+                    didUpdate = true;
+                    return Player.handleInput(player, GameInput.DOWN, currTime);
+                }
+                return player;
             });
-            const gameUpdate: GameState = {
-                players: playersData,
-            };
 
-
-
-
-
-            this.io.to(this.roomId).emit(ServerMessage.GAME_STATE, gameUpdate);
+            if (didUpdate) {
+                console.log("Im updating !");
+                this.sendDataToPlayers();
+            }
         }, UPDATE_DELAY_MS);
     }
 }

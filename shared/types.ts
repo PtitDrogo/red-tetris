@@ -65,5 +65,6 @@ export type GameState = {
         name: string;
         score: string;
         board: number[][];
+        isAlive: boolean;
     }[];
 };

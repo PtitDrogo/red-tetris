@@ -4,12 +4,14 @@ import { Board } from "./Board";
 export class Player {
     private socketId: string;
     private board: Board;
+    private lastDowntime: number;
     //Lots more data later here.
 
-    constructor(socketId: string, board: Board) {
+    constructor(socketId: string, board: Board, lastDownTime: number) {
         this.socketId = socketId;
         this.board = board;
-        console.log(`Heres my board ${JSON.stringify(this.board, null, 2)}`);
+        this.lastDowntime = lastDownTime
+        // console.log(`Heres my board ${JSON.stringify(this.board, null, 2)}`);
     }
 
     getSocketId() {
@@ -20,6 +22,14 @@ export class Player {
         return this.board;
     }
 
+    getLastDownTime() {
+        return this.lastDowntime;
+    }
+
+    setLastDownTime(newTime: number) {
+        this.lastDowntime = newTime;
+    }
+
     static handleInput(
         player: Player,
         input: GameInput,
@@ -28,11 +38,12 @@ export class Player {
         if (!player.getBoard().getIsAlive()) {
             return player;
         }
-        const newBoard = Board.handleGameInput(
-            input,
-            player.getBoard(),
-            currTime,
-        );
-        return new Player(player.socketId, newBoard);
+
+        const newBoard = Board.handleGameInput(input, player.getBoard());
+        const newPlayer = new Player(player.socketId, newBoard, player.getLastDownTime());
+        if (input === GameInput.DOWN) {
+            newPlayer.setLastDownTime(currTime);
+        }
+        return newPlayer;
     }
 }

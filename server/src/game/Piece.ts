@@ -117,9 +117,9 @@ export class Piece {
     private cells: Coordinate[];
     private color: GRID_STATES;
 
-    constructor(piece: PieceType, pivot: Coordinate, cells?: Coordinate[]) {
+    constructor(piece: PieceType, pivot?: Coordinate, cells?: Coordinate[]) {
         this.type = piece;
-        this.pivot = pivot;
+        this.pivot = pivot ?? SPAWN_COOR;
         this.cells = cells ?? Shapes[piece].cells;
         this.color = Shapes[piece].color;
     }
@@ -142,9 +142,12 @@ export class Piece {
 
     //This may be out of bound, as it doesnt know what board is.
     static getComputedCoordinates(
-        pivot: Coordinate,
-        coordinates: Coordinate[],
+        piece: Piece,
+        newPivot?: Coordinate,
+        newCoordinates?: Coordinate[],
     ) {
+        const coordinates = newCoordinates ?? piece.getCells();
+        const pivot = newPivot ?? piece.getPivot();
         const computedCoordinates: Coordinate[] = coordinates.map(
             (coordinate) => {
                 return {

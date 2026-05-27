@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
-//Thank you claude for this beautiful Test Tetris - I am a prompt engineer
-
 // ─── Enums (mirrored from backend) ────────────────────────────────────────────
 
 const ServerMessage = {
@@ -75,12 +73,13 @@ function StatusBadge({ status }) {
 
 // ─── Tetris board ──────────────────────────────────────────────────────────────
 
-function TetrisBoard({ board, playerName }) {
+function TetrisBoard({ board, playerName, isAlive }) {
     if (!board || board.length === 0) return null;
 
     const rows = board.length;
     const cols = board[0].length;
     const CELL = 28;
+    const dead = isAlive === false;
 
     return (
         <div
@@ -95,56 +94,104 @@ function TetrisBoard({ board, playerName }) {
                 style={{
                     fontFamily: "'Share Tech Mono', monospace",
                     fontSize: 13,
-                    color: "#94a3b8",
+                    color: dead ? "#ef4444" : "#94a3b8",
                     letterSpacing: 2,
                     textTransform: "uppercase",
                 }}
             >
                 {playerName}
             </span>
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateRows: `repeat(${rows}, ${CELL}px)`,
-                    gridTemplateColumns: `repeat(${cols}, ${CELL}px)`,
-                    gap: 1,
-                    background: "#0f172a",
-                    border: "1px solid #1e293b",
-                    borderRadius: 4,
-                    padding: 4,
-                    boxShadow:
-                        "0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5)",
-                }}
-            >
-                {board.map((row, r) =>
-                    row.map((cell, c) => {
-                        const color = CELL_COLORS[cell] ?? "#1e293b";
-                        const isGhost = cell === 10;
-                        const isEmpty = cell === 0;
-                        return (
-                            <div
-                                key={`${r}-${c}`}
-                                style={{
-                                    width: CELL,
-                                    height: CELL,
-                                    background: isEmpty ? "#0f172a" : color,
-                                    border: isGhost
-                                        ? GHOST_BORDER[10]
-                                        : isEmpty
-                                          ? "1px solid #1e293b"
-                                          : `1px solid ${color}cc`,
-                                    borderRadius: 2,
-                                    boxShadow:
-                                        !isEmpty && !isGhost
-                                            ? `inset 2px 2px 4px rgba(255,255,255,0.15), inset -1px -1px 3px rgba(0,0,0,0.4), 0 0 6px ${color}55`
-                                            : "none",
-                                    transition: "background 0.05s",
-                                }}
-                            />
-                        );
-                    }),
+            <div style={{ position: "relative" }}>
+                {dead && (
+                    <div
+                        style={{
+                            position: "absolute",
+                            inset: 0,
+                            zIndex: 10,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            background: "rgba(6, 11, 20, 0.82)",
+                            borderRadius: 4,
+                            backdropFilter: "blur(2px)",
+                            gap: 6,
+                        }}
+                    >
+                        <span
+                            style={{
+                                fontFamily: "'Share Tech Mono', monospace",
+                                fontSize: 22,
+                                fontWeight: 700,
+                                color: "#ef4444",
+                                letterSpacing: 6,
+                                textShadow:
+                                    "0 0 20px #ef4444, 0 0 40px #ef444488",
+                                animation: "pulse 1.4s ease-in-out infinite",
+                            }}
+                        >
+                            GAME OVER
+                        </span>
+                        <span
+                            style={{
+                                fontFamily: "'Share Tech Mono', monospace",
+                                fontSize: 11,
+                                color: "#64748b",
+                                letterSpacing: 3,
+                            }}
+                        >
+                            {playerName}
+                        </span>
+                    </div>
                 )}
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateRows: `repeat(${rows}, ${CELL}px)`,
+                        gridTemplateColumns: `repeat(${cols}, ${CELL}px)`,
+                        gap: 1,
+                        background: "#0f172a",
+                        border: `1px solid ${dead ? "#7f1d1d" : "#1e293b"}`,
+                        borderRadius: 4,
+                        padding: 4,
+                        boxShadow: dead
+                            ? "0 0 40px rgba(239,68,68,0.2), inset 0 0 20px rgba(0,0,0,0.5)"
+                            : "0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.5)",
+                        opacity: dead ? 0.6 : 1,
+                        transition: "opacity 0.3s, border-color 0.3s",
+                    }}
+                >
+                    {board.map((row, r) =>
+                        row.map((cell, c) => {
+                            const color = CELL_COLORS[cell] ?? "#1e293b";
+                            const isGhost = cell === 10;
+                            const isEmpty = cell === 0;
+                            return (
+                                <div
+                                    key={`${r}-${c}`}
+                                    style={{
+                                        width: CELL,
+                                        height: CELL,
+                                        background: isEmpty ? "#0f172a" : color,
+                                        border: isGhost
+                                            ? GHOST_BORDER[10]
+                                            : isEmpty
+                                              ? "1px solid #1e293b"
+                                              : `1px solid ${color}cc`,
+                                        borderRadius: 2,
+                                        boxShadow:
+                                            !isEmpty && !isGhost
+                                                ? `inset 2px 2px 4px rgba(255,255,255,0.15), inset -1px -1px 3px rgba(0,0,0,0.4), 0 0 6px ${color}55`
+                                                : "none",
+                                        transition: "background 0.05s",
+                                    }}
+                                />
+                            );
+                        }),
+                    )}
+                </div>
             </div>
+            {/* end position:relative wrapper */}
         </div>
     );
 }
@@ -230,6 +277,7 @@ export default function TestGame({ socket }) {
             ) {
                 e.preventDefault();
             }
+            if (e.key === "ArrowUp" && e.repeat) return;
             switch (e.key) {
                 case "ArrowLeft":
                     sendInput(GameInput.LEFT);
@@ -340,8 +388,14 @@ export default function TestGame({ socket }) {
                 fontFamily: "'Share Tech Mono', monospace",
             }}
         >
-            {/* Google font import */}
-            <style>{`@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');`}</style>
+            {/* Google font import + keyframes */}
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.4; }
+                }
+            `}</style>
 
             {/* Header */}
             <div
@@ -422,6 +476,7 @@ export default function TestGame({ socket }) {
                             <TetrisBoard
                                 board={p.board}
                                 playerName={String(p.name)}
+                                isAlive={p.isAlive}
                             />
                             <div
                                 style={{
