@@ -81,6 +81,7 @@ export class NavigationController {
                 player.socketId,
                 new Board(seed, Object.values(PieceType)),
                 0,
+                0,
             );
         });
         const newGame = Game.createGame(players, io, room);

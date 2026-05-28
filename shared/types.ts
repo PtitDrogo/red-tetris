@@ -63,7 +63,7 @@ export type GameState = {
     //Could be lots of thing in there, adding as I go.
     players: {
         name: string;
-        score: string;
+        score: number;
         board: number[][];
         isAlive: boolean;
     }[];

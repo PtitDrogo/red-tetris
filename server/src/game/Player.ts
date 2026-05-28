@@ -5,13 +5,18 @@ export class Player {
     private socketId: string;
     private board: Board;
     private lastDowntime: number;
-    //Lots more data later here.
+    private points: number;
 
-    constructor(socketId: string, board: Board, lastDownTime: number) {
+    constructor(
+        socketId: string,
+        board: Board,
+        lastDownTime: number,
+        points: number,
+    ) {
         this.socketId = socketId;
         this.board = board;
         this.lastDowntime = lastDownTime;
-        // console.log(`Heres my board ${JSON.stringify(this.board, null, 2)}`);
+        this.points = points;
     }
 
     getSocketId() {
@@ -20,6 +25,10 @@ export class Player {
 
     getBoard() {
         return this.board;
+    }
+
+    getPoints() {
+        return this.points;
     }
 
     getLastDownTime() {
@@ -50,6 +59,7 @@ export class Player {
             player.socketId,
             newBoard.board,
             player.getLastDownTime(),
+            player.getPoints() + newBoard.board.getClearedLines(),
         );
         if (input === GameInput.DOWN) {
             newPlayer.setLastDownTime(currTime);

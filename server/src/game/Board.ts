@@ -3,15 +3,15 @@ import { GameInput, GRID_STATES } from "../../../shared/types";
 import { Coordinate, Piece, PieceType, Shapes, SPAWN_COOR } from "./Piece";
 import { rng } from "./rng";
 
-type PieceHandlingResult = {
-    isAlive: boolean;
-    Piece: Piece;
-};
-
 type PieceTypeRng = {
     pieceType: PieceType;
     seed: number;
     bag: PieceType[];
+};
+
+type clearRowsData = {
+    grid: number[][];
+    clearedRows: number;
 };
 
 export type BoardTypeRng = {
@@ -20,8 +20,6 @@ export type BoardTypeRng = {
     bag: PieceType[];
 };
 
-const TIME_TO_DOWN_MS = 100;
-
 export class Board {
     private lockedGrid: number[][];
     private activePiece: Piece;
@@ -29,6 +27,7 @@ export class Board {
     private isAlive: boolean = false;
     private seed: number;
     private bag: PieceType[];
+    private clearedLines: number;
 
     constructor(
         seed: number,
@@ -38,9 +37,11 @@ export class Board {
     ) {
         this.seed = seed;
         this.bag = bag;
-        this.lockedGrid = Board.handleFilledRows(
+        const clearRowsData = Board.handleFilledRows(
             grid ?? Board.createEmptyGrid(),
         );
+        this.lockedGrid = clearRowsData.grid;
+        this.clearedLines = clearRowsData.clearedRows;
         if (activePiece) this.activePiece = activePiece;
         else {
             const pieceRng = Board.getPieceFromBag(this.seed, this.bag);
@@ -58,6 +59,10 @@ export class Board {
 
     getActivePiece() {
         return this.activePiece;
+    }
+
+    getClearedLines() {
+        return this.clearedLines;
     }
 
     getIsAlive() {
@@ -151,9 +156,7 @@ export class Board {
         return isAlive;
     }
 
-    //This entire functionnality will sadly have to be outside this class because
-    //Game has to be able to know how many lines we delete so it can penalize other boards.
-    private static handleFilledRows(grid: number[][]): number[][] {
+    private static handleFilledRows(grid: number[][]): clearRowsData {
         const nonCompleteRows = grid.filter((row) =>
             row.some((cell) => Board.isEmptyCell(cell)),
         );
@@ -162,8 +165,11 @@ export class Board {
         const emptyRows = Array.from({ length: numRemovedRows }, () =>
             new Array(COLS).fill(GRID_STATES.EMPTY),
         );
-        //Also need to handle that the other board are going to be penalized by me owning.
-        return [...emptyRows, ...nonCompleteRows];
+
+        return {
+            grid: [...emptyRows, ...nonCompleteRows],
+            clearedRows: numRemovedRows,
+        };
     }
 
     private static isValidCoordinates(
