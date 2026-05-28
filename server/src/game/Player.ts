@@ -1,5 +1,5 @@
 import { GameInput } from "../../../shared/types";
-import { Board } from "./Board";
+import { Board, BoardTypeRng } from "./Board";
 
 export class Player {
     private socketId: string;
@@ -10,7 +10,7 @@ export class Player {
     constructor(socketId: string, board: Board, lastDownTime: number) {
         this.socketId = socketId;
         this.board = board;
-        this.lastDowntime = lastDownTime
+        this.lastDowntime = lastDownTime;
         // console.log(`Heres my board ${JSON.stringify(this.board, null, 2)}`);
     }
 
@@ -38,9 +38,19 @@ export class Player {
         if (!player.getBoard().getIsAlive()) {
             return player;
         }
+        const oldBoard = player.getBoard();
+        const oldBoardData: BoardTypeRng = {
+            bag: oldBoard.getBag(),
+            board: oldBoard,
+            seed: oldBoard.getSeed(),
+        };
 
-        const newBoard = Board.handleGameInput(input, player.getBoard());
-        const newPlayer = new Player(player.socketId, newBoard, player.getLastDownTime());
+        const newBoard = Board.handleGameInput(input, oldBoardData);
+        const newPlayer = new Player(
+            player.socketId,
+            newBoard.board,
+            player.getLastDownTime(),
+        );
         if (input === GameInput.DOWN) {
             newPlayer.setLastDownTime(currTime);
         }

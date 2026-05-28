@@ -7,6 +7,7 @@ import { gameService } from "../services/GameService";
 import { Game } from "../game/Game";
 import { Player } from "../game/Player";
 import { Board } from "../game/Board";
+import { PieceType } from "../game/Piece";
 
 export class NavigationController {
     static leave(socket: SocketType, io: Server) {
@@ -72,12 +73,15 @@ export class NavigationController {
             throw new Error("This game already started");
         }
 
-        //This now needs to create a Game object, then run start on it.
-        //It will need a lot of fucking info out of my ass to make that happen.
         room.game.status = GameStatus.ONGOING;
 
+        const seed = Math.random();
         const players = room.players.map((player) => {
-            return new Player(player.socketId, new Board(), 0);
+            return new Player(
+                player.socketId,
+                new Board(seed, Object.values(PieceType)),
+                0,
+            );
         });
         const newGame = Game.createGame(players, io, room);
 

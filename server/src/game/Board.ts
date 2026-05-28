@@ -1,10 +1,23 @@
 import { COLS, ROWS } from "../../../shared/constants";
 import { GameInput, GRID_STATES } from "../../../shared/types";
 import { Coordinate, Piece, PieceType, Shapes, SPAWN_COOR } from "./Piece";
+import { rng } from "./rng";
 
 type PieceHandlingResult = {
     isAlive: boolean;
     Piece: Piece;
+};
+
+type PieceTypeRng = {
+    pieceType: PieceType;
+    seed: number;
+    bag: PieceType[];
+};
+
+export type BoardTypeRng = {
+    board: Board;
+    seed: number;
+    bag: PieceType[];
 };
 
 const TIME_TO_DOWN_MS = 100;
@@ -14,12 +27,31 @@ export class Board {
     private activePiece: Piece;
     private ghostPiece: Piece;
     private isAlive: boolean = false;
+    private seed: number;
+    private bag: PieceType[];
 
-    constructor(activePiece?: Piece, grid?: number[][]) {
+    constructor(
+        seed: number,
+        bag: PieceType[],
+        activePiece?: Piece,
+        grid?: number[][],
+    ) {
+        this.seed = seed;
+        this.bag = bag;
         this.lockedGrid = Board.handleFilledRows(
             grid ?? Board.createEmptyGrid(),
         );
-        this.activePiece = activePiece ?? new Piece(PieceType.T, SPAWN_COOR); //TODO implement bag system
+        if (activePiece) this.activePiece = activePiece;
+        else {
+            const pieceRng = Board.getPieceFromBag(this.seed, this.bag);
+            this.activePiece = Board.spawnNewActivePiece(
+                this.lockedGrid,
+                pieceRng.pieceType,
+            );
+            this.seed = pieceRng.seed;
+            this.bag = pieceRng.bag;
+        }
+
         this.isAlive = Board.isBoardAlive(this, this.activePiece);
         this.ghostPiece = Board.computeGhost(this.activePiece, this.lockedGrid);
     }
@@ -32,17 +64,34 @@ export class Board {
         return this.isAlive;
     }
 
+    getBag() {
+        return this.bag;
+    }
+
+    private static getPieceFromBag(
+        seed: number,
+        bag: PieceType[],
+    ): PieceTypeRng {
+        const { nextSeed, value } = rng(seed);
+        const pieceType = bag[Math.floor(value * bag.length)];
+
+        let newBag = bag.filter((piece) => piece !== pieceType);
+        if (newBag.length === 0) {
+            newBag = Object.values(PieceType);
+        }
+
+        return { seed: nextSeed, pieceType: pieceType, bag: newBag };
+    }
+
     getFullGrid(): number[][] {
         const display = this.lockedGrid.map((row) => [...row]);
         const color = this.activePiece.getColor();
 
         Piece.getComputedCoordinates(this.ghostPiece).forEach(({ x, y }) => {
-            // if (!Board.isCoordinateInBound({ x, y })) return;
             if (display[y][x] === GRID_STATES.EMPTY)
                 display[y][x] = GRID_STATES.GHOST;
         });
         Piece.getComputedCoordinates(this.activePiece).forEach(({ x, y }) => {
-            // if (!Board.isCoordinateInBound({ x, y })) return;
             display[y][x] = color;
         });
 
@@ -56,6 +105,31 @@ export class Board {
 
     getGhostPiece() {
         return this.ghostPiece;
+    }
+
+    getSeed() {
+        return this.seed;
+    }
+
+    private static spawnNewActivePiece(
+        grid: number[][],
+        pieceType: PieceType,
+    ): Piece {
+        const spawnOffsets: Coordinate[] = [
+            { x: SPAWN_COOR.x, y: SPAWN_COOR.y },
+            { x: SPAWN_COOR.x - 4, y: SPAWN_COOR.y },
+            { x: SPAWN_COOR.x + 3, y: SPAWN_COOR.y },
+        ];
+        for (const spawn of spawnOffsets) {
+            const piece = new Piece(pieceType, spawn);
+            const coordinates = Piece.getComputedCoordinates(piece);
+            if (Board.isValidCoordinates(coordinates, grid)) {
+                return piece;
+            }
+        }
+
+        // Game over
+        return new Piece(pieceType, SPAWN_COOR);
     }
 
     private static isEmptyCell(cell: number) {
@@ -106,10 +180,16 @@ export class Board {
     private static handleDownInput(
         grid: number[][],
         activePiece: Piece,
-    ): Board {
+        seed: number,
+        bag: PieceType[],
+    ): BoardTypeRng {
         const pieceCoordinates = Piece.getComputedCoordinates(activePiece);
         if (Board.isValidCoordinates(pieceCoordinates, grid))
-            return new Board(activePiece, grid);
+            return {
+                bag,
+                seed,
+                board: new Board(seed, bag, activePiece, grid),
+            };
 
         const newPivot: Coordinate = {
             x: activePiece.getPivot().x,
@@ -125,19 +205,24 @@ export class Board {
         Piece.getComputedCoordinates(pieceToLock).forEach(({ x, y }) => {
             newLockedGrid[y][x] = pieceToLock.getColor();
         });
-        const pieceTypes = Object.keys(Shapes) as PieceType[];
-        const randomPieceType =
-            pieceTypes[Math.floor(Math.random() * pieceTypes.length)];
-        const newPiece = new Piece(randomPieceType, SPAWN_COOR);
 
-        return new Board(newPiece, newLockedGrid);
+        const {
+            pieceType,
+            seed: newSeed,
+            bag: newBag,
+        } = Board.getPieceFromBag(seed, bag);
+
+        const newPiece = Board.spawnNewActivePiece(newLockedGrid, pieceType);
+        const newBoard = new Board(newSeed, newBag, newPiece, newLockedGrid);
+        return { board: newBoard, seed: newSeed, bag: newBag };
     }
 
     //This either returns a Board with the new Piece and returns the board unchanged if newPiece isnt valid.
     static handleGameInput(
         newInput: GameInput,
-        board: Board,
-    ): Board {
+        boardData: BoardTypeRng,
+    ): BoardTypeRng {
+        const board = boardData.board;
         const oldPiece = board.getActivePiece();
 
         if (newInput === GameInput.SPACE) {
@@ -146,14 +231,18 @@ export class Board {
             Piece.getComputedCoordinates(ghostPiece).forEach(({ x, y }) => {
                 newLocked[y][x] = oldPiece.getColor();
             });
-            const pieceTypes = Object.keys(Shapes) as PieceType[];
-            const randomPieceType =
-                pieceTypes[Math.floor(Math.random() * pieceTypes.length)]; //TODO, remove math.random().
+            const { bag, seed, pieceType } = Board.getPieceFromBag(
+                boardData.seed,
+                boardData.bag,
+            );
+
             const newBoard = new Board(
-                new Piece(randomPieceType, SPAWN_COOR),
+                seed,
+                bag,
+                Board.spawnNewActivePiece(newLocked, pieceType),
                 newLocked,
             );
-            return newBoard;
+            return { bag, seed, board: newBoard };
         }
 
         const moves: Record<GameInput, () => Piece> = {
@@ -167,16 +256,24 @@ export class Board {
         const grid = board.getLockedGrid();
 
         if (newInput === GameInput.DOWN) {
-            return Board.handleDownInput(grid, piece);
+            return Board.handleDownInput(
+                grid,
+                piece,
+                boardData.seed,
+                boardData.bag,
+            );
         }
 
         const isValid = Board.isValidCoordinates(
             Piece.getComputedCoordinates(piece),
             grid,
         );
-        if (!isValid) return board;
+        if (!isValid) return boardData;
 
-        return new Board(piece, grid);
+        return {
+            ...boardData,
+            board: new Board(boardData.seed, boardData.bag, piece, grid),
+        };
     }
 
     private static computeGhost(piece: Piece, grid: number[][]): Piece {

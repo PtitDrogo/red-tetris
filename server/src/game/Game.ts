@@ -1,4 +1,3 @@
-import seedrandom, { PRNG } from "seedrandom";
 import {
     GameInput,
     GameState,
@@ -15,14 +14,12 @@ const UPDATE_DELAY_MS = 100;
 export class Game {
     private players: Player[];
     private speed: number = 1200; //Make this dynamic later //This the time between each down press by the game Loop. big = easy, low = hard.
-    private seed: PRNG;
     private io: Server;
     private roomId: string;
     private gameLoop: NodeJS.Timeout | undefined;
 
-    constructor(players: Player[], seed: string, io: Server, roomId: string) {
+    constructor(players: Player[], io: Server, roomId: string) {
         this.players = players;
-        this.seed = seedrandom(seed);
         this.io = io;
         this.roomId = roomId;
     }
@@ -62,7 +59,7 @@ export class Game {
     }
 
     static createGame(players: Player[], io: Server, room: Room) {
-        const newGame = new Game(players, "RandomString", io, room.id);
+        const newGame = new Game(players, io, room.id);
         gameService.addGame(newGame);
         return newGame;
     }
@@ -73,12 +70,12 @@ export class Game {
         }
 
         this.sendDataToPlayers();
-
-        //Put this in an INIT Function later if it gets too long
+        
         this.players.forEach((player) => {
             const currTime = Date.now();
             player.setLastDownTime(currTime);
         });
+        
 
         this.gameLoop = setInterval(() => {
             const currTime = Date.now();
@@ -93,7 +90,6 @@ export class Game {
             });
 
             if (didUpdate) {
-                console.log("Im updating !");
                 this.sendDataToPlayers();
             }
         }, UPDATE_DELAY_MS);
