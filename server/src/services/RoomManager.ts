@@ -1,4 +1,4 @@
-import { GameStatus, Room } from "../../../shared/types";
+import { GameStatus, type Room, type LobbyState } from "../../../shared/types";
 
 export class RoomManager {
     private rooms: Map<string, Room> = new Map();
@@ -57,11 +57,15 @@ export class RoomManager {
         return [...this.rooms.values()];
     }
 
-    getAvailableRooms() {
-        const allRooms = this.list();
-        return allRooms.filter(
+    getAvailableRooms(): LobbyState[] {
+        const allWaitingRooms = this.list().filter(
             (room) => room.game.status === GameStatus.WAITING,
         );
+        const LobbiesState: LobbyState[] = allWaitingRooms.map((room) => ({
+            id: room.id,
+            players: room.players.map((player) => player.name),
+        }));
+        return LobbiesState;
     }
 }
 

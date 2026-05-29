@@ -1,9 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
-import { useState } from "react";
+import { useEffect } from "react";
 import { setLobbies } from "../redux/lobbiesSlice";
-import type { LobbyState } from "../redux/lobbiesSlice";
+import type { LobbyState } from "../../../shared/types";
+import { socket } from "../socket";
+
+import { ClientMessage, ServerMessage } from "../../../shared/types";
+import { useAuthGuard } from "../hooks/useAuthGuard";
 
 function LobbyList() {
     const navigate = useNavigate();
@@ -11,16 +15,38 @@ function LobbyList() {
     const lobbies = useSelector((state: RootState) => state.lobbies.list);
     const dispatch = useDispatch();
 
-    //Temporary
     const createLobby = () => {
-        const id = lobbies.length + 1;
-        const newId = `lobby - ${id}`;
-        const newLobby: LobbyState = {
-            name: newId,
-            players: ["p1", "p2", "p3"],
-        };
-        dispatch(setLobbies([...lobbies, newLobby]));
+        socket.emit(ClientMessage.CREATE_ROOM, playerName);
     };
+
+    const joinLobby = (id: string) => {
+        socket.emit(ClientMessage.JOIN_ROOM, {
+            roomID: id,
+            playerName: playerName,
+        });
+    };
+
+    useAuthGuard();
+
+    useEffect(() => {
+        //temp
+        socket.on(ServerMessage.ERROR, (payload) => {
+            console.log(payload);
+        });
+
+        socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
+            dispatch(setLobbies(payload));
+        });
+        socket.on(ServerMessage.JOIN_ROOM, (payload: string) =>
+            navigate("/game"),
+        );
+        
+        return () => {
+            socket.off(ServerMessage.ERROR);
+
+            socket.off(ServerMessage.LOBBY_STATE);
+        };
+    }, []);
 
     return (
         <>
@@ -32,19 +58,17 @@ function LobbyList() {
                     value="Create a lobby"
                     onClick={() => createLobby()}
                 ></input>
-                {lobbies.map((lobby, index) => (
-                    <div className="w-96">
+                {lobbies.map((lobby, _) => (
+                    <div key={lobby.id} className="w-96">
                         <button
-                            key={index}
                             type="button"
                             className="border-2 border-black px-15 w-full"
-                            value={lobby.name}
-                            onClick={() => navigate("/game")}
+                            onClick={() => joinLobby(lobby.id)}
                         >
-                            <div>{lobby.name}</div>
+                            <div>{lobby.id}</div>
                             <div className="grid grid-cols-2 gap-1 w-full py-3">
-                                {Array.from({ length: 4 }, (value, index) => (
-                                    <div className="border-">
+                                {Array.from({ length: 4 }, (_, index) => (
+                                    <div key={index} className="border">
                                         {lobby.players[index] ?? "Empty"}
                                     </div>
                                 ))}

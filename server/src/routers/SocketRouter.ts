@@ -17,11 +17,10 @@ export class SocketRouter {
         this.io.on("connection", (socket) => {
             console.log("user connected:", socket.id);
             UpdateManager.updateLobby(this.io);
-
             socket.on("disconnect", () => {
                 console.log("user disconnected:", socket.id);
                 try {
-                    roomManager.deletePlayer(socket.id);
+                    NavigationController.leave(socket, this.io);
                 } catch (error) {
                     socket.emit(ServerMessage.ERROR, getErrorMessage(error));
                 }
@@ -37,12 +36,13 @@ export class SocketRouter {
 
             socket.on(
                 ClientMessage.JOIN_ROOM,
-                (roomID: string, playerName: string) => {
+                (payload: { roomID: string; playerName: string }) => {
                     try {
+                        console.log("Player try : ", payload.roomID);
                         NavigationController.join(
                             socket,
-                            roomID,
-                            playerName,
+                            payload.roomID,
+                            payload.playerName,
                             this.io,
                         );
                     } catch (error) {

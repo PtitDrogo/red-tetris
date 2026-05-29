@@ -2,8 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
 import { useState, useEffect } from "react";
+import { socket } from "../socket";
 
 import { setGrids, setMyGrid, type gridState } from "../redux/gameSlice";
+import { useAuthGuard } from "../hooks/useAuthGuard";
+import { ServerMessage } from "../../../shared/types";
 
 const cellColor: Record<number, string> = {
     0: "",
@@ -73,10 +76,9 @@ function Game() {
     const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const dispatch = useDispatch();
 
-    const emptyGrid = Array.from({ length: 20 }, (_, index) =>
-        Array(10).fill(0),
-    );
+    useAuthGuard();
 
+    //temp
     useEffect(() => {
         const grids = Array.from({ length: 5 }, (_, index) =>
             Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
@@ -89,11 +91,18 @@ function Game() {
                 grid: grids[index],
             }),
         );
-        const myGrid: gridState = { player: "Me", grid: grids[4] };
+        const myGrid: gridState = { player: playerName, grid: grids[4] };
         dispatch(setGrids(gridsState));
         dispatch(setMyGrid(myGrid));
     }, []);
 
+    useEffect(() => {
+        return () => {
+            socket.emit(ServerMessage.LEAVE_ROOM); //T'es un client tu emets pas de message serveur
+        };
+    }, []);
+
+    const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (
         <>
             <div className="flex justify-center items-center pt-20 gap-40">
