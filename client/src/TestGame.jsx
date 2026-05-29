@@ -241,7 +241,7 @@ function KeyHint({ keys, label }) {
 export default function TestGame({ socket }) {
     const [status, setStatus] = useState("idle");
     const [roomId, setRoomId] = useState(null);
-    const [players, setPlayers] = useState([]); // [{ name, board, score }]
+    const [players, setPlayers] = useState([]); // [{ name, board, score, level }]
     const [error, setError] = useState(null);
     const [log, setLog] = useState([]);
     const hasInit = useRef(false);
@@ -322,7 +322,7 @@ export default function TestGame({ socket }) {
         });
 
         socket.on(ServerMessage.GAME_STATE, (data) => {
-            // data expected: { players: [{ name, score, board }] }
+            // data expected: { players: [{ name, score, board, level }] }
             if (data?.players) {
                 setPlayers(data.players);
                 setStatus("playing");
@@ -478,17 +478,44 @@ export default function TestGame({ socket }) {
                                 playerName={String(p.name)}
                                 isAlive={p.isAlive}
                             />
+
+                            {/* Score & Level Dashboard Panel */}
                             <div
                                 style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    width: "100%",
+                                    maxWidth: 280,
+                                    padding: "0 4px",
                                     fontSize: 12,
                                     color: "#64748b",
                                     letterSpacing: 2,
                                 }}
                             >
-                                SCORE:{" "}
-                                <span style={{ color: "#f1f5f9" }}>
-                                    {p.score ?? "—"}
-                                </span>
+                                <div>
+                                    SCORE:{" "}
+                                    <span
+                                        style={{
+                                            color: "#f1f5f9",
+                                            fontWeight: "700",
+                                        }}
+                                    >
+                                        {p.score ?? "—"}
+                                    </span>
+                                </div>
+                                <div>
+                                    LEVEL:{" "}
+                                    <span
+                                        style={{
+                                            color: "#a855f7",
+                                            fontWeight: "700",
+                                            textShadow:
+                                                "0 0 8px rgba(168,85,247,0.4)",
+                                        }}
+                                    >
+                                        {p.level ?? 0}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     ))

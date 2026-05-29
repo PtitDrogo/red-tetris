@@ -5,7 +5,7 @@ import { UpdateManager } from "../services/UpdatesManager";
 import { SocketType } from "../types/types";
 import { gameService } from "../services/GameService";
 import { Game } from "../game/Game";
-import { Player } from "../game/Player";
+import { Player, STARTING_SPEED } from "../game/Player";
 import { Board } from "../game/Board";
 import { PieceType } from "../game/Piece";
 
@@ -82,6 +82,7 @@ export class NavigationController {
                 new Board(seed, Object.values(PieceType)),
                 0,
                 0,
+                STARTING_SPEED,
             );
         });
         const newGame = Game.createGame(players, io, room);

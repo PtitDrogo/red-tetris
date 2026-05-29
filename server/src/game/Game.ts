@@ -4,16 +4,14 @@ import {
     Room,
     ServerMessage,
 } from "../../../shared/types";
-import { Player } from "./Player";
+import { Player, SPEED_STEP, STARTING_SPEED } from "./Player";
 import { Server } from "socket.io";
-import { clearInterval, clearTimeout } from "node:timers";
 import { gameService } from "../services/GameService";
 
 const UPDATE_DELAY_MS = 100;
 
 export class Game {
     private players: Player[];
-    private speed: number = 1200; //Make this dynamic later //This the time between each down press by the game Loop. big = easy, low = hard.
     private io: Server;
     private roomId: string;
     private gameLoop: NodeJS.Timeout | undefined;
@@ -28,17 +26,17 @@ export class Game {
         return this.players;
     }
 
-    getSpeed() {
-        return this.speed;
-    }
-
     private sendDataToPlayers() {
         const playersData = this.players.map((player) => {
+            console.log("player.getSpeed()", player.getSpeed());
+            console.log("player.StartingSpeed()", STARTING_SPEED);
+            console.log("player.SpeedStep()", SPEED_STEP);
             return {
                 name: "PlayerTest",
                 score: player.getPoints(),
                 board: player.getBoard().getFullGrid(),
                 isAlive: player.getBoard().getIsAlive(),
+                level: Math.floor(player.getPoints() / 500),
             };
         });
         const gameUpdate: GameState = {
@@ -70,19 +68,18 @@ export class Game {
         }
 
         this.sendDataToPlayers();
-        
+
         this.players.forEach((player) => {
             const currTime = Date.now();
             player.setLastDownTime(currTime);
         });
-        
 
         this.gameLoop = setInterval(() => {
             const currTime = Date.now();
             let didUpdate = false;
 
             this.players = this.players.map((player) => {
-                if (currTime - player.getLastDownTime() > this.getSpeed()) {
+                if (currTime - player.getLastDownTime() > player.getSpeed()) {
                     didUpdate = true;
                     return Player.handleInput(player, GameInput.DOWN, currTime);
                 }

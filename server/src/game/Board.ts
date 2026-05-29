@@ -303,10 +303,7 @@ export class Board {
             { x: 1, y: 2 },
         ];
 
-        const WALL_KICKS = [
-            ...WALL_KICKS_0_TO_R,
-            ...WALL_KICKS_0_TO_L,
-        ];
+        const WALL_KICKS = [...WALL_KICKS_0_TO_R, ...WALL_KICKS_0_TO_L];
 
         const kick = WALL_KICKS.find((offset) => {
             const kicked = new Piece(
