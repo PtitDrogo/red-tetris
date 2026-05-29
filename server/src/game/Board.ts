@@ -251,14 +251,14 @@ export class Board {
             return { bag, seed, board: newBoard };
         }
 
-        const moves: Record<GameInput, () => Piece> = {
-            [GameInput.LEFT]: () => Piece.left(oldPiece),
-            [GameInput.RIGHT]: () => Piece.right(oldPiece),
-            [GameInput.DOWN]: () => Piece.down(oldPiece),
-            [GameInput.ROTATE]: () => Piece.rotate(oldPiece),
-            [GameInput.SPACE]: () => oldPiece,
-        };
-        const piece = moves[newInput]();
+        const getMoves = (piece: Piece): Record<GameInput, () => Piece> => ({
+            [GameInput.LEFT]: () => Piece.left(piece),
+            [GameInput.RIGHT]: () => Piece.right(piece),
+            [GameInput.DOWN]: () => Piece.down(piece),
+            [GameInput.ROTATE]: () => Piece.rotate(piece),
+            [GameInput.SPACE]: () => piece,
+        });
+        const piece = getMoves(oldPiece)[newInput]();
         const grid = board.getLockedGrid();
 
         if (newInput === GameInput.DOWN) {
@@ -274,11 +274,68 @@ export class Board {
             Piece.getComputedCoordinates(piece),
             grid,
         );
-        if (!isValid) return boardData;
-
+        if (!isValid) {
+            if (newInput !== GameInput.ROTATE) return boardData;
+            else return Board.wallKick(piece, boardData, grid);
+        }
         return {
             ...boardData,
             board: new Board(boardData.seed, boardData.bag, piece, grid),
+        };
+    }
+
+    private static wallKick(
+        rotated: Piece,
+        boardData: BoardTypeRng,
+        grid: number[][],
+    ): BoardTypeRng {
+        const WALL_KICKS_0_TO_R: Coordinate[] = [
+            { x: -1, y: 0 },
+            { x: -1, y: -1 },
+            { x: 0, y: 2 },
+            { x: -1, y: 2 },
+        ];
+
+        const WALL_KICKS_0_TO_L: Coordinate[] = [
+            { x: 1, y: 0 },
+            { x: 1, y: -1 },
+            { x: 0, y: 2 },
+            { x: 1, y: 2 },
+        ];
+
+        const WALL_KICKS = [
+            ...WALL_KICKS_0_TO_R,
+            ...WALL_KICKS_0_TO_L,
+        ];
+
+        const kick = WALL_KICKS.find((offset) => {
+            const kicked = new Piece(
+                rotated.getType(),
+                {
+                    x: rotated.getPivot().x + offset.x,
+                    y: rotated.getPivot().y + offset.y,
+                },
+                rotated.getCells(),
+            );
+            return Board.isValidCoordinates(
+                Piece.getComputedCoordinates(kicked),
+                grid,
+            );
+        });
+
+        if (!kick) return boardData;
+
+        const newPiece = new Piece(
+            rotated.getType(),
+            {
+                x: rotated.getPivot().x + kick.x,
+                y: rotated.getPivot().y + kick.y,
+            },
+            rotated.getCells(),
+        );
+        return {
+            ...boardData,
+            board: new Board(boardData.seed, boardData.bag, newPiece, grid),
         };
     }
 
