@@ -6,8 +6,11 @@ import TestGame from "./TestGame";
 import { io } from "socket.io-client";
 
 
-const socket = io("http://localhost:3000", {
-    autoConnect: true,
+//This is temp, depending on when we decide to give a websocket connection to a user.
+//Imo doing it on load is honestly not the worst idea ever.
+const socket = io(import.meta.env.VITE_BACKEND_URL, {
+    autoConnect: false,
+    reconnection: false,
 });
 
 
