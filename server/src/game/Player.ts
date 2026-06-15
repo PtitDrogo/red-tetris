@@ -1,5 +1,5 @@
-import { GameInput } from "../../../shared/types";
-import { Board, BoardTypeRng } from "./Board";
+import { GameInput } from "../../../shared/types.js";
+import { Board, BoardTypeRng } from "./Board.js";
 
 
 export const STARTING_SPEED = 1200

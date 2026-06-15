@@ -1,10 +1,10 @@
 import { Server } from "socket.io";
-import { ClientMessage, ServerMessage } from "../../../shared/types";
-import { getErrorMessage } from "../../../shared/utils";
-import { InputController } from "../controllers/InputController";
-import { NavigationController } from "../controllers/NavigationController";
-import { roomManager } from "../services/RoomManager";
-import { UpdateManager } from "../services/UpdatesManager";
+import { ClientMessage, ServerMessage } from "../../../shared/types.js";
+import { getErrorMessage } from "../../../shared/utils.js";
+import { InputController } from "../controllers/InputController.js";
+import { NavigationController } from "../controllers/NavigationController.js";
+import { roomManager } from "../services/RoomManager.js";
+import { UpdateManager } from "../services/UpdatesManager.js";
 
 export class SocketRouter {
     private io: Server;

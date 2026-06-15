@@ -1,4 +1,4 @@
-import { GRID_STATES } from "../../../shared/types";
+import { GRID_STATES } from "../../../shared/types.js";
 
 export enum PieceType {
     I = "I",

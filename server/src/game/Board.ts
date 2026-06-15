@@ -1,7 +1,7 @@
-import { COLS, ROWS } from "../../../shared/constants";
-import { GameInput, GRID_STATES } from "../../../shared/types";
-import { Coordinate, Piece, PieceType, Shapes, SPAWN_COOR } from "./Piece";
-import { rng } from "./rng";
+import { COLS, ROWS } from "../../../shared/constants.js";
+import { GameInput, GRID_STATES } from "../../../shared/types.js";
+import { Coordinate, Piece, PieceType, Shapes, SPAWN_COOR } from "./Piece.js";
+import { rng } from "./rng.js";
 
 type PieceTypeRng = {
     pieceType: PieceType;

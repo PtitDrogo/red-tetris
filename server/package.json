@@ -7,7 +7,9 @@
     "scripts": {
         "dev": "nodemon --exec tsx src/index.ts",
         "test": "vitest --run",
-        "coverage": "vitest run --coverage"
+        "coverage": "vitest run --coverage",
+        "build": "tsc",
+        "start": "node dist/server/src/index.js"
     },
     "keywords": [],
     "author": "",

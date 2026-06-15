@@ -1,6 +1,6 @@
-import { gameService } from "../services/GameService";
-import { SocketType } from "../types/types";
-import { isGameInput } from "../validators/gameInput";
+import { gameService } from "../services/GameService.js";
+import { SocketType } from "../types/types.js";
+import { isGameInput } from "../validators/gameInput.js";
 
 export class InputController {
     static handleInput(socket: SocketType, input: unknown) {

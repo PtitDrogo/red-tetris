@@ -1,13 +1,13 @@
 import { DefaultEventsMap, Server, Socket } from "socket.io";
-import { GameStatus, ServerMessage } from "../../../shared/types";
-import { roomManager } from "../services/RoomManager";
-import { UpdateManager } from "../services/UpdatesManager";
-import { SocketType } from "../types/types";
-import { gameService } from "../services/GameService";
-import { Game } from "../game/Game";
-import { Player, STARTING_SPEED } from "../game/Player";
-import { Board } from "../game/Board";
-import { PieceType } from "../game/Piece";
+import { GameStatus, ServerMessage } from "../../../shared/types.js";
+import { roomManager } from "../services/RoomManager.js";
+import { UpdateManager } from "../services/UpdatesManager.js";
+import { SocketType } from "../types/types.js";
+import { gameService } from "../services/GameService.js";
+import { Game } from "../game/Game.js";
+import { Player, STARTING_SPEED } from "../game/Player.js";
+import { Board } from "../game/Board.js";
+import { PieceType } from "../game/Piece.js";
 
 export class NavigationController {
     static leave(socket: SocketType, io: Server) {

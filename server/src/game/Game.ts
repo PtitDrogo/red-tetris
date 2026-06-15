@@ -3,10 +3,10 @@ import {
     GameState,
     Room,
     ServerMessage,
-} from "../../../shared/types";
-import { Player, SPEED_STEP, STARTING_SPEED } from "./Player";
+} from "../../../shared/types.js";
+import { Player, SPEED_STEP, STARTING_SPEED } from "./Player.js";
 import { Server } from "socket.io";
-import { gameService } from "../services/GameService";
+import { gameService } from "../services/GameService.js";
 
 const UPDATE_DELAY_MS = 100;
 

@@ -1,4 +1,4 @@
-import { GameInput } from "../../../shared/types";
+import { GameInput } from "../../../shared/types.js";
 
 export function isGameInput(value: unknown): value is GameInput {
     return (
