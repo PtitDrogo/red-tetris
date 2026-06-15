@@ -6,7 +6,7 @@ import TestGame from "./TestGame";
 import { io } from "socket.io-client";
 
 //This is temp, depending on when we decide to give a websocket connection to a user.
-//Imo doing it on load is honestly not the worst idea ever.
+//Imo doing it on load is honestly not the worst idea ever. lalala
 const socket = io(import.meta.env.VITE_BACKEND_URL, {
     autoConnect: true,
     reconnection: false,
