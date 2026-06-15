@@ -11,7 +11,7 @@ const io = new Server(httpServer, {
         origin: [
             "http://localhost:5173",
             "http://localhost:4173",
-            "https://tetris-battles.vercel.app/",
+            "https://tetris-battles.vercel.app",
         ],
     }, //TODO: Put this in an env var later.
 });
