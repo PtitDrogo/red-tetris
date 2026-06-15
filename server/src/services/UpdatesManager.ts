@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
-import { Room, ServerMessage } from "../../../shared/types";
-import { roomManager } from "./RoomManager";
+import { Room, ServerMessage } from "../../../shared/types.js";
+import { roomManager } from "./RoomManager.js";
 
 export class UpdateManager {
     static updateRoom(room: Room, io: Server) {

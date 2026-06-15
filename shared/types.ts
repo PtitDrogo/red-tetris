@@ -12,18 +12,29 @@ export enum ClientMessage {
     PLAYER_INPUT = "i",
 }
 
+export enum GameInput {
+    LEFT = 0,
+    RIGHT = 1,
+    DOWN = 2,
+    SPACE = 3,
+    ROTATE = 4,
+}
+
 export enum ServerMessage {
     GAME_STATE = "gs",
     LOBBY_STATE = "ls", //all rooms
     ROOM_STATE = "rs", // all players.
     ERROR = "e",
+    JOIN_ROOM = "jr" //A voir avec Garivo
 }
 
 export type Room = {
-    id: string; //This is lowkey the ID.
+    id: string;
     players: LobbyPlayers[];
-    game: Game; //not 100% sure about this
+    game: Game;
 };
+
+export type LobbyState = Omit<Room, "game">
 
 export type Game = {
     status: GameStatus;
@@ -39,4 +50,24 @@ export type LobbyPlayers = {
     name: string;
     socketId: string;
     //Maybe more stuff idk, so far this is frontend stuff, only the frontend might care about this.
+};
+
+export enum GRID_STATES {
+    EMPTY = 0,
+    RED = 1,
+    BLUE = 2,
+    GREEN = 3,
+    ORANGE = 4,
+    GHOST = 10,
+    //Whatever colors we are using add them here.
+}
+
+export type GameState = {
+    //Could be lots of thing in there, adding as I go.
+    players: {
+        name: string;
+        score: number;
+        board: number[][];
+        isAlive: boolean;
+    }[];
 };
