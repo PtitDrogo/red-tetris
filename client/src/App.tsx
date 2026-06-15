@@ -5,19 +5,18 @@ import LobbyList from "./pages/LobbyList";
 import TestGame from "./TestGame";
 import { io } from "socket.io-client";
 
-
 //This is temp, depending on when we decide to give a websocket connection to a user.
 //Imo doing it on load is honestly not the worst idea ever.
 const socket = io(import.meta.env.VITE_BACKEND_URL, {
-    autoConnect: false,
+    autoConnect: true,
     reconnection: false,
 });
 
+socket.on("connect", () => {
+    console.log("Connected to backend with ID:", socket.id);
+});
 
 function App() {
-    socket.on("connect", () => {
-        console.log("Connected to backend with ID:", socket.id);
-    });
     return (
         <>
             <Routes>
