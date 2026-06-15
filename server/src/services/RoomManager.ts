@@ -1,4 +1,8 @@
-import { GameStatus, type Room, type LobbyState } from "../../../shared/types";
+import {
+    GameStatus,
+    type Room,
+    type LobbyState,
+} from "../../../shared/types.js";
 
 export class RoomManager {
     private rooms: Map<string, Room> = new Map();
@@ -57,11 +61,14 @@ export class RoomManager {
         return [...this.rooms.values()];
     }
 
-    getAvailableRooms(): LobbyState[] {
+    //This function is notoriously not typed, so far its only used to send infos to the frontend.
+    //I need to check this with garivo because Im a bit confused where we stand right now on what we send.
+    //to me this is just for Rooms/lobbies and player creating/joining/leaving thems
+    getAvailableRooms() {
         const allWaitingRooms = this.list().filter(
             (room) => room.game.status === GameStatus.WAITING,
         );
-        const LobbiesState: LobbyState[] = allWaitingRooms.map((room) => ({
+        const LobbiesState = allWaitingRooms.map((room) => ({
             id: room.id,
             players: room.players.map((player) => player.name),
         }));

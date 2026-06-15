@@ -98,7 +98,7 @@ function Game() {
 
     useEffect(() => {
         return () => {
-            socket.emit(ServerMessage.LEAVE_ROOM);
+            socket.emit(ServerMessage.LEAVE_ROOM); //T'es un client tu emets pas de message serveur
         };
     }, []);
 

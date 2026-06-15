@@ -1,8 +1,16 @@
-class InputController {
-    //This is where I will handle all inputs
-    //Which are
-    //Move right/left
-    // Go down a bit
-    // Go down the entire thing
-    // rotate (Theres actually only one Rotate in Tetris ?? Nice !)
+import { gameService } from "../services/GameService.js";
+import { SocketType } from "../types/types.js";
+import { isGameInput } from "../validators/gameInput.js";
+
+export class InputController {
+    static handleInput(socket: SocketType, input: unknown) {
+        if (!isGameInput(input)) {
+            throw new Error("Given game input is not valid.");
+        }
+        const game = gameService.findGame(socket.id);
+        if (!game) {
+            throw new Error("Could not find the game");
+        }
+        game.handleGameInput(input, socket.id);
+    }
 }
