@@ -15,9 +15,9 @@ const socket = io(import.meta.env.VITE_BACKEND_URL, {
 
 
 function App() {
-    // socket.on("connect", () => {
-    //     console.log("Connected to backend with ID:", socket.id);
-    // });
+    socket.on("connect", () => {
+        console.log("Connected to backend with ID:", socket.id);
+    });
     return (
         <>
             <Routes>
