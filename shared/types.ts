@@ -49,8 +49,8 @@ export enum GameStatus {
 
 export type RoomPlayers = {
     name: string;
-    // socketId: string; //We dont need socketId im pretty sure
-    //We can add more info here later maybe :)
+    socketId: string; //We dont need socketId im pretty sure
+    //We can add more info here later maybe :_
 };
 
 export enum GRID_STATES {
