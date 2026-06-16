@@ -34,6 +34,7 @@ export class Board {
         bag: PieceType[],
         activePiece?: Piece,
         grid?: number[][],
+        isAlive?: boolean,
     ) {
         this.seed = seed;
         this.bag = bag;
@@ -53,7 +54,7 @@ export class Board {
             this.bag = pieceRng.bag;
         }
 
-        this.isAlive = Board.isBoardAlive(this, this.activePiece);
+        this.isAlive = isAlive ?? Board.isBoardAlive(this, this.activePiece);
         this.ghostPiece = Board.computeGhost(this.activePiece, this.lockedGrid);
     }
 
@@ -114,6 +115,33 @@ export class Board {
 
     getSeed() {
         return this.seed;
+    }
+
+    static addBlockLines(toAdd: number, board: Board): Board {
+        if (toAdd === 0 || !board.getIsAlive()) return board;
+
+        const filledLines = Array.from({ length: toAdd }, () =>
+            Array(COLS).fill(GRID_STATES.BLOCKED),
+        );
+
+        const combined = [...board.getLockedGrid(), ...filledLines];
+
+        const overflow = combined
+            .slice(0, toAdd)
+            .some((row) =>
+                row.some((cell) => cell !== Board.isEmptyCell(cell)),
+            );
+
+        const newGrid = combined.slice(toAdd);
+        const newBoard = new Board(
+            board.getSeed(),
+            board.getBag(),
+            board.getActivePiece(),
+            newGrid,
+            overflow,
+        );
+
+        return newBoard;
     }
 
     private static spawnNewActivePiece(
