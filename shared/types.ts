@@ -22,22 +22,22 @@ export enum GameInput {
 
 export enum ServerMessage {
     GAME_STATE = "gs",
-    LOBBY_STATE = "ls", //all rooms
-    ROOM_STATE = "rs", // all players.
+    LOBBY_STATE = "ls",
+    ROOM_STATE = "rs",
     ERROR = "e",
-    JOIN_ROOM = "jr", //A voir avec Garivo
-    LEAVE_ROOM = "lr" //A voir avec Garivo
+    JOIN_ROOM = "jr",
+    LEAVE_ROOM = "lr",
 }
 
 export type Room = {
     id: string;
-    players: LobbyPlayers[];
-    game: Game;
+    players: RoomPlayers[];
+    gameInfo: RoomGameInfo;
 };
 
-export type LobbyState = Omit<Room, "game">;
+export type LobbyState = Omit<Room, "gameInfo">;
 
-export type Game = {
+export type RoomGameInfo = {
     status: GameStatus;
 };
 
@@ -47,10 +47,10 @@ export enum GameStatus {
     OVER = "Over",
 }
 
-export type LobbyPlayers = {
+export type RoomPlayers = {
     name: string;
-    socketId: string;
-    //Maybe more stuff idk, so far this is frontend stuff, only the frontend might care about this.
+    // socketId: string; //We dont need socketId im pretty sure
+    //We can add more info here later maybe :)
 };
 
 export enum GRID_STATES {
@@ -69,7 +69,7 @@ export type GameState = {
     players: {
         name: string;
         score: number;
-        board: number[][];
         isAlive: boolean;
+        board: number[][];
     }[];
 };

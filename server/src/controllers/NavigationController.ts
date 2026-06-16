@@ -70,11 +70,11 @@ export class NavigationController {
         if (!isSocketHost) {
             throw new Error("Can't start game, player isnt host of his room");
         }
-        if (room.game.status !== GameStatus.WAITING) {
+        if (room.gameInfo.status !== GameStatus.WAITING) {
             throw new Error("This game already started");
         }
 
-        room.game.status = GameStatus.ONGOING;
+        room.gameInfo.status = GameStatus.ONGOING;
 
         const seed = Math.random();
         const players = room.players.map((player) => {

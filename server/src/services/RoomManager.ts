@@ -14,7 +14,7 @@ export class RoomManager {
         const newRoom: Room = {
             id: roomId,
             players: [],
-            game: {
+            gameInfo: {
                 status: GameStatus.WAITING,
             },
         };
@@ -66,7 +66,7 @@ export class RoomManager {
     //to me this is just for Rooms/lobbies and player creating/joining/leaving thems
     getAvailableRooms() {
         const allWaitingRooms = this.list().filter(
-            (room) => room.game.status === GameStatus.WAITING,
+            (room) => room.gameInfo.status === GameStatus.WAITING,
         );
         const LobbiesState = allWaitingRooms.map((room) => ({
             id: room.id,

@@ -6,7 +6,7 @@ import { socket } from "../socket";
 
 import { setGrids, setMyGrid, type gridState } from "../redux/gameSlice";
 import { useAuthGuard } from "../hooks/useAuthGuard";
-import { ServerMessage } from "../../../shared/types";
+import { ClientMessage, ServerMessage } from "../../../shared/types";
 
 const cellColor: Record<number, string> = {
     0: "",
@@ -98,7 +98,7 @@ function Game() {
 
     useEffect(() => {
         return () => {
-            socket.emit(ServerMessage.LEAVE_ROOM); //T'es un client tu emets pas de message serveur
+            socket.emit(ClientMessage.LEAVE_ROOM); //T'es un client tu emets pas de message serveur
         };
     }, []);
 
