@@ -84,8 +84,31 @@ export class Game {
             });
 
             if (didUpdate) {
+                this.players = Game.handleClearedLines(this.players);
                 this.sendDataToPlayers();
             }
         }, UPDATE_DELAY_MS);
+    }
+
+    private static handleClearedLines(players: Player[]): Player[] {
+        //This is a little bit of a leetcode way of doing it, we could use a dict, but we dont need to.
+        let to_add: number[] = Array(players.length).fill(0);
+
+        //Updates what each players has to add.
+        players.forEach((player, index) => {
+            const linesCleared = player.getBoard().getClearedLines();
+            if (linesCleared) {
+                to_add = to_add.map((n, i) => {
+                    return i === index ? n : n + linesCleared;
+                });
+            }
+        });
+
+        //Now add each lines to each players.
+        const newPlayers: Player[] = players.map((p, i) =>
+            Player.addBlockLines(to_add[i], p),
+        );
+
+        return newPlayers;
     }
 }
