@@ -28,9 +28,6 @@ export class Game {
 
     private sendDataToPlayers() {
         const playersData = this.players.map((player) => {
-            console.log("player.getSpeed()", player.getSpeed());
-            console.log("player.StartingSpeed()", STARTING_SPEED);
-            console.log("player.SpeedStep()", SPEED_STEP);
             return {
                 name: "PlayerTest",
                 score: player.getPoints(),

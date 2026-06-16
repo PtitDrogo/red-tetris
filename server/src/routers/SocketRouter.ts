@@ -67,7 +67,6 @@ export class SocketRouter {
             });
 
             socket.on(ClientMessage.PLAYER_INPUT, (input) => {
-                console.log(`User is trying to do the input ${input}`);
                 try {
                     InputController.handleInput(socket, input);
                 } catch (error) {

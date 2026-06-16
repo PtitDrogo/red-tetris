@@ -95,7 +95,6 @@ export class Player {
 
     private static computeSpeed(points: number) {
         const steps = Math.floor(points / 500);
-        console.log(Math.max(1200 - steps * 100, 100));
         return Math.max(1200 - steps * 100, 100);
     }
 }
