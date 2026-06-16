@@ -1,9 +1,8 @@
 import { GameInput } from "../../../shared/types.js";
 import { Board, BoardTypeRng } from "./Board.js";
 
-
-export const STARTING_SPEED = 1200
-export const SPEED_STEP = 500
+export const STARTING_SPEED = 1200;
+export const SPEED_STEP = 500;
 
 export class Player {
     private socketId: string;
@@ -48,6 +47,20 @@ export class Player {
 
     setLastDownTime(newTime: number) {
         this.lastDowntime = newTime;
+    }
+
+    static addBlockLines(toAdd: number, player: Player): Player {
+        if (toAdd === 0) return player;
+        const newBoard = Board.addBlockLines(toAdd, player.getBoard());
+        const newPlayer = new Player(
+            player.getSocketId(),
+            newBoard,
+            player.getLastDownTime(),
+            player.getPoints(),
+            player.getSpeed(),
+        );
+
+        return newPlayer;
     }
 
     static handleInput(

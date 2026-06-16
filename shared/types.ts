@@ -26,7 +26,10 @@ export enum ServerMessage {
     ROOM_STATE = "rs", // all players.
     ERROR = "e",
     JOIN_ROOM = "jr", //A voir avec Garivo
+<<<<<<< HEAD
     LEAVE_ROOM = "lr" //A voir avec Garivo
+=======
+>>>>>>> a6d41585877d8532b337f3f0028d83dfcd81d166
 }
 
 export type Room = {
@@ -35,7 +38,7 @@ export type Room = {
     game: Game;
 };
 
-export type LobbyState = Omit<Room, "game">
+export type LobbyState = Omit<Room, "game">;
 
 export type Game = {
     status: GameStatus;
@@ -60,6 +63,7 @@ export enum GRID_STATES {
     GREEN = 3,
     ORANGE = 4,
     GHOST = 10,
+    BLOCKED = 9,
     //Whatever colors we are using add them here.
 }
 
