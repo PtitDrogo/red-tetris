@@ -26,10 +26,7 @@ export enum ServerMessage {
     ROOM_STATE = "rs", // all players.
     ERROR = "e",
     JOIN_ROOM = "jr", //A voir avec Garivo
-<<<<<<< HEAD
     LEAVE_ROOM = "lr" //A voir avec Garivo
-=======
->>>>>>> a6d41585877d8532b337f3f0028d83dfcd81d166
 }
 
 export type Room = {
