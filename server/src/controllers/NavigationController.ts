@@ -53,7 +53,7 @@ export class NavigationController {
             socketId: socket.id,
         });
         socket.join(roomID);
-        socket.emit(ServerMessage.JOIN_ROOM, roomID); //je sais pas ce que c'est ca
+    socket.emit(ServerMessage.JOIN_ROOM, roomID); //je sais pas ce que c'est ca
         UpdateManager.updateRoomAndLobby(room, io);
     }
 
