@@ -25,7 +25,8 @@ export enum ServerMessage {
     LOBBY_STATE = "ls", //all rooms
     ROOM_STATE = "rs", // all players.
     ERROR = "e",
-    JOIN_ROOM = "jr" //A voir avec Garivo
+    JOIN_ROOM = "jr", //A voir avec Garivo
+    LEAVE_ROOM = "lr" //A voir avec Garivo
 }
 
 export type Room = {
