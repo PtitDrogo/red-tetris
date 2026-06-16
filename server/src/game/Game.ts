@@ -26,6 +26,12 @@ export class Game {
         return this.players;
     }
 
+    stopGame() {
+        if (!this.gameLoop) return;
+        clearInterval(this.gameLoop);
+        this.gameLoop = undefined;
+    }
+
     private sendDataToPlayers() {
         const playersData = this.players.map((player) => {
             return {
@@ -91,10 +97,8 @@ export class Game {
     }
 
     private static handleClearedLines(players: Player[]): Player[] {
-        //This is a little bit of a leetcode way of doing it, we could use a dict, but we dont need to.
         let to_add: number[] = Array(players.length).fill(0);
 
-        //Updates what each players has to add.
         players.forEach((player, index) => {
             const linesCleared = player.getBoard().getClearedLines();
             if (linesCleared) {
@@ -104,7 +108,6 @@ export class Game {
             }
         });
 
-        //Now add each lines to each players.
         const newPlayers: Player[] = players.map((p, i) =>
             Player.addBlockLines(to_add[i], p),
         );

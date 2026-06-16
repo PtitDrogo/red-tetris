@@ -19,8 +19,9 @@ class GameService {
         this.games.push(game);
     }
 
-    removeGame() {
-        //Todo, remove later !
+    removeGame(game: Game) {
+        game.stopGame();
+        this.games = this.games.filter((g) => g !== game);
     }
 }
 

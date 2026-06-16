@@ -21,6 +21,7 @@ export class NavigationController {
         socket.leave(room.id);
         socket.emit(ServerMessage.LEAVE_ROOM); //Je sais pas ce que c'est ca
         UpdateManager.updateRoomAndLobby(updatedRoom, io);
+        //I need to look for if that guy was in a game and tell the game hes dead now.
     }
 
     static create(socket: SocketType, playerName: string, io: Server) {
