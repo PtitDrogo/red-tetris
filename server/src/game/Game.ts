@@ -113,7 +113,6 @@ export class Game {
             if (this.players.length === 1) {
                 if (this.players[0].getBoard().getIsAlive()) return;
                 const playerDAta: GameOverData = {
-                    players: [this.players[0]],
                     ranking: [
                         {
                             name: this.players[0].getName(),
@@ -136,7 +135,6 @@ export class Game {
                 //We send a message on a new subscriptions, GAME_OVER
                 const winner = alivePlayers[0];
                 const playersData: GameOverData = {
-                    players: this.players,
                     ranking: Game.getRanking(this.players),
                 };
 

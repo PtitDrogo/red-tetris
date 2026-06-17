@@ -1,5 +1,3 @@
-import { Player } from "../server/src/game/Player.js";
-
 export type TestType = {
     test: number;
     testString: string;
@@ -56,7 +54,6 @@ export type GameOverRanking = {
 };
 
 export type GameOverData = {
-    players: Player[];
     ranking: GameOverRanking[];
 };
 
