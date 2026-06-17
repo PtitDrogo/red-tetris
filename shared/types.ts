@@ -1,3 +1,5 @@
+import { Player } from "../server/src/game/Player.js";
+
 export type TestType = {
     test: number;
     testString: string;
@@ -47,6 +49,16 @@ export enum GameStatus {
     ONGOING = "Ongoing",
     OVER = "Over",
 }
+
+export type GameOverRanking = {
+    name: string;
+    points: number;
+};
+
+export type GameOverData = {
+    players: Player[];
+    ranking: GameOverRanking[];
+};
 
 export type RoomPlayers = {
     name: string;

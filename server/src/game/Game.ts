@@ -1,5 +1,7 @@
 import {
     GameInput,
+    GameOverData,
+    GameOverRanking,
     GameState,
     Room,
     ServerMessage,
@@ -109,13 +111,21 @@ export class Game {
 
         this.metaLoop = setInterval(() => {
             if (this.players.length === 1) {
-                if (this.players[0].getBoard().getIsAlive() === false) {
-                    this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, {
-                        winner: "Bravo tu as gagner tu es trop fort",
-                    });
-                    this.stopGame();
-                }
-                return; //Game just keeps going if he is alone.
+                if (this.players[0].getBoard().getIsAlive()) return;
+                const playerDAta: GameOverData = {
+                    players: [this.players[0]],
+                    ranking: [
+                        {
+                            name: this.players[0].getName(),
+                            points: this.players[0].getPoints(),
+                        },
+                    ],
+                };
+                this.io
+                    .to(this.roomId)
+                    .emit(ServerMessage.GAME_OVER, playerDAta);
+                this.stopGame();
+                return;
             }
 
             const alivePlayers = this.players.filter((player) =>
@@ -125,12 +135,25 @@ export class Game {
             if (alivePlayers.length === 1) {
                 //We send a message on a new subscriptions, GAME_OVER
                 const winner = alivePlayers[0];
-                this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, {
-                    winnerData: winner,
-                });
+                const playersData: GameOverData = {
+                    players: this.players,
+                    ranking: Game.getRanking(this.players),
+                };
+
+                this.io
+                    .to(this.roomId)
+                    .emit(ServerMessage.GAME_OVER, playersData);
                 this.stopGame();
             }
         }, META_UPDATE_DELAY_MS);
+    }
+
+    private static getRanking(players: Player[]): GameOverRanking[] {
+        const ranking: GameOverRanking[] = players.map((p) => {
+            return { name: p.getName(), points: p.getPoints() };
+        });
+
+        return ranking.sort((a, b) => b.points - a.points);
     }
 
     private static handleClearedLines(players: Player[]): Player[] {
