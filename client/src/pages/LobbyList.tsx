@@ -3,16 +3,19 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
 import { useEffect } from "react";
 import { setLobbies } from "../redux/lobbiesSlice";
-import type { LobbyState } from "../../../shared/types";
+import type { LobbyPlayers, LobbyState } from "../../../shared/types";
 import { socket } from "../socket";
 
 import { ClientMessage, ServerMessage } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
+import { gridState, setGrids, setMyGrid } from "../redux/gameSlice";
 
 function LobbyList() {
     const navigate = useNavigate();
     const playerName = useSelector((state: RootState) => state.player.name);
     const lobbies = useSelector((state: RootState) => state.lobbies.list);
+    const gameGrids = useSelector((state: RootState) => state.game.grids);
+    const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const dispatch = useDispatch();
 
     const createLobby = () => {
@@ -29,6 +32,43 @@ function LobbyList() {
     useAuthGuard();
 
     useEffect(() => {
+        const grids = Array.from({ length: 5 }, (_, index) =>
+            Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
+        );
+
+        const gridsState: gridState[] = Array.from(
+            { length: 4 },
+            (_, index) => ({
+                player: `player${index + 1}`,
+                grid: grids[index],
+            }),
+        );
+        const myGrid: gridState = { player: playerName, grid: grids[4] };
+        dispatch(setGrids(gridsState));
+        dispatch(setMyGrid(myGrid));
+
+        socket.on(ServerMessage.ROOM_STATE, (payload) => {
+            const opponents: LobbyPlayers[] = payload.players.filter(
+                (player: LobbyPlayers) => player.name !== playerName,
+            );
+
+            const gridsState: gridState[] = Array.from(
+                { length: 4 },
+                (_, index) => ({
+                    player: opponents[index]?.name || `player${index + 1}`,
+                    grid: grids[index],
+                }),
+            );
+
+            dispatch(setGrids(gridsState));
+        });
+
+        return () => {
+            socket.off(ServerMessage.ROOM_STATE);
+        };
+    }, []);
+
+    useEffect(() => {
         //temp
         socket.on(ServerMessage.ERROR, (payload) => {
             console.log(payload);
@@ -40,7 +80,7 @@ function LobbyList() {
         socket.on(ServerMessage.JOIN_ROOM, (payload: string) =>
             navigate("/game"),
         );
-        
+
         return () => {
             socket.off(ServerMessage.ERROR);
 

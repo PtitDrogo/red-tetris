@@ -6,7 +6,11 @@ import { socket } from "../socket";
 
 import { setGrids, setMyGrid, type gridState } from "../redux/gameSlice";
 import { useAuthGuard } from "../hooks/useAuthGuard";
-import { ClientMessage, ServerMessage } from "../../../shared/types";
+import {
+    ClientMessage,
+    LobbyPlayers,
+    ServerMessage,
+} from "../../../shared/types";
 
 const cellColor: Record<number, string> = {
     0: "",
@@ -75,25 +79,34 @@ function Game() {
     const gameGrids = useSelector((state: RootState) => state.game.grids);
     const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const dispatch = useDispatch();
+    const [gameStarted, setGameStarted] = useState(0);
 
     useAuthGuard();
 
-    //temp
     useEffect(() => {
         const grids = Array.from({ length: 5 }, (_, index) =>
             Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
         );
 
-        const gridsState: gridState[] = Array.from(
-            { length: 4 },
-            (_, index) => ({
-                player: `player${index + 1}`,
-                grid: grids[index],
-            }),
-        );
-        const myGrid: gridState = { player: playerName, grid: grids[4] };
-        dispatch(setGrids(gridsState));
-        dispatch(setMyGrid(myGrid));
+        socket.on(ServerMessage.ROOM_STATE, (payload) => {
+            const opponents: LobbyPlayers[] = payload.players.filter(
+                (player: LobbyPlayers) => player.name !== playerName,
+            );
+
+            const gridsState: gridState[] = Array.from(
+                { length: 4 },
+                (_, index) => ({
+                    player: opponents[index]?.name || `player${index + 1}`,
+                    grid: grids[index],
+                }),
+            );
+
+            dispatch(setGrids(gridsState));
+        });
+
+        return () => {
+            socket.off(ServerMessage.ROOM_STATE);
+        };
     }, []);
 
     useEffect(() => {
@@ -102,9 +115,26 @@ function Game() {
         };
     }, []);
 
+    const handleGameStart = () => {
+        setGameStarted(1);
+        socket.emit(ClientMessage.START_GAME);
+    }
+
     const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (
         <>
+            {!gameStarted && (
+                <div className="fixed inset-0 flex justify-center items-center z-50 pointer-events-none">
+                    <button
+                        className="pointer-events-auto bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-2xl px-8 py-4 rounded-lg shadow-2xl border-2 border-white transform hover:scale-105 transition-all"
+                        onClick={() => {
+                            handleGameStart();
+                        }}
+                    >
+                        START
+                    </button>
+                </div>
+            )}
             <div className="flex justify-center items-center pt-20 gap-40">
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
