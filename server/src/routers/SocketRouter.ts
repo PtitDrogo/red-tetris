@@ -17,6 +17,7 @@ export class SocketRouter {
         this.io.on("connection", (socket) => {
             console.log("user connected:", socket.id);
             UpdateManager.updateLobby(this.io);
+            
             socket.on("disconnect", () => {
                 console.log("user disconnected:", socket.id);
                 try {

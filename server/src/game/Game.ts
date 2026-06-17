@@ -9,12 +9,13 @@ import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
 
 const UPDATE_DELAY_MS = 100;
-
+const META_UPDATE_DELAY_MS = 1000;
 export class Game {
     private players: Player[];
     private io: Server;
     private roomId: string;
     private gameLoop: NodeJS.Timeout | undefined;
+    private metaLoop: NodeJS.Timeout | undefined;
 
     constructor(players: Player[], io: Server, roomId: string) {
         this.players = players;
@@ -26,10 +27,22 @@ export class Game {
         return this.players;
     }
 
+    stopGame() {
+        if (!this.gameLoop) return;
+        clearInterval(this.gameLoop);
+        this.gameLoop = undefined;
+
+        if (!this.metaLoop) return;
+        clearInterval(this.metaLoop);
+        this.metaLoop = undefined;
+
+        gameService.removeGame(this);
+    }
+
     private sendDataToPlayers() {
         const playersData = this.players.map((player) => {
             return {
-                name: "PlayerTest",
+                name: player.getName(),
                 score: player.getPoints(),
                 board: player.getBoard().getFullGrid(),
                 isAlive: player.getBoard().getIsAlive(),
@@ -53,6 +66,12 @@ export class Game {
         this.sendDataToPlayers();
     }
 
+    killPlayer(socketId: string) {
+        this.players = this.players.map((p) =>
+            p.getSocketId() === socketId ? Player.killPlayer(p) : p,
+        );
+    }
+
     static createGame(players: Player[], io: Server, room: Room) {
         const newGame = new Game(players, io, room.id);
         gameService.addGame(newGame);
@@ -66,10 +85,9 @@ export class Game {
 
         this.sendDataToPlayers();
 
-        this.players.forEach((player) => {
-            const currTime = Date.now();
-            player.setLastDownTime(currTime);
-        });
+        this.players = this.players.map((player) =>
+            Player.copy(player, { lastDowntime: Date.now() }),
+        );
 
         this.gameLoop = setInterval(() => {
             const currTime = Date.now();
@@ -88,13 +106,36 @@ export class Game {
                 this.sendDataToPlayers();
             }
         }, UPDATE_DELAY_MS);
+
+        this.metaLoop = setInterval(() => {
+            if (this.players.length === 1) {
+                if (this.players[0].getBoard().getIsAlive() === false) {
+                    this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, {
+                        winner: "Bravo tu as gagner tu es trop fort",
+                    });
+                    this.stopGame();
+                }
+                return; //Game just keeps going if he is alone.
+            }
+
+            const alivePlayers = this.players.filter((player) =>
+                player.getBoard().getIsAlive(),
+            );
+
+            if (alivePlayers.length === 1) {
+                //We send a message on a new subscriptions, GAME_OVER
+                const winner = alivePlayers[0];
+                this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, {
+                    winnerData: winner,
+                });
+                this.stopGame();
+            }
+        }, META_UPDATE_DELAY_MS);
     }
 
     private static handleClearedLines(players: Player[]): Player[] {
-        //This is a little bit of a leetcode way of doing it, we could use a dict, but we dont need to.
         let to_add: number[] = Array(players.length).fill(0);
 
-        //Updates what each players has to add.
         players.forEach((player, index) => {
             const linesCleared = player.getBoard().getClearedLines();
             if (linesCleared) {
@@ -104,7 +145,6 @@ export class Game {
             }
         });
 
-        //Now add each lines to each players.
         const newPlayers: Player[] = players.map((p, i) =>
             Player.addBlockLines(to_add[i], p),
         );

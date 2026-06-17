@@ -312,7 +312,7 @@ export default function TestGame({ socket }) {
             addLog(`ROOM_STATE: ${JSON.stringify(data)}`);
             setRoomId(data.id);
 
-            if (data.game?.status === "Waiting") {
+            if (data.gameInfo?.status === "Waiting") {
                 setStatus("waiting");
                 // Auto-start the game once room is confirmed
                 addLog("Auto-starting game…");

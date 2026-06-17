@@ -124,6 +124,21 @@ export class Piece {
         this.color = Shapes[piece].color;
     }
 
+    static copy(
+        piece: Piece,
+        overrides: Partial<{
+            type: PieceType;
+            pivot: Coordinate;
+            cells: Coordinate[];
+        }> = {},
+    ): Piece {
+        return new Piece(
+            overrides.type ?? piece.type,
+            overrides.pivot ?? piece.pivot,
+            overrides.cells ?? piece.cells,
+        );
+    }
+
     getPivot() {
         return this.pivot;
     }

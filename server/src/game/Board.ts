@@ -58,6 +58,25 @@ export class Board {
         this.ghostPiece = Board.computeGhost(this.activePiece, this.lockedGrid);
     }
 
+    static copy(
+        board: Board,
+        overrides: Partial<{
+            seed: number;
+            bag: PieceType[];
+            activePiece: Piece;
+            grid: number[][];
+            isAlive: boolean;
+        }> = {},
+    ): Board {
+        return new Board(
+            overrides.seed ?? board.seed,
+            overrides.bag ?? board.bag,
+            overrides.activePiece ?? board.activePiece,
+            overrides.grid ?? board.lockedGrid,
+            overrides.isAlive ?? board.isAlive,
+        );
+    }
+
     getActivePiece() {
         return this.activePiece;
     }
@@ -186,7 +205,10 @@ export class Board {
 
     private static handleFilledRows(grid: number[][]): clearRowsData {
         const nonCompleteRows = grid.filter((row) =>
-            row.some((cell) => Board.isEmptyCell(cell)),
+            row.some(
+                (cell) =>
+                    Board.isEmptyCell(cell) || cell === GRID_STATES.BLOCKED,
+            ),
         );
 
         const numRemovedRows = grid.length - nonCompleteRows.length;

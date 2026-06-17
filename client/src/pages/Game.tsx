@@ -8,7 +8,7 @@ import { setGrids, setMyGrid, type gridState } from "../redux/gameSlice";
 import { useAuthGuard } from "../hooks/useAuthGuard";
 import {
     ClientMessage,
-    LobbyPlayers,
+    RoomPlayers,
     ServerMessage,
 } from "../../../shared/types";
 
@@ -89,8 +89,8 @@ function Game() {
         );
 
         socket.on(ServerMessage.ROOM_STATE, (payload) => {
-            const opponents: LobbyPlayers[] = payload.players.filter(
-                (player: LobbyPlayers) => player.name !== playerName,
+            const opponents: RoomPlayers[] = payload.players.filter(
+                (player: RoomPlayers) => player.name !== playerName,
             );
 
             const gridsState: gridState[] = Array.from(
@@ -118,7 +118,7 @@ function Game() {
     const handleGameStart = () => {
         setGameStarted(1);
         socket.emit(ClientMessage.START_GAME);
-    }
+    };
 
     const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (

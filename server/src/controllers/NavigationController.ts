@@ -21,6 +21,8 @@ export class NavigationController {
         socket.leave(room.id);
         socket.emit(ServerMessage.LEAVE_ROOM); //Je sais pas ce que c'est ca
         UpdateManager.updateRoomAndLobby(updatedRoom, io);
+
+        gameService.findGame(socket.id)?.killPlayer(socket.id);
     }
 
     static create(socket: SocketType, playerName: string, io: Server) {
@@ -53,7 +55,7 @@ export class NavigationController {
             socketId: socket.id,
         });
         socket.join(roomID);
-    socket.emit(ServerMessage.JOIN_ROOM, roomID); //je sais pas ce que c'est ca
+        socket.emit(ServerMessage.JOIN_ROOM, roomID);
         UpdateManager.updateRoomAndLobby(room, io);
     }
 
@@ -70,11 +72,11 @@ export class NavigationController {
         if (!isSocketHost) {
             throw new Error("Can't start game, player isnt host of his room");
         }
-        if (room.game.status !== GameStatus.WAITING) {
+        if (room.gameInfo.status !== GameStatus.WAITING) {
             throw new Error("This game already started");
         }
 
-        room.game.status = GameStatus.ONGOING;
+        room.gameInfo.status = GameStatus.ONGOING;
 
         const seed = Math.random();
         const players = room.players.map((player) => {
@@ -84,6 +86,7 @@ export class NavigationController {
                 0,
                 0,
                 STARTING_SPEED,
+                player.name,
             );
         });
         const newGame = Game.createGame(players, io, room);
