@@ -205,7 +205,10 @@ export class Board {
 
     private static handleFilledRows(grid: number[][]): clearRowsData {
         const nonCompleteRows = grid.filter((row) =>
-            row.some((cell) => Board.isEmptyCell(cell)),
+            row.some(
+                (cell) =>
+                    Board.isEmptyCell(cell) || cell === GRID_STATES.BLOCKED,
+            ),
         );
 
         const numRemovedRows = grid.length - nonCompleteRows.length;
