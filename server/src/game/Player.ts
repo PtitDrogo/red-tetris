@@ -10,6 +10,7 @@ export class Player {
     private lastDowntime: number;
     private points: number;
     private speed: number;
+    private name: string;
 
     constructor(
         socketId: string,
@@ -17,12 +18,14 @@ export class Player {
         lastDownTime: number,
         points: number,
         speed: number,
+        name: string,
     ) {
         this.socketId = socketId;
         this.board = board;
         this.lastDowntime = lastDownTime;
         this.points = points;
         this.speed = speed;
+        this.name = name;
     }
 
     static copy(
@@ -33,6 +36,7 @@ export class Player {
             lastDowntime: number;
             points: number;
             speed: number;
+            name: string;
         }> = {},
     ): Player {
         return new Player(
@@ -41,6 +45,7 @@ export class Player {
             overrides.lastDowntime ?? player.lastDowntime,
             overrides.points ?? player.points,
             overrides.speed ?? player.speed,
+            overrides.name ?? player.name,
         );
     }
 
@@ -63,6 +68,10 @@ export class Player {
     getLastDownTime() {
         return this.lastDowntime;
     }
+    
+    getName() {
+        return this.name;
+    }
 
     static killPlayer(player: Player) {
         return Player.copy(player, {
@@ -73,13 +82,8 @@ export class Player {
     static addBlockLines(toAdd: number, player: Player): Player {
         if (toAdd === 0) return player;
         const newBoard = Board.addBlockLines(toAdd, player.getBoard());
-        const newPlayer = new Player(
-            player.getSocketId(),
-            newBoard,
-            player.getLastDownTime(),
-            player.getPoints(),
-            player.getSpeed(),
-        );
+
+        const newPlayer = Player.copy(player, { board: newBoard });
 
         return newPlayer;
     }
@@ -106,13 +110,12 @@ export class Player {
             player.getPoints(),
         );
         const isDown = input === GameInput.DOWN;
-        const newPlayer = new Player(
-            player.socketId,
-            newBoard.board,
-            isDown ? currTime : player.getLastDownTime(),
-            newPoints,
-            Player.computeSpeed(newPoints),
-        );
+        const newPlayer = Player.copy(player, {
+            board: newBoard.board,
+            lastDowntime: isDown ? currTime : player.getLastDownTime(),
+            points: newPoints,
+            speed: Player.computeSpeed(newPoints),
+        });
         return newPlayer;
     }
 

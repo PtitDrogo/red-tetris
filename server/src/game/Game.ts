@@ -42,7 +42,7 @@ export class Game {
     private sendDataToPlayers() {
         const playersData = this.players.map((player) => {
             return {
-                name: "PlayerTest",
+                name: player.getName(),
                 score: player.getPoints(),
                 board: player.getBoard().getFullGrid(),
                 isAlive: player.getBoard().getIsAlive(),

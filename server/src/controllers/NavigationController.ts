@@ -55,7 +55,7 @@ export class NavigationController {
             socketId: socket.id,
         });
         socket.join(roomID);
-        socket.emit(ServerMessage.JOIN_ROOM, roomID); //je sais pas ce que c'est ca
+        socket.emit(ServerMessage.JOIN_ROOM, roomID);
         UpdateManager.updateRoomAndLobby(room, io);
     }
 
@@ -86,6 +86,7 @@ export class NavigationController {
                 0,
                 0,
                 STARTING_SPEED,
+                player.name,
             );
         });
         const newGame = Game.createGame(players, io, room);
