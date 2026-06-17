@@ -148,13 +148,13 @@ export class Board {
         const overflow = combined
             .slice(0, toAdd)
             .some((row) =>
-                row.some((cell) => cell !== Board.isEmptyCell(cell)),
+                row.some((cell) => !Board.isEmptyCell(cell)),
             );
 
         const newGrid = combined.slice(toAdd);
         const newBoard = Board.copy(board, {
             grid: newGrid,
-            isAlive: overflow,
+            isAlive: !overflow,
         });
 
         return newBoard;
