@@ -25,6 +25,25 @@ export class Player {
         this.speed = speed;
     }
 
+    static copy(
+        player: Player,
+        overrides: Partial<{
+            socketId: string;
+            board: Board;
+            lastDowntime: number;
+            points: number;
+            speed: number;
+        }> = {},
+    ): Player {
+        return new Player(
+            overrides.socketId ?? player.socketId,
+            overrides.board ?? player.board,
+            overrides.lastDowntime ?? player.lastDowntime,
+            overrides.points ?? player.points,
+            overrides.speed ?? player.speed,
+        );
+    }
+
     getSocketId() {
         return this.socketId;
     }
@@ -45,8 +64,10 @@ export class Player {
         return this.lastDowntime;
     }
 
-    setLastDownTime(newTime: number) {
-        this.lastDowntime = newTime;
+    static killPlayer(player: Player) {
+        return Player.copy(player, {
+            board: Board.copy(player.getBoard(), { isAlive: false }),
+        });
     }
 
     static addBlockLines(toAdd: number, player: Player): Player {
@@ -84,16 +105,14 @@ export class Player {
             player.getSpeed(),
             player.getPoints(),
         );
+        const isDown = input === GameInput.DOWN;
         const newPlayer = new Player(
             player.socketId,
             newBoard.board,
-            player.getLastDownTime(),
+            isDown ? currTime : player.getLastDownTime(),
             newPoints,
             Player.computeSpeed(newPoints),
         );
-        if (input === GameInput.DOWN) {
-            newPlayer.setLastDownTime(currTime);
-        }
         return newPlayer;
     }
 

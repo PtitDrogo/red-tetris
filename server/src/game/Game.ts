@@ -59,6 +59,12 @@ export class Game {
         this.sendDataToPlayers();
     }
 
+    killPlayer(socketId: string) {
+        this.players = this.players.map((p) =>
+            p.getSocketId() === socketId ? Player.killPlayer(p) : p,
+        );
+    }
+
     static createGame(players: Player[], io: Server, room: Room) {
         const newGame = new Game(players, io, room.id);
         gameService.addGame(newGame);
@@ -72,10 +78,9 @@ export class Game {
 
         this.sendDataToPlayers();
 
-        this.players.forEach((player) => {
-            const currTime = Date.now();
-            player.setLastDownTime(currTime);
-        });
+        this.players = this.players.map((player) =>
+            Player.copy(player, { lastDowntime: Date.now() }),
+        );
 
         this.gameLoop = setInterval(() => {
             const currTime = Date.now();
