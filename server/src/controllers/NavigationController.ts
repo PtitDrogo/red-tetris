@@ -55,7 +55,7 @@ export class NavigationController {
             socketId: socket.id,
         });
         socket.join(roomID);
-        socket.emit(ServerMessage.JOIN_ROOM, roomID);
+        socket.emit(ServerMessage.JOIN_ROOM, roomID);   
         UpdateManager.updateRoomAndLobby(room, io);
     }
 
