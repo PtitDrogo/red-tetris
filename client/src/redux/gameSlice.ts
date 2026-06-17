@@ -1,32 +1,35 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export interface gridState {
-    player: string;
-    grid: number[][];
+export interface PlayerGrid {
+    name: string;
+    score: number;
+    board: number[][];
+    isAlive: boolean;
+    level: number;
 }
 
-interface gameState {
-    myGrid: gridState;
-    grids: gridState[];
+interface GameState {
+    myGrid: PlayerGrid;
+    grids: PlayerGrid[];
 }
 
-const initialState: gameState = {
-    myGrid: {player: "Empty", grid: []},
+const initialState: GameState = {
+    myGrid: { name: "Empty", score: 0, board: [], isAlive: true, level: 1 },
     grids: [],
 };
 
-const lobbiesSlice = createSlice({
+const gameSlice = createSlice({
     name: "game",
     initialState,
     reducers: {
-        setMyGrid(state, action: PayloadAction<gridState>) {
+        setMyGrid(state, action: PayloadAction<PlayerGrid>) {
             state.myGrid = action.payload;
         },
-        setGrids(state, action: PayloadAction<gridState[]>) {
+        setGrids(state, action: PayloadAction<PlayerGrid[]>) {
             state.grids = action.payload;
-        },
+        }
     },
 });
 
-export const { setMyGrid , setGrids } = lobbiesSlice.actions;
-export default lobbiesSlice.reducer;
+export const { setMyGrid, setGrids } = gameSlice.actions;
+export default gameSlice.reducer;

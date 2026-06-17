@@ -3,12 +3,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
 import { useEffect } from "react";
 import { setLobbies } from "../redux/lobbiesSlice";
-import type { LobbyPlayers, LobbyState } from "../../../shared/types";
+import type { LobbyState, RoomPlayers } from "../../../shared/types";
 import { socket } from "../socket";
 
 import { ClientMessage, ServerMessage } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
-import { gridState, setGrids, setMyGrid } from "../redux/gameSlice";
+import { PlayerGrid, setGrids, setMyGrid } from "../redux/gameSlice";
 
 function LobbyList() {
     const navigate = useNavigate();
@@ -32,34 +32,35 @@ function LobbyList() {
     useAuthGuard();
 
     useEffect(() => {
-        const grids = Array.from({ length: 5 }, (_, index) =>
+        const grids: number[][][] = Array.from({ length: 5 }, (_, index) =>
             Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
         );
 
-        const gridsState: gridState[] = Array.from(
-            { length: 4 },
-            (_, index) => ({
-                player: `player${index + 1}`,
-                grid: grids[index],
-            }),
-        );
-        const myGrid: gridState = { player: playerName, grid: grids[4] };
-        dispatch(setGrids(gridsState));
-        dispatch(setMyGrid(myGrid));
-
         socket.on(ServerMessage.ROOM_STATE, (payload) => {
-            const opponents: LobbyPlayers[] = payload.players.filter(
-                (player: LobbyPlayers) => player.name !== playerName,
+            const opponents: RoomPlayers[] = payload.players.filter(
+                (player: RoomPlayers) => player.name !== playerName,
             );
 
-            const gridsState: gridState[] = Array.from(
+            const gridsState: PlayerGrid[] = Array.from(
                 { length: 4 },
                 (_, index) => ({
-                    player: opponents[index]?.name || `player${index + 1}`,
-                    grid: grids[index],
+                    name: opponents[index]?.name || `player${index + 1}`,
+                    score: 0,
+                    board: grids[index],
+                    isAlive: true,
+                    level: 0,
                 }),
             );
 
+            const myGrid: PlayerGrid = {
+                name: playerName,
+                score: 0,
+                board: grids[4],
+                isAlive: true,
+                level: 0,
+            };
+
+            dispatch(setMyGrid(myGrid));
             dispatch(setGrids(gridsState));
         });
 
