@@ -9,12 +9,13 @@ import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
 
 const UPDATE_DELAY_MS = 100;
-
+const META_UPDATE_DELAY_MS = 1000;
 export class Game {
     private players: Player[];
     private io: Server;
     private roomId: string;
     private gameLoop: NodeJS.Timeout | undefined;
+    private metaLoop: NodeJS.Timeout | undefined;
 
     constructor(players: Player[], io: Server, roomId: string) {
         this.players = players;
@@ -30,6 +31,12 @@ export class Game {
         if (!this.gameLoop) return;
         clearInterval(this.gameLoop);
         this.gameLoop = undefined;
+
+        if (!this.metaLoop) return;
+        clearInterval(this.metaLoop);
+        this.metaLoop = undefined;
+
+        gameService.removeGame(this);
     }
 
     private sendDataToPlayers() {
@@ -99,6 +106,31 @@ export class Game {
                 this.sendDataToPlayers();
             }
         }, UPDATE_DELAY_MS);
+
+        this.metaLoop = setInterval(() => {
+            if (this.players.length === 1) {
+                if (this.players[0].getBoard().getIsAlive() === false) {
+                    this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, {
+                        winner: "Bravo tu as gagner tu es trop fort",
+                    });
+                    this.stopGame();
+                }
+                return; //Game just keeps going if he is alone.
+            }
+
+            const alivePlayers = this.players.filter((player) =>
+                player.getBoard().getIsAlive(),
+            );
+
+            if (alivePlayers.length === 1) {
+                //We send a message on a new subscriptions, GAME_OVER
+                const winner = alivePlayers[0];
+                this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, {
+                    winnerData: winner,
+                });
+                this.stopGame();
+            }
+        }, META_UPDATE_DELAY_MS);
     }
 
     private static handleClearedLines(players: Player[]): Player[] {

@@ -22,6 +22,7 @@ export enum GameInput {
 
 export enum ServerMessage {
     GAME_STATE = "gs",
+    GAME_OVER = "go",
     LOBBY_STATE = "ls",
     ROOM_STATE = "rs",
     ERROR = "e",
