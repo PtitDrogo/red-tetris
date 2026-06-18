@@ -3,12 +3,14 @@ import {
     GameOverData,
     GameOverRanking,
     GameState,
+    GameStatus,
     Room,
     ServerMessage,
 } from "../../../shared/types.js";
 import { Player, SPEED_STEP, STARTING_SPEED } from "./Player.js";
 import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
+import { roomManager, RoomManager } from "../services/RoomManager.js";
 
 const UPDATE_DELAY_MS = 100;
 const META_UPDATE_DELAY_MS = 1000;
@@ -39,6 +41,13 @@ export class Game {
         this.metaLoop = undefined;
 
         gameService.removeGame(this);
+        //Room le statut de redevenir waiting dans le room
+        if (this.players.length === 0) return;
+        const room = roomManager.getRoomBySocketId(
+            this.players[0].getSocketId(),
+        );
+        if (!room) return;
+        room.gameInfo.status = GameStatus.WAITING;
     }
 
     private sendDataToPlayers() {
