@@ -8,14 +8,12 @@ import { socket } from "../socket";
 
 import { ClientMessage, ServerMessage } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
-import { PlayerGrid, setGrids, setMyGrid } from "../redux/gameSlice";
+import { PlayerGrid, setGrids, setMyGrid, setOwner } from "../redux/gameSlice";
 
 function LobbyList() {
     const navigate = useNavigate();
     const playerName = useSelector((state: RootState) => state.player.name);
     const lobbies = useSelector((state: RootState) => state.lobbies.list);
-    const gameGrids = useSelector((state: RootState) => state.game.grids);
-    const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const dispatch = useDispatch();
 
     const createLobby = () => {
@@ -62,6 +60,7 @@ function LobbyList() {
 
             dispatch(setMyGrid(myGrid));
             dispatch(setGrids(gridsState));
+            dispatch(setOwner(payload.players[0].socketId));
         });
 
         return () => {
@@ -79,7 +78,7 @@ function LobbyList() {
             dispatch(setLobbies(payload));
         });
         socket.on(ServerMessage.JOIN_ROOM, (payload: string) =>
-            navigate("/game"),
+            navigate(`/${payload}/${playerName}`),
         );
 
         return () => {

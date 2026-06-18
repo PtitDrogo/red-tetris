@@ -22,7 +22,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/lobbylist" element={<LobbyList />} />
-                <Route path="/game" element={<Game />} />
+                <Route path="/:roomName/:playerName" element={<Game />} />
                 <Route path="/test" element={<TestGame socket={socket} />} />
             </Routes>
         </>

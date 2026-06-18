@@ -4,11 +4,18 @@ import { RootState } from "../redux";
 import { useState, useEffect } from "react";
 import { socket } from "../socket";
 
-import { setGrids, setMyGrid, type PlayerGrid } from "../redux/gameSlice";
+import {
+    setGrids,
+    setMyGrid,
+    setOwner,
+    setStatus,
+    type PlayerGrid,
+} from "../redux/gameSlice";
 import { useAuthGuard } from "../hooks/useAuthGuard";
 import {
     ClientMessage,
     GameInput,
+    GameStatus,
     GRID_STATES,
     RoomPlayers,
     ServerMessage,
@@ -81,8 +88,10 @@ function Game() {
     const playerName = useSelector((state: RootState) => state.player.name);
     const gameGrids = useSelector((state: RootState) => state.game.grids);
     const myGrid = useSelector((state: RootState) => state.game.myGrid);
+    const ownerId = useSelector((state: RootState) => state.game.ownerId);
+    const gameStatus = useSelector((state: RootState) => state.game.status);
     const dispatch = useDispatch();
-    const [gameStartButton, setGameStartButton] = useState(1);
+    const [gameStartButton, setGameStartButton] = useState(false);
 
     useAuthGuard();
 
@@ -117,6 +126,8 @@ function Game() {
 
             dispatch(setMyGrid(myGrid));
             dispatch(setGrids(gridsState));
+            dispatch(setOwner(payload.players[0].socketId));
+            dispatch(setStatus(payload.gameInfo.status));
         });
 
         socket.on(ServerMessage.GAME_STATE, (payload) => {
@@ -134,6 +145,12 @@ function Game() {
             socket.off(ServerMessage.ROOM_STATE);
         };
     }, []);
+
+    useEffect(() => {
+        if (ownerId === socket.id && gameStatus === GameStatus.WAITING)
+            setGameStartButton(true);
+        else setGameStartButton(false);
+    }, [ownerId]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -167,8 +184,12 @@ function Game() {
     }, []);
 
     const handleGameStart = () => {
-        setGameStartButton(0);
+        setGameStartButton(false);
         socket.off(ServerMessage.ROOM_STATE);
+        socket.on(ServerMessage.ROOM_STATE, (payload) => {
+            dispatch(setOwner(payload.players[0].socketId));
+            dispatch(setStatus(payload.gameInfo.status));
+        });
         socket.emit(ClientMessage.START_GAME);
     };
 
