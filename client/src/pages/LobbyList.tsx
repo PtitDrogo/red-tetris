@@ -73,7 +73,7 @@ function LobbyList() {
         socket.on(ServerMessage.ERROR, (payload) => {
             console.log(payload);
         });
-
+        socket.off(ServerMessage.LOBBY_STATE);
         socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
             dispatch(setLobbies(payload));
         });

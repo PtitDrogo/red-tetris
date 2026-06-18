@@ -133,6 +133,9 @@ export class Game {
                     .to(this.roomId)
                     .emit(ServerMessage.GAME_OVER, playerDAta);
                 this.stopGame();
+                // this.io
+                //     .to(this.roomId)
+                //     .emit(ServerMessage.GAME_OVER, playerDAta);
                 return;
             }
 
@@ -151,6 +154,10 @@ export class Game {
                     .to(this.roomId)
                     .emit(ServerMessage.GAME_OVER, playersData);
                 this.stopGame();
+                this.io.emit(
+                    ServerMessage.LOBBY_STATE,
+                    roomManager.getAvailableRooms(),
+                );
             }
         }, META_UPDATE_DELAY_MS);
     }

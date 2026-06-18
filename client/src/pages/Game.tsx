@@ -95,7 +95,10 @@ function Game() {
 
     useAuthGuard();
 
-    useEffect(() => {
+    const initGame = () => {
+        socket.off(ServerMessage.ROOM_STATE);
+        socket.off(ServerMessage.GAME_STATE);
+
         const grids: number[][][] = Array.from({ length: 5 }, (_, index) =>
             Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
         );
@@ -141,8 +144,15 @@ function Game() {
             dispatch(setGrids(playerGrids));
         });
 
+        if (ownerId === socket.id && gameStatus === GameStatus.WAITING)
+            setGameStartButton(true);
+    };
+
+    useEffect(() => {
+        initGame();
         return () => {
             socket.off(ServerMessage.ROOM_STATE);
+            socket.off(ServerMessage.GAME_STATE);
         };
     }, []);
 
@@ -151,6 +161,15 @@ function Game() {
             setGameStartButton(true);
         else setGameStartButton(false);
     }, [ownerId]);
+
+    useEffect(() => {
+        socket.on(ServerMessage.GAME_OVER, (payload) => {
+            initGame();
+        });
+        return () => {
+            socket.off(ServerMessage.GAME_OVER);
+        };
+    }, []);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -180,6 +199,7 @@ function Game() {
     useEffect(() => {
         return () => {
             socket.emit(ClientMessage.LEAVE_ROOM);
+            dispatch(setStatus(GameStatus.WAITING));
         };
     }, []);
 
