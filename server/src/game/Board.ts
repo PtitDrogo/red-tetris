@@ -148,17 +148,14 @@ export class Board {
         const overflow = combined
             .slice(0, toAdd)
             .some((row) =>
-                row.some((cell) => cell !== Board.isEmptyCell(cell)),
+                row.some((cell) => !Board.isEmptyCell(cell)),
             );
 
         const newGrid = combined.slice(toAdd);
-        const newBoard = new Board(
-            board.getSeed(),
-            board.getBag(),
-            board.getActivePiece(),
-            newGrid,
-            overflow,
-        );
+        const newBoard = Board.copy(board, {
+            grid: newGrid,
+            isAlive: !overflow,
+        });
 
         return newBoard;
     }
@@ -251,11 +248,10 @@ export class Board {
             x: activePiece.getPivot().x,
             y: activePiece.getPivot().y - 1,
         };
-        const pieceToLock = new Piece(
-            activePiece.getType(),
-            newPivot,
-            activePiece.getCells(),
-        );
+
+        const pieceToLock = Piece.copy(activePiece, {
+            pivot: newPivot,
+        });
 
         const newLockedGrid = structuredClone(grid);
         Piece.getComputedCoordinates(pieceToLock).forEach(({ x, y }) => {
@@ -356,14 +352,12 @@ export class Board {
         const WALL_KICKS = [...WALL_KICKS_0_TO_R, ...WALL_KICKS_0_TO_L];
 
         const kick = WALL_KICKS.find((offset) => {
-            const kicked = new Piece(
-                rotated.getType(),
-                {
+            const kicked = Piece.copy(rotated, {
+                pivot: {
                     x: rotated.getPivot().x + offset.x,
                     y: rotated.getPivot().y + offset.y,
                 },
-                rotated.getCells(),
-            );
+            });
             return Board.isValidCoordinates(
                 Piece.getComputedCoordinates(kicked),
                 grid,

@@ -45,8 +45,17 @@ export type RoomGameInfo = {
 export enum GameStatus {
     WAITING = "Waiting",
     ONGOING = "Ongoing",
-    OVER = "Over",
+    OVER = "Over", //Lowkey were never using this
 }
+
+export type GameOverRanking = {
+    name: string;
+    points: number;
+};
+
+export type GameOverData = {
+    ranking: GameOverRanking[];
+};
 
 export type RoomPlayers = {
     name: string;

@@ -1,12 +1,16 @@
 import {
     GameInput,
+    GameOverData,
+    GameOverRanking,
     GameState,
+    GameStatus,
     Room,
     ServerMessage,
 } from "../../../shared/types.js";
 import { Player, SPEED_STEP, STARTING_SPEED } from "./Player.js";
 import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
+import { roomManager, RoomManager } from "../services/RoomManager.js";
 
 const UPDATE_DELAY_MS = 100;
 const META_UPDATE_DELAY_MS = 1000;
@@ -37,6 +41,13 @@ export class Game {
         this.metaLoop = undefined;
 
         gameService.removeGame(this);
+        //Room le statut de redevenir waiting dans le room
+        if (this.players.length === 0) return;
+        const room = roomManager.getRoomBySocketId(
+            this.players[0].getSocketId(),
+        );
+        if (!room) return;
+        room.gameInfo.status = GameStatus.WAITING;
     }
 
     private sendDataToPlayers() {
@@ -109,13 +120,20 @@ export class Game {
 
         this.metaLoop = setInterval(() => {
             if (this.players.length === 1) {
-                if (this.players[0].getBoard().getIsAlive() === false) {
-                    this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, {
-                        winner: "Bravo tu as gagner tu es trop fort",
-                    });
-                    this.stopGame();
-                }
-                return; //Game just keeps going if he is alone.
+                if (this.players[0].getBoard().getIsAlive()) return;
+                const playerDAta: GameOverData = {
+                    ranking: [
+                        {
+                            name: this.players[0].getName(),
+                            points: this.players[0].getPoints(),
+                        },
+                    ],
+                };
+                this.io
+                    .to(this.roomId)
+                    .emit(ServerMessage.GAME_OVER, playerDAta);
+                this.stopGame();
+                return;
             }
 
             const alivePlayers = this.players.filter((player) =>
@@ -125,12 +143,24 @@ export class Game {
             if (alivePlayers.length === 1) {
                 //We send a message on a new subscriptions, GAME_OVER
                 const winner = alivePlayers[0];
-                this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, {
-                    winnerData: winner,
-                });
+                const playersData: GameOverData = {
+                    ranking: Game.getRanking(this.players),
+                };
+
+                this.io
+                    .to(this.roomId)
+                    .emit(ServerMessage.GAME_OVER, playersData);
                 this.stopGame();
             }
         }, META_UPDATE_DELAY_MS);
+    }
+
+    private static getRanking(players: Player[]): GameOverRanking[] {
+        const ranking: GameOverRanking[] = players.map((p) => {
+            return { name: p.getName(), points: p.getPoints() };
+        });
+
+        return ranking.sort((a, b) => b.points - a.points);
     }
 
     private static handleClearedLines(players: Player[]): Player[] {

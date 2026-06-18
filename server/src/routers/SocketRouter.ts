@@ -17,7 +17,7 @@ export class SocketRouter {
         this.io.on("connection", (socket) => {
             console.log("user connected:", socket.id);
             UpdateManager.updateLobby(this.io);
-            
+
             socket.on("disconnect", () => {
                 console.log("user disconnected:", socket.id);
                 try {
@@ -64,7 +64,11 @@ export class SocketRouter {
             });
 
             socket.on(ClientMessage.START_GAME, () => {
-                NavigationController.start(socket, this.io);
+                try {
+                    NavigationController.start(socket, this.io);
+                } catch (error) {
+                    socket.emit(ServerMessage.ERROR, getErrorMessage(error));
+                }
             });
 
             socket.on(ClientMessage.PLAYER_INPUT, (input) => {
