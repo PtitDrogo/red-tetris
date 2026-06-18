@@ -10,7 +10,7 @@ import {
 import { Player, SPEED_STEP, STARTING_SPEED } from "./Player.js";
 import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
-import { roomManager, RoomManager } from "../services/RoomManager.js";
+import { roomManager } from "../services/RoomManager.js";
 
 const UPDATE_DELAY_MS = 100;
 const META_UPDATE_DELAY_MS = 1000;
