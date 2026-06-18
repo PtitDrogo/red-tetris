@@ -1,4 +1,4 @@
-import { DefaultEventsMap, Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { GameStatus, ServerMessage } from "../../../shared/types.js";
 import { roomManager } from "../services/RoomManager.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
@@ -19,7 +19,7 @@ export class NavigationController {
         }
         const updatedRoom = roomManager.deletePlayer(socket.id);
         socket.leave(room.id);
-        socket.emit(ServerMessage.LEAVE_ROOM); //Je sais pas ce que c'est ca
+        socket.emit(ServerMessage.LEAVE_ROOM); 
         UpdateManager.updateRoomAndLobby(updatedRoom, io);
 
         gameService.findGame(socket.id)?.killPlayer(socket.id);
@@ -30,7 +30,7 @@ export class NavigationController {
             throw new Error("User is already in a room");
         }
 
-        const roomID = "IAmAGameID" + Date.now(); //lazy way of generating an ID. Ideally I would like a word ! Then a timestamp maybe.
+        const roomID = "IAmAGameID" + Date.now(); 
         const room = roomManager.create(roomID);
         this.join(socket, roomID, playerName, io);
 
@@ -55,7 +55,7 @@ export class NavigationController {
             socketId: socket.id,
         });
         socket.join(roomID);
-        socket.emit(ServerMessage.JOIN_ROOM, roomID);   
+        socket.emit(ServerMessage.JOIN_ROOM, roomID);
         UpdateManager.updateRoomAndLobby(room, io);
     }
 
