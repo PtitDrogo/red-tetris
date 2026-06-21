@@ -43,9 +43,13 @@ export class Game {
 
     gameService.removeGame(this);
     //Room le statut de redevenir waiting dans le room
-    if (this.players.length === 0) return;
-    const room = roomManager.getRoomBySocketId(this.players[0].getSocketId());
-    if (!room) return;
+    const room = roomManager.get(this.roomId);
+    if (!room) {
+      console.log(
+        "Game somehow isnt in a room, cant find its way back to the lobby."
+      );
+      return;
+    }
     room.gameInfo.status = GameStatus.WAITING;
   }
 
@@ -114,7 +118,6 @@ export class Game {
       if (hasMovedDown) {
         this.sendDataToPlayers();
       }
-      
     }, UPDATE_DELAY_MS);
 
     this.metaLoop = setInterval(() => {
@@ -145,6 +148,7 @@ export class Game {
         };
 
         this.io.to(this.roomId).emit(ServerMessage.GAME_OVER, playersData);
+        console.log("I should trigger this game over when people leave.")
         this.stopGame();
         this.io.emit(
           ServerMessage.LOBBY_STATE,

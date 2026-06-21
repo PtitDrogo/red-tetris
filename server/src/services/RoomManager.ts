@@ -51,13 +51,13 @@ export class RoomManager {
     }
 
     getRoomBySocketId(socketId: string) {
-        const playerRoom = this.list().find((room) =>
+        const playerRoom = this.getAllRooms().find((room) =>
             room.players.some((player) => player.socketId === socketId),
         );
         return playerRoom;
     }
 
-    list() {
+    getAllRooms() {
         return [...this.rooms.values()];
     }
 
@@ -65,7 +65,7 @@ export class RoomManager {
     //I need to check this with garivo because Im a bit confused where we stand right now on what we send.
     //to me this is just for Rooms/lobbies and player creating/joining/leaving thems
     getAvailableRooms() {
-        const allWaitingRooms = this.list().filter(
+        const allWaitingRooms = this.getAllRooms().filter(
             (room) => room.gameInfo.status === GameStatus.WAITING,
         );
         const LobbiesState = allWaitingRooms.map((room) => ({
