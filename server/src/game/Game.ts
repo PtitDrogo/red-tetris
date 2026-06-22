@@ -134,6 +134,9 @@ export class Game {
                 this.stopGame();
                 UpdateManager.updateGameOver(this.io, this.roomId, playerDAta);
                 UpdateManager.updateLobby(this.io);
+                const updatedRoom = roomManager.get(this.roomId);
+                if (!updatedRoom) return;
+                UpdateManager.updateRoom(updatedRoom, this.io); 
                 return;
             }
 
@@ -151,6 +154,9 @@ export class Game {
                 this.stopGame();
                 UpdateManager.updateGameOver(this.io, this.roomId, playersData);
                 UpdateManager.updateLobby(this.io);
+                const updatedRoom = roomManager.get(this.roomId);
+                if (!updatedRoom) return;
+                UpdateManager.updateRoom(updatedRoom, this.io);
             }
         }, META_UPDATE_DELAY_MS);
     }
