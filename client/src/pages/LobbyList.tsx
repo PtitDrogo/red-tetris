@@ -10,6 +10,8 @@ import { ClientMessage, ServerMessage } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
 import { PlayerGrid, setGrids, setMyGrid, setOwner } from "../redux/gameSlice";
 
+import { Crown } from "lucide-react";
+
 function LobbyList() {
     const navigate = useNavigate();
     const playerName = useSelector((state: RootState) => state.player.name);
@@ -94,7 +96,7 @@ function LobbyList() {
                 <div>Welcome {playerName}</div>
                 <input
                     type="button"
-                    className="border border-black px-3"
+                    className="border rounded-xs border-white px-3 hover:border-electric-red"
                     value="Create a lobby"
                     onClick={() => createLobby()}
                 ></input>
@@ -102,14 +104,23 @@ function LobbyList() {
                     <div key={lobby.id} className="w-96">
                         <button
                             type="button"
-                            className="border-2 border-black px-15 w-full"
+                            className="rounded-xl bg-gray-800 px-15 w-full hover:bg-gray-700 transition-colors drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] animate-shadow-pulse"
                             onClick={() => joinLobby(lobby.id)}
                         >
-                            <div>{lobby.id}</div>
+                            <div className="mt-2 flex justify-center">
+                                <span>{lobby.players[0] ?? "Empty"}</span>
+                                <Crown
+                                    className="w-5 h-5 text-amber-400 fill-amber-400 animate-pulse"
+                                    strokeWidth={2}
+                                />
+                            </div>
                             <div className="grid grid-cols-2 gap-1 w-full py-3">
                                 {Array.from({ length: 4 }, (_, index) => (
-                                    <div key={index} className="border">
-                                        {lobby.players[index] ?? "Empty"}
+                                    <div
+                                        key={index}
+                                        className="border rounded-xs"
+                                    >
+                                        {lobby.players[index + 1] ?? "Empty"}
                                     </div>
                                 ))}
                             </div>
