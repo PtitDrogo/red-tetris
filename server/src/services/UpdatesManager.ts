@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { Room, ServerMessage } from "../../../shared/types.js";
+import { GameOverData, Room, ServerMessage } from "../../../shared/types.js";
 import { roomManager } from "./RoomManager.js";
 
 export class UpdateManager {
@@ -15,5 +15,14 @@ export class UpdateManager {
         this.updateLobby(io);
         if (!room) return;
         this.updateRoom(room, io);
+    }
+
+    static updateGameOver(io: Server, roomId: string, playersData: GameOverData) {
+        io.to(roomId).emit(ServerMessage.GAME_OVER, playersData);
+    }
+    
+    //TODO: get rid of this any
+    static gameUpdate(io: Server, roomId: string, gameUpdate: any) {
+        io.to(roomId).emit(ServerMessage.GAME_STATE, gameUpdate);
     }
 }

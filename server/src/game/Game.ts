@@ -5,12 +5,13 @@ import {
     GameState,
     GameStatus,
     Room,
-    ServerMessage,
 } from "../../../shared/types.js";
-import { Player, SPEED_STEP, STARTING_SPEED } from "./Player.js";
+import { Player } from "./Player.js";
 import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
 import { roomManager, RoomManager } from "../services/RoomManager.js";
+import { Board } from "./Board.js";
+import { UpdateManager } from "../services/UpdatesManager.js";
 
 const UPDATE_DELAY_MS = 100;
 const META_UPDATE_DELAY_MS = 1000;
@@ -42,11 +43,13 @@ export class Game {
 
         gameService.removeGame(this);
         //Room le statut de redevenir waiting dans le room
-        if (this.players.length === 0) return;
-        const room = roomManager.getRoomBySocketId(
-            this.players[0].getSocketId(),
-        );
-        if (!room) return;
+        const room = roomManager.get(this.roomId);
+        if (!room) {
+            console.log(
+                "Game somehow isnt in a room, cant find its way back to the lobby.",
+            );
+            return;
+        }
         room.gameInfo.status = GameStatus.WAITING;
     }
 
@@ -63,7 +66,7 @@ export class Game {
         const gameUpdate: GameState = {
             players: playersData,
         };
-        this.io.to(this.roomId).emit(ServerMessage.GAME_STATE, gameUpdate);
+        UpdateManager.gameUpdate(this.io, this.roomId, gameUpdate);
     }
 
     handleGameInput(newInput: GameInput, socketId: string) {
@@ -73,7 +76,7 @@ export class Game {
                 ? Player.handleInput(player, newInput, currTime)
                 : player,
         );
-
+        this.players = Game.handleClearedLines(this.players);
         this.sendDataToPlayers();
     }
 
@@ -102,18 +105,17 @@ export class Game {
 
         this.gameLoop = setInterval(() => {
             const currTime = Date.now();
-            let didUpdate = false;
+            let hasMovedDown = false;
 
             this.players = this.players.map((player) => {
                 if (currTime - player.getLastDownTime() > player.getSpeed()) {
-                    didUpdate = true;
+                    hasMovedDown = true;
                     return Player.handleInput(player, GameInput.DOWN, currTime);
                 }
                 return player;
             });
 
-            if (didUpdate) {
-                this.players = Game.handleClearedLines(this.players);
+            if (hasMovedDown) {
                 this.sendDataToPlayers();
             }
         }, UPDATE_DELAY_MS);
@@ -129,10 +131,12 @@ export class Game {
                         },
                     ],
                 };
-                this.io
-                    .to(this.roomId)
-                    .emit(ServerMessage.GAME_OVER, playerDAta);
                 this.stopGame();
+                UpdateManager.updateGameOver(this.io, this.roomId, playerDAta);
+                UpdateManager.updateLobby(this.io);
+                const updatedRoom = roomManager.get(this.roomId);
+                if (!updatedRoom) return;
+                UpdateManager.updateRoom(updatedRoom, this.io); 
                 return;
             }
 
@@ -147,10 +151,12 @@ export class Game {
                     ranking: Game.getRanking(this.players),
                 };
 
-                this.io
-                    .to(this.roomId)
-                    .emit(ServerMessage.GAME_OVER, playersData);
                 this.stopGame();
+                UpdateManager.updateGameOver(this.io, this.roomId, playersData);
+                UpdateManager.updateLobby(this.io);
+                const updatedRoom = roomManager.get(this.roomId);
+                if (!updatedRoom) return;
+                UpdateManager.updateRoom(updatedRoom, this.io);
             }
         }, META_UPDATE_DELAY_MS);
     }
@@ -164,6 +170,9 @@ export class Game {
     }
 
     private static handleClearedLines(players: Player[]): Player[] {
+        if (players.length === 1) {
+            return players;
+        }
         let to_add: number[] = Array(players.length).fill(0);
 
         players.forEach((player, index) => {
@@ -175,9 +184,15 @@ export class Game {
             }
         });
 
-        const newPlayers: Player[] = players.map((p, i) =>
-            Player.addBlockLines(to_add[i], p),
-        );
+        if (to_add.every((n) => n === 0)) return players;
+
+        const newPlayers: Player[] = players
+            .map((p, i) => Player.addBlockLines(to_add[i], p))
+            .map((p) => {
+                return Player.copy(p, {
+                    board: Board.copy(p.getBoard(), { clearedLines: 0 }),
+                });
+            });
 
         return newPlayers;
     }
