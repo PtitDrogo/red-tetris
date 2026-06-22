@@ -27,6 +27,7 @@ export class Board {
     private isAlive: boolean = false;
     private seed: number;
     private bag: PieceType[];
+    private nextPiece: PieceType;
     private clearedLines: number;
 
     constructor(
@@ -35,6 +36,7 @@ export class Board {
         activePiece?: Piece,
         grid?: number[][],
         isAlive?: boolean,
+        clearedLines?: number,
     ) {
         this.seed = seed;
         this.bag = bag;
@@ -42,7 +44,7 @@ export class Board {
             grid ?? Board.createEmptyGrid(),
         );
         this.lockedGrid = clearRowsData.grid;
-        this.clearedLines = clearRowsData.clearedRows;
+        this.clearedLines = clearedLines ?? clearRowsData.clearedRows;
         if (activePiece) this.activePiece = activePiece;
         else {
             const pieceRng = Board.getPieceFromBag(this.seed, this.bag);
@@ -54,6 +56,7 @@ export class Board {
             this.bag = pieceRng.bag;
         }
 
+        this.nextPiece = Board.getPieceFromBag(this.seed, this.bag).pieceType;
         this.isAlive = isAlive ?? Board.isBoardAlive(this, this.activePiece);
         this.ghostPiece = Board.computeGhost(this.activePiece, this.lockedGrid);
     }
@@ -66,6 +69,7 @@ export class Board {
             activePiece: Piece;
             grid: number[][];
             isAlive: boolean;
+            clearedLines: number;
         }> = {},
     ): Board {
         return new Board(
@@ -74,6 +78,7 @@ export class Board {
             overrides.activePiece ?? board.activePiece,
             overrides.grid ?? board.lockedGrid,
             overrides.isAlive ?? board.isAlive,
+            overrides.clearedLines ?? board.clearedLines,
         );
     }
 
@@ -91,6 +96,10 @@ export class Board {
 
     getBag() {
         return this.bag;
+    }
+
+    getNextPiece() {
+        return this.nextPiece;
     }
 
     private static getPieceFromBag(
@@ -147,9 +156,7 @@ export class Board {
 
         const overflow = combined
             .slice(0, toAdd)
-            .some((row) =>
-                row.some((cell) => !Board.isEmptyCell(cell)),
-            );
+            .some((row) => row.some((cell) => !Board.isEmptyCell(cell)));
 
         const newGrid = combined.slice(toAdd);
         const newBoard = Board.copy(board, {

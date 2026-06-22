@@ -17,12 +17,11 @@ export class NavigationController {
                 "Didn't find the user in any Room, so he cant leave",
             );
         }
+        gameService.findGame(socket.id)?.killPlayer(socket.id);
         const updatedRoom = roomManager.deletePlayer(socket.id);
         socket.leave(room.id);
         socket.emit(ServerMessage.LEAVE_ROOM); 
         UpdateManager.updateRoomAndLobby(updatedRoom, io);
-
-        gameService.findGame(socket.id)?.killPlayer(socket.id);
     }
 
     static create(socket: SocketType, playerName: string, io: Server) {
