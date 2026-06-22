@@ -68,7 +68,7 @@ export class Player {
     getLastDownTime() {
         return this.lastDowntime;
     }
-    
+
     getName() {
         return this.name;
     }

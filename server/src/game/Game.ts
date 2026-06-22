@@ -61,6 +61,7 @@ export class Game {
                 board: player.getBoard().getFullGrid(),
                 isAlive: player.getBoard().getIsAlive(),
                 level: Math.floor(player.getPoints() / 500),
+                nextPiece: player.getBoard().getNextPiece(),
             };
         });
         const gameUpdate: GameState = {
@@ -136,7 +137,7 @@ export class Game {
                 UpdateManager.updateLobby(this.io);
                 const updatedRoom = roomManager.get(this.roomId);
                 if (!updatedRoom) return;
-                UpdateManager.updateRoom(updatedRoom, this.io); 
+                UpdateManager.updateRoom(updatedRoom, this.io);
                 return;
             }
 
