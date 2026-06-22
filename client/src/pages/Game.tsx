@@ -131,6 +131,13 @@ function Game() {
             dispatch(setGrids(gridsState));
             dispatch(setOwner(payload.players[0].socketId));
             dispatch(setStatus(payload.gameInfo.status));
+
+            //I have to check against the payload the const ts variables seems to be stale.
+            if (
+                payload.players[0].socketId === socket.id &&
+                payload.gameInfo.status === GameStatus.WAITING
+            )
+                setGameStartButton(true);
         });
 
         socket.on(ServerMessage.GAME_STATE, (payload) => {
