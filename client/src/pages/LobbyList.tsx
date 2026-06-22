@@ -32,8 +32,8 @@ function LobbyList() {
     useAuthGuard();
 
     useEffect(() => {
-        const grids: number[][][] = Array.from({ length: 5 }, (_, index) =>
-            Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
+        const grids: number[][][] = Array.from({ length: 5 }, () =>
+            Array.from({ length: 20 }, (_, i) => Array(10).fill(0)),
         );
 
         socket.on(ServerMessage.ROOM_STATE, (payload) => {
@@ -44,7 +44,7 @@ function LobbyList() {
             const gridsState: PlayerGrid[] = Array.from(
                 { length: 4 },
                 (_, index) => ({
-                    name: opponents[index]?.name || `player${index + 1}`,
+                    name: opponents[index]?.name || `Empty`,
                     score: 0,
                     board: grids[index],
                     isAlive: true,
@@ -71,7 +71,6 @@ function LobbyList() {
     }, []);
 
     useEffect(() => {
-        //temp
         socket.on(ServerMessage.ERROR, (payload) => {
             console.log(payload);
         });
@@ -96,7 +95,7 @@ function LobbyList() {
                 <div>Welcome {playerName}</div>
                 <input
                     type="button"
-                    className="border rounded-xs border-white px-3 hover:border-electric-red"
+                    className="px-5 pt-3 pb-3 rounded-xs bg-electric-red hover:bg-red-400 transition-all duration-300"
                     value="Create a lobby"
                     onClick={() => createLobby()}
                 ></input>
@@ -104,7 +103,7 @@ function LobbyList() {
                     <div key={lobby.id} className="w-96">
                         <button
                             type="button"
-                            className="rounded-xl bg-gray-800 px-15 w-full hover:bg-gray-700 transition-colors drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] animate-shadow-pulse"
+                            className="rounded-xl bg-gray-800 px-15 w-full hover:bg-gray-700 transition-all duration-300 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] animate-shadow-pulse transform hover:-translate-y-1 hover:scale-[1.03]"
                             onClick={() => joinLobby(lobby.id)}
                         >
                             <div className="mt-2 flex justify-center">

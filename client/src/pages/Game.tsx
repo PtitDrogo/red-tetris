@@ -34,9 +34,11 @@ const cellColor: Record<GRID_STATES, string> = {
 function MainGrid({
     playerName,
     grid,
+    score,
 }: {
     playerName: string;
     grid: GRID_STATES[][];
+    score: number;
 }) {
     return (
         <>
@@ -52,6 +54,9 @@ function MainGrid({
                         )),
                     )}
                 </div>
+                <div className="border border-white w-full bg-gray-700 text-center">
+                    Score: {score}
+                </div>
             </div>
         </>
     );
@@ -60,13 +65,20 @@ function MainGrid({
 function OpponentGrid({
     opponentName,
     grid,
+    score,
 }: {
     opponentName: string;
     grid: GRID_STATES[][];
+    score: number;
 }) {
+    const isPresent = opponentName !== "Empty";
     return (
         <>
-            <div className="flex flex-col items-center">
+            <div
+                className={`flex flex-col items-center transition-opacity duration-300 ${
+                    isPresent ? "opacity-100" : "opacity-30"
+                }`}
+            >
                 <div className="py-2 text-sm">{opponentName}</div>
                 <div className="grid grid-cols-10 grid-rows-20 border-l border-t border-white">
                     {grid.map((row, rowIndex) =>
@@ -77,6 +89,9 @@ function OpponentGrid({
                             />
                         )),
                     )}
+                </div>
+                <div className="border border-white w-full bg-gray-700 text-center">
+                    Score: {score}
                 </div>
             </div>
         </>
@@ -99,8 +114,8 @@ function Game() {
         socket.off(ServerMessage.ROOM_STATE);
         socket.off(ServerMessage.GAME_STATE);
 
-        const grids: number[][][] = Array.from({ length: 5 }, (_, index) =>
-            Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
+        const grids: number[][][] = Array.from({ length: 5 }, () =>
+            Array.from({ length: 20 }, (_, i) => Array(10).fill(0)),
         );
 
         socket.on(ServerMessage.ROOM_STATE, (payload) => {
@@ -111,7 +126,7 @@ function Game() {
             const gridsState: PlayerGrid[] = Array.from(
                 { length: 4 },
                 (_, index) => ({
-                    name: opponents[index]?.name || `player${index + 1}`,
+                    name: opponents[index]?.name || `Empty`,
                     score: 0,
                     board: grids[index],
                     isAlive: true,
@@ -219,7 +234,7 @@ function Game() {
             {gameStartButton && (
                 <div className="fixed inset-0 flex justify-center items-center z-50 pointer-events-none">
                     <button
-                        className="pointer-events-auto bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-2xl px-8 py-4 rounded-lg shadow-2xl border-2 border-white transform hover:scale-105 transition-all"
+                        className="pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-2xl px-8 py-4 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
                         onClick={() => {
                             handleGameStart();
                         }}
@@ -233,24 +248,29 @@ function Game() {
                     <OpponentGrid
                         opponentName={gameGrids[0]?.name ?? "Empty"}
                         grid={gameGrids[0]?.board ?? emptyGrid}
+                        score={gameGrids[0]?.score ?? 0}
                     ></OpponentGrid>
                     <OpponentGrid
                         opponentName={gameGrids[1]?.name ?? "Empty"}
                         grid={gameGrids[1]?.board ?? emptyGrid}
+                        score={gameGrids[1]?.score ?? 0}
                     ></OpponentGrid>
                 </div>
                 <MainGrid
                     playerName={myGrid?.name}
                     grid={myGrid?.board ?? emptyGrid}
+                    score={myGrid.score}
                 ></MainGrid>
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
                         opponentName={gameGrids[2]?.name ?? "Empty"}
                         grid={gameGrids[2]?.board ?? emptyGrid}
+                        score={gameGrids[2]?.score ?? 0}
                     ></OpponentGrid>
                     <OpponentGrid
                         opponentName={gameGrids[3]?.name ?? "Empty"}
                         grid={gameGrids[3]?.board ?? emptyGrid}
+                        score={gameGrids[3]?.score ?? 0}
                     ></OpponentGrid>
                 </div>
             </div>
