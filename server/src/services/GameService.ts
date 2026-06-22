@@ -20,7 +20,6 @@ class GameService {
     }
 
     removeGame(game: Game) {
-        game.stopGame();
         this.games = this.games.filter((g) => g !== game);
     }
 }
