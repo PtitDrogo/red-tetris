@@ -62,6 +62,8 @@ export class Game {
                 isAlive: player.getBoard().getIsAlive(),
                 level: Math.floor(player.getPoints() / 500),
                 nextPiece: player.getBoard().getNextPiece(),
+                //Lines cleared
+                //Start of clear (y)
             };
         });
         const gameUpdate: GameState = {
