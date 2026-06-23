@@ -32,7 +32,7 @@ export const Shapes: Record<
             { x: 1, y: 0 },
             { x: 2, y: 0 },
         ],
-        color: GRID_STATES.BLUE,
+        color: GRID_STATES.CYAN,
     },
 
     // □□
@@ -44,7 +44,7 @@ export const Shapes: Record<
             { x: 0, y: 1 },
             { x: 1, y: 1 },
         ],
-        color: GRID_STATES.GREEN,
+        color: GRID_STATES.YELLOW,
     },
 
     // □
@@ -57,7 +57,7 @@ export const Shapes: Record<
             { x: 0, y: 0 },
             { x: 1, y: 0 },
         ],
-        color: GRID_STATES.ORANGE,
+        color: GRID_STATES.BLUE,
     },
 
     //   □
@@ -70,7 +70,7 @@ export const Shapes: Record<
             { x: 1, y: 0 },
             { x: +1, y: -1 },
         ],
-        color: GRID_STATES.RED,
+        color: GRID_STATES.ORANGE,
     },
 
     //  □□
@@ -94,7 +94,7 @@ export const Shapes: Record<
             { x: 0, y: 0 },
             { x: 1, y: 0 },
         ],
-        color: GRID_STATES.ORANGE,
+        color: GRID_STATES.RED,
     },
 
     //  □
@@ -107,7 +107,7 @@ export const Shapes: Record<
             { x: 1, y: 0 },
             { x: 0, y: -1 },
         ],
-        color: GRID_STATES.GREEN,
+        color: GRID_STATES.PURPLE,
     },
 };
 

@@ -69,6 +69,9 @@ export enum GRID_STATES {
     BLUE = 2,
     GREEN = 3,
     ORANGE = 4,
+    CYAN = 5,
+    PURPLE = 6,
+    YELLOW = 7,
     GHOST = 10,
     BLOCKED = 9,
     //Whatever colors we are using add them here.
