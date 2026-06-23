@@ -10,6 +10,8 @@ import { ClientMessage, ServerMessage } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
 import { PlayerGrid, setGrids, setMyGrid, setOwner } from "../redux/gameSlice";
 
+import { Crown } from "lucide-react";
+
 function LobbyList() {
     const navigate = useNavigate();
     const playerName = useSelector((state: RootState) => state.player.name);
@@ -30,8 +32,8 @@ function LobbyList() {
     useAuthGuard();
 
     useEffect(() => {
-        const grids: number[][][] = Array.from({ length: 5 }, (_, index) =>
-            Array.from({ length: 20 }, (_, i) => Array(10).fill(index + 1)),
+        const grids: number[][][] = Array.from({ length: 5 }, () =>
+            Array.from({ length: 20 }, (_, i) => Array(10).fill(0)),
         );
 
         socket.on(ServerMessage.ROOM_STATE, (payload) => {
@@ -42,7 +44,7 @@ function LobbyList() {
             const gridsState: PlayerGrid[] = Array.from(
                 { length: 4 },
                 (_, index) => ({
-                    name: opponents[index]?.name || `player${index + 1}`,
+                    name: opponents[index]?.name || `Empty`,
                     score: 0,
                     board: grids[index],
                     isAlive: true,
@@ -69,7 +71,6 @@ function LobbyList() {
     }, []);
 
     useEffect(() => {
-        //temp
         socket.on(ServerMessage.ERROR, (payload) => {
             console.log(payload);
         });
@@ -94,7 +95,7 @@ function LobbyList() {
                 <div>Welcome {playerName}</div>
                 <input
                     type="button"
-                    className="border border-black px-3"
+                    className="px-5 pt-3 pb-3 rounded-xs bg-electric-red hover:bg-red-400 transition-all duration-300"
                     value="Create a lobby"
                     onClick={() => createLobby()}
                 ></input>
@@ -102,14 +103,23 @@ function LobbyList() {
                     <div key={lobby.id} className="w-96">
                         <button
                             type="button"
-                            className="border-2 border-black px-15 w-full"
+                            className="rounded-xl bg-gray-800 px-15 w-full hover:bg-gray-700 transition-all duration-300 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] animate-shadow-pulse transform hover:-translate-y-1 hover:scale-[1.03]"
                             onClick={() => joinLobby(lobby.id)}
                         >
-                            <div>{lobby.id}</div>
+                            <div className="mt-2 flex justify-center">
+                                <span>{lobby.players[0] ?? "Empty"}</span>
+                                <Crown
+                                    className="w-5 h-5 text-amber-400 fill-amber-400 animate-pulse"
+                                    strokeWidth={2}
+                                />
+                            </div>
                             <div className="grid grid-cols-2 gap-1 w-full py-3">
                                 {Array.from({ length: 4 }, (_, index) => (
-                                    <div key={index} className="border">
-                                        {lobby.players[index] ?? "Empty"}
+                                    <div
+                                        key={index}
+                                        className="border rounded-xs"
+                                    >
+                                        {lobby.players[index + 1] ?? "Empty"}
                                     </div>
                                 ))}
                             </div>
