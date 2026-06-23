@@ -18,14 +18,14 @@ socket.on("connect", () => {
 
 function App() {
     return (
-        <>
+        <div className="min-h-screen bg-gray-900 font-tetris text-white">
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/lobbylist" element={<LobbyList />} />
                 <Route path="/:roomName/:playerName" element={<Game />} />
                 <Route path="/test" element={<TestGame socket={socket} />} />
             </Routes>
-        </>
+        </div>
     );
 }
 
