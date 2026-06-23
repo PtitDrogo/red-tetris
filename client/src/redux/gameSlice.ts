@@ -7,6 +7,7 @@ export interface PlayerGrid {
     board: number[][];
     isAlive: boolean;
     level: number;
+    nextPiece?: string;
 }
 
 interface GameState {

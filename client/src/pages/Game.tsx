@@ -35,19 +35,21 @@ const cellColor: Record<GRID_STATES, string> = {
     [GRID_STATES.BLOCKED]: "bg-zinc-800",
 };
 
-function MainGrid({
-    playerName,
-    grid,
-    score,
-}: {
+type gridProps = {
     playerName: string;
     grid: GRID_STATES[][];
     score: number;
-}) {
+    level?: number;
+    nextPiece?: string; //Obviously wont be a string, but for now we do that.
+};
+
+function MainGrid({ playerName, grid, score, nextPiece }: gridProps) {
     return (
         <>
             <div className="flex flex-col items-center">
-                <div className="py-4">{playerName}</div>
+                <div className="py-4">
+                    {nextPiece ? nextPiece + " - " : ""} {playerName}
+                </div>
                 <div className="grid grid-cols-10 grid-rows-20 border-l border-t border-white">
                     {grid.map((row, rowIndex) =>
                         row.map((cell, colIndex) => (
@@ -66,15 +68,7 @@ function MainGrid({
     );
 }
 
-function OpponentGrid({
-    opponentName,
-    grid,
-    score,
-}: {
-    opponentName: string;
-    grid: GRID_STATES[][];
-    score: number;
-}) {
+function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
     const isPresent = opponentName !== "Empty";
     return (
         <>
@@ -257,12 +251,12 @@ function Game() {
             <div className="flex justify-center items-center pt-20 gap-40">
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
-                        opponentName={gameGrids[0]?.name ?? "Empty"}
+                        playerName={gameGrids[0]?.name ?? "Empty"}
                         grid={gameGrids[0]?.board ?? emptyGrid}
                         score={gameGrids[0]?.score ?? 0}
                     ></OpponentGrid>
                     <OpponentGrid
-                        opponentName={gameGrids[1]?.name ?? "Empty"}
+                        playerName={gameGrids[1]?.name ?? "Empty"}
                         grid={gameGrids[1]?.board ?? emptyGrid}
                         score={gameGrids[1]?.score ?? 0}
                     ></OpponentGrid>
@@ -271,15 +265,16 @@ function Game() {
                     playerName={myGrid?.name}
                     grid={myGrid?.board ?? emptyGrid}
                     score={myGrid.score}
+                    nextPiece={myGrid.nextPiece}
                 ></MainGrid>
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
-                        opponentName={gameGrids[2]?.name ?? "Empty"}
+                        playerName={gameGrids[2]?.name ?? "Empty"}
                         grid={gameGrids[2]?.board ?? emptyGrid}
                         score={gameGrids[2]?.score ?? 0}
                     ></OpponentGrid>
                     <OpponentGrid
-                        opponentName={gameGrids[3]?.name ?? "Empty"}
+                        playerName={gameGrids[3]?.name ?? "Empty"}
                         grid={gameGrids[3]?.board ?? emptyGrid}
                         score={gameGrids[3]?.score ?? 0}
                     ></OpponentGrid>
