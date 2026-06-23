@@ -208,7 +208,7 @@ export class Board {
     }
 
     private static handleFilledRows(grid: number[][]): clearRowsData {
-        const nonCompleteRows = grid.filter((row) =>
+        let nonCompleteRows = grid.filter((row) =>
             row.some(
                 (cell) =>
                     Board.isEmptyCell(cell) || cell === GRID_STATES.BLOCKED,
@@ -216,13 +216,31 @@ export class Board {
         );
 
         const numRemovedRows = grid.length - nonCompleteRows.length;
-        const emptyRows = Array.from({ length: numRemovedRows }, () =>
+        let linesToClearFromBlocks = numRemovedRows;
+
+        if (linesToClearFromBlocks > 0) {
+            for (let i = nonCompleteRows.length - 1; i >= 0; i--) {
+                if (linesToClearFromBlocks === 0) break;
+
+                const isBlockedRow = nonCompleteRows[i].every(
+                    (cell) => cell === GRID_STATES.BLOCKED,
+                );
+
+                if (isBlockedRow) {
+                    nonCompleteRows.splice(i, 1);
+                    linesToClearFromBlocks--;
+                }
+            }
+        }
+
+        const totalNewEmptyRows = grid.length - nonCompleteRows.length;
+        const emptyRows = Array.from({ length: totalNewEmptyRows }, () =>
             new Array(COLS).fill(GRID_STATES.EMPTY),
         );
 
         return {
             grid: [...emptyRows, ...nonCompleteRows],
-            clearedRows: numRemovedRows,
+            clearedRows: numRemovedRows, // Still return original amount for scoring/combo tracking
         };
     }
 
