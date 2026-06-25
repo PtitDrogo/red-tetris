@@ -24,6 +24,10 @@ function Home() {
             setError("Your name must contain at least 3 characters");
             return;
         }
+        if (inputValue.length > 10) {
+            setError("Your name must contain no more than 10 characters");
+            return;
+        }
         dispatch(setPlayerName(inputValue));
         socket.off("connect");
         socket.on("connect", () => {

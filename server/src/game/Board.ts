@@ -1,6 +1,11 @@
 import { COLS, ROWS } from "../../../shared/constants.js";
-import { GameInput, GRID_STATES } from "../../../shared/types.js";
-import { Coordinate, Piece, PieceType, Shapes, SPAWN_COOR } from "./Piece.js";
+import {
+    Coordinate,
+    GameInput,
+    GRID_STATES,
+    PieceType,
+} from "../../../shared/types.js";
+import { Piece, SPAWN_COOR } from "./Piece.js";
 import { rng } from "./rng.js";
 
 type PieceTypeRng = {
@@ -39,7 +44,7 @@ export class Board {
         grid?: number[][],
         isAlive?: boolean,
         clearedLines?: number,
-        clearedLinesIndexes?: number[]
+        clearedLinesIndexes?: number[],
     ) {
         this.seed = seed;
         this.bag = bag;
@@ -48,7 +53,8 @@ export class Board {
         );
         this.lockedGrid = clearRowsData.grid;
         this.clearedLines = clearedLines ?? clearRowsData.clearedRows;
-        this.clearedLinesIndexes = clearedLinesIndexes ?? clearRowsData.indexesOfClear;
+        this.clearedLinesIndexes =
+            clearedLinesIndexes ?? clearRowsData.indexesOfClear;
         if (activePiece) this.activePiece = activePiece;
         else {
             const pieceRng = Board.getPieceFromBag(this.seed, this.bag);
@@ -97,7 +103,7 @@ export class Board {
     }
 
     getClearedLinesIndexes() {
-        return this.clearedLinesIndexes
+        return this.clearedLinesIndexes;
     }
 
     getIsAlive() {
