@@ -17,52 +17,32 @@ import {
     GameInput,
     GameStatus,
     GRID_STATES,
+    PieceType,
     RoomPlayers,
     ServerMessage,
 } from "../../../shared/types";
-
-const cellColor: Record<GRID_STATES, string> = {
-    [GRID_STATES.EMPTY]: "",
-    [GRID_STATES.RED]: "bg-red-500",
-    [GRID_STATES.BLUE]: "bg-blue-600",
-    [GRID_STATES.GREEN]: "bg-green-500",
-    [GRID_STATES.ORANGE]: "bg-orange-500",
-    [GRID_STATES.CYAN]: "bg-cyan-400",
-    [GRID_STATES.PURPLE]: "bg-purple-700",
-    [GRID_STATES.YELLOW]: "bg-yellow-300",
-
-    [GRID_STATES.GHOST]: "bg-white/20 backdrop-blur-sm",
-    [GRID_STATES.BLOCKED]: "bg-zinc-800",
-};
+import Grid from "./Grid";
+import { Score } from "./Score";
+import { PiecePreview } from "./Piece";
 
 type gridProps = {
     playerName: string;
     grid: GRID_STATES[][];
     score: number;
     level?: number;
-    nextPiece?: string; //Obviously wont be a string, but for now we do that.
+    nextPiece?: PieceType;
 };
 
 function MainGrid({ playerName, grid, score, nextPiece }: gridProps) {
     return (
         <>
             <div className="flex flex-col items-center">
-                <div className="py-4">
-                    {nextPiece ? nextPiece + " - " : ""} {playerName}
+                <div className="flex items-center gap-4 py-1">
+                    <PiecePreview type={nextPiece} />
+                    {playerName}
                 </div>
-                <div className="grid grid-cols-10 grid-rows-20 border-l border-t border-white">
-                    {grid.map((row, rowIndex) =>
-                        row.map((cell, colIndex) => (
-                            <div
-                                key={`${rowIndex}-${colIndex}`}
-                                className={`border-r border-b border-white w-8 h-8 ${cellColor[cell]}`}
-                            />
-                        )),
-                    )}
-                </div>
-                <div className="border border-white w-full bg-gray-700 text-center">
-                    Score: {score}
-                </div>
+                <Grid grid={grid} height={20} length={10} cellSize={8} />
+                <Score score={score} />
             </div>
         </>
     );
@@ -78,19 +58,8 @@ function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
                 }`}
             >
                 <div className="py-2 text-sm">{opponentName}</div>
-                <div className="grid grid-cols-10 grid-rows-20 border-l border-t border-white">
-                    {grid.map((row, rowIndex) =>
-                        row.map((cell, colIndex) => (
-                            <div
-                                key={`${rowIndex}-${colIndex}`}
-                                className={`border-r border-b border-white w-4 h-4 ${cellColor[cell]}`}
-                            />
-                        )),
-                    )}
-                </div>
-                <div className="border border-white w-full bg-gray-700 text-center">
-                    Score: {score}
-                </div>
+                <Grid grid={grid} height={20} length={10} cellSize={4} />
+                <Score score={score} />
             </div>
         </>
     );

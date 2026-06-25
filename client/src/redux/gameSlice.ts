@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GameStatus } from "../../../shared/types";
+import { GameStatus, PieceType } from "../../../shared/types";
 
 export interface PlayerGrid {
     name: string;
@@ -7,7 +7,7 @@ export interface PlayerGrid {
     board: number[][];
     isAlive: boolean;
     level: number;
-    nextPiece?: string;
+    nextPiece?: PieceType;
 }
 
 interface GameState {

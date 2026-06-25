@@ -1,9 +1,13 @@
-export type TestType = {
-    test: number;
-    testString: string;
-};
+export enum PieceType {
+    I = "I",
+    J = "J",
+    L = "L",
+    O = "O",
+    S = "S",
+    T = "T",
+    Z = "Z",
+}
 
-//Im not exactly optimizing everything, but we might as well not send too much data.
 export enum ClientMessage {
     CREATE_ROOM = "c",
     JOIN_ROOM = "j",
@@ -85,4 +89,100 @@ export type GameState = {
         isAlive: boolean;
         board: number[][];
     }[];
+};
+
+export const Shapes: Record<
+    PieceType,
+    { cells: Coordinate[]; color: GRID_STATES }
+> = {
+    //□□□□
+    [PieceType.I]: {
+        cells: [
+            { x: 0, y: 0 },
+            { x: -1, y: 0 },
+            { x: 1, y: 0 },
+            { x: 2, y: 0 },
+        ],
+        color: GRID_STATES.CYAN,
+    },
+
+    // □□
+    // □□
+    [PieceType.O]: {
+        cells: [
+            { x: 0, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: -1 },
+            { x: -1, y: -1 },
+        ],
+        color: GRID_STATES.YELLOW,
+    },
+
+    // □
+    // □□□
+
+    [PieceType.J]: {
+        cells: [
+            { x: -1, y: -1 },
+            { x: -1, y: 0 },
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+        ],
+        color: GRID_STATES.BLUE,
+    },
+
+    //   □
+    // □□□
+
+    [PieceType.L]: {
+        cells: [
+            { x: -1, y: 0 },
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: +1, y: -1 },
+        ],
+        color: GRID_STATES.ORANGE,
+    },
+
+    //  □□
+    // □□
+    [PieceType.S]: {
+        cells: [
+            { x: -1, y: 0 },
+            { x: 0, y: 0 },
+            { x: 0, y: -1 },
+            { x: 1, y: -1 },
+        ],
+        color: GRID_STATES.GREEN,
+    },
+
+    // □□
+    //  □□
+    [PieceType.Z]: {
+        cells: [
+            { x: -1, y: -1 },
+            { x: 0, y: -1 },
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+        ],
+        color: GRID_STATES.RED,
+    },
+
+    //  □
+    // □□□
+
+    [PieceType.T]: {
+        cells: [
+            { x: -1, y: 0 },
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+            { x: 0, y: -1 },
+        ],
+        color: GRID_STATES.PURPLE,
+    },
+};
+
+export type Coordinate = {
+    x: number;
+    y: number;
 };
