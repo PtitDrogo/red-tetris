@@ -41,7 +41,12 @@ function MainGrid({ playerName, grid, score, nextPiece }: gridProps) {
                     <PiecePreview type={nextPiece} />
                     {playerName}
                 </div>
-                <Grid grid={grid} height={20} length={10} cellSize={8} />
+                <Grid
+                    grid={grid}
+                    gridColsClass="grid-cols-10"
+                    gridRowsClass="grid-rows-20"
+                    cellSizeClass="w-8 h-8"
+                />
                 <Score score={score} />
             </div>
         </>
@@ -58,7 +63,12 @@ function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
                 }`}
             >
                 <div className="py-2 text-sm">{opponentName}</div>
-                <Grid grid={grid} height={20} length={10} cellSize={4} />
+                <Grid
+                    grid={grid}
+                    gridColsClass="grid-cols-10"
+                    gridRowsClass="grid-rows-20"
+                    cellSizeClass="w-4 h-4"
+                />
                 <Score score={score} />
             </div>
         </>

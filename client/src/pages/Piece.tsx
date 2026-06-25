@@ -1,6 +1,5 @@
 import { PREVIEW_PIVOT } from "../../../shared/constants";
 import { GRID_STATES, PieceType, Shapes } from "../../../shared/types";
-import Grid from "./Grid";
 import { cellColor } from "./types";
 
 type PieceProps = {
@@ -27,7 +26,7 @@ export function PiecePreview({ type }: PieceProps) {
                     row.map((cell, colIndex) => (
                         <div
                             key={`${rowIndex}-${colIndex}`}
-                            className={`w-4 h-4 ${cellColor[grid[rowIndex][colIndex]]}`}
+                            className={`w-4 h-4 ${cellColor[cell]}`}
                         />
                     )),
                 )}

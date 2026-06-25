@@ -3,21 +3,26 @@ import { cellColor } from "./types";
 
 type GridProps = {
     grid: GRID_STATES[][];
-    length: number;
-    height: number;
-    cellSize: number;
+    gridColsClass: `grid-cols-${number}`;
+    gridRowsClass: `grid-rows-${number}`;
+    cellSizeClass: `w-${number} h-${number}`;
 };
 
-function Grid({ grid, length, height, cellSize }: GridProps) {
+function Grid({
+    grid,
+    gridColsClass,
+    gridRowsClass,
+    cellSizeClass,
+}: GridProps) {
     return (
         <div
-            className={`grid grid-cols-${length} grid-rows-${height} border-l border-t border-white`}
+            className={`grid ${gridColsClass} ${gridRowsClass} border-l border-t border-white/50`}
         >
             {grid.map((row, rowIndex) =>
                 row.map((cell, colIndex) => (
                     <div
                         key={`${rowIndex}-${colIndex}`}
-                        className={`border-r border-b border-white w-${cellSize} h-${cellSize} ${cellColor[cell]}`}
+                        className={`border-r border-b border-white/50 ${cellSizeClass} ${cellColor[cell]}`}
                     />
                 )),
             )}
