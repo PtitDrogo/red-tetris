@@ -8,6 +8,7 @@ import { Game } from "../game/Game.js";
 import { Player, STARTING_SPEED } from "../game/Player.js";
 import { Board } from "../game/Board.js";
 import { randomUUID, randomBytes } from "crypto";
+import { MAX_ROOM_PLAYERS } from "../../../shared/constants.js";
 
 export class NavigationController {
     static leave(socket: SocketType, io: Server) {
@@ -49,6 +50,11 @@ export class NavigationController {
         if (!room) {
             throw new Error("Could not find the room user is trying to join.");
         }
+
+        if (room.players.length >= MAX_ROOM_PLAYERS) {
+            throw new Error("You cannot join this room, it's full.");
+        }
+
         room.players.push({
             name: playerName,
             socketId: socket.id,

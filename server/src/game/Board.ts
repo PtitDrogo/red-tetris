@@ -333,7 +333,9 @@ export class Board {
             const newLocked = board.getLockedGrid();
             const ghostPiece = board.getGhostPiece();
             Piece.getComputedCoordinates(ghostPiece).forEach(({ x, y }) => {
-                newLocked[y][x] = oldPiece.getColor();
+                if (newLocked[y][x] !== GRID_STATES.BLOCKED) {
+                    newLocked[y][x] = oldPiece.getColor();
+                }
             });
             const { bag, seed, pieceType } = Board.getPieceFromBag(
                 boardData.seed,
