@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { GameInput } from "../../../shared/types.js";
+import { GameInput, PieceType } from "../../../shared/types.js";
 import { Board } from "../game/Board.js";
 import { Player, STARTING_SPEED } from "../game/Player.js";
-import { PieceType } from "../game/Piece.js";
 
 describe("Player Class Mechanics", () => {
     let dummyBoard: Board;
