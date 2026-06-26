@@ -57,6 +57,7 @@ export class Game {
         const playersData = this.players.map((player) => {
             return {
                 name: player.getName(),
+                id: player.getSocketId(),
                 score: player.getPoints(),
                 board: player.getBoard().getFullGrid(),
                 isAlive: player.getBoard().getIsAlive(),

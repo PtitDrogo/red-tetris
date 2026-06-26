@@ -97,13 +97,14 @@ function Game() {
 
         socket.on(ServerMessage.ROOM_STATE, (payload) => {
             const opponents: RoomPlayers[] = payload.players.filter(
-                (player: RoomPlayers) => player.name !== playerName,
+                (player: RoomPlayers) => player.socketId !== socket.id,
             );
 
             const gridsState: PlayerGrid[] = Array.from(
                 { length: 4 },
                 (_, index) => ({
-                    name: opponents[index]?.name || `Empty`,
+                    name: opponents[index]?.name || "Empty",
+                    id: opponents[index]?.socketId || "Empty",
                     score: 0,
                     board: grids[index],
                     isAlive: true,
@@ -113,6 +114,7 @@ function Game() {
 
             const myGrid: PlayerGrid = {
                 name: playerName,
+                id: socket.id || "Empty",
                 score: 0,
                 board: grids[4],
                 isAlive: true,
@@ -134,10 +136,10 @@ function Game() {
 
         socket.on(ServerMessage.GAME_STATE, (payload) => {
             const myGrid = payload.players.find(
-                (grid: PlayerGrid) => grid.name === playerName,
+                (grid: PlayerGrid) => grid.id === socket.id,
             );
             const playerGrids = payload.players.filter(
-                (grid: PlayerGrid) => grid.name !== playerName,
+                (grid: PlayerGrid) => grid.id !== socket.id,
             );
             dispatch(setMyGrid(myGrid!));
             dispatch(setGrids(playerGrids));
@@ -183,6 +185,7 @@ function Game() {
                     socket.emit("i", GameInput.DOWN);
                     break;
                 case "ArrowUp":
+                    if (e.repeat) return;
                     socket.emit("i", GameInput.ROTATE);
                     break;
                 case " ":
