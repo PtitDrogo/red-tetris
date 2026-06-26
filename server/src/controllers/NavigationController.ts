@@ -34,7 +34,6 @@ export class NavigationController {
         const room = roomManager.create(roomID);
         this.join(socket, roomID, playerName, io);
 
-        console.log(`Created Room with roomId ${room.id}`);
     }
 
     static join(

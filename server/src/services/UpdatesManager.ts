@@ -21,7 +21,6 @@ export class UpdateManager {
         io.to(roomId).emit(ServerMessage.GAME_OVER, playersData);
     }
     
-    //TODO: get rid of this any
     static gameUpdate(io: Server, roomId: string, gameUpdate: any) {
         io.to(roomId).emit(ServerMessage.GAME_STATE, gameUpdate);
     }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ServerMessage, GameStatus, type Room } from "../../../shared/types.js";
+import { ServerMessage, GameStatus, type Room, GameOverData } from "../../../shared/types.js";
 import type { Server } from "socket.io";
 import { roomManager } from "../services/RoomManager.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
@@ -22,6 +22,50 @@ describe("UpdateManager", () => {
             emit: mockEmit,
             to: mockTo,
         } as unknown as Server;
+    });
+
+    describe("updateGameOver", () => {
+        it("should emit GAME_OVER with ranking data to the specific room channel", () => {
+            const dummyRoomId = "test-room-id";
+            const dummyGameOverData: GameOverData = {
+                ranking: [
+                    { name: "Alice", points: 1200 },
+                    { name: "Bob", points: 800 },
+                ],
+            };
+
+            UpdateManager.updateGameOver(mockIo, dummyRoomId, dummyGameOverData);
+
+            expect(mockTo).toHaveBeenCalledWith(dummyRoomId);
+            expect(mockEmit).toHaveBeenCalledWith(
+                ServerMessage.GAME_OVER,
+                dummyGameOverData,
+            );
+        });
+    });
+
+    describe("gameUpdate", () => {
+        it("should emit GAME_STATE with the live game state to the specific room channel", () => {
+            const dummyRoomId = "test-room-id";
+            const dummyGameUpdate = {
+                players: [
+                    {
+                        name: "Alice",
+                        score: 300,
+                        isAlive: true,
+                        board: [[0, 0], [1, 1]],
+                    },
+                ],
+            };
+
+            UpdateManager.gameUpdate(mockIo, dummyRoomId, dummyGameUpdate);
+
+            expect(mockTo).toHaveBeenCalledWith(dummyRoomId);
+            expect(mockEmit).toHaveBeenCalledWith(
+                ServerMessage.GAME_STATE,
+                dummyGameUpdate,
+            );
+        });
     });
 
     describe("updateRoom", () => {

@@ -18,14 +18,14 @@ export default defineConfig({
     environment: "jsdom",
 
     coverage: {
-      provider: "v8", // or 'istanbul'
-      enabled: true, // Automatically runs coverage when you trigger the coverage command
-      include: ["src/**/*.{ts,tsx}"], // Only look at proper code files in src
+      provider: "v8", 
+      enabled: true, 
+      include: ["src/**/*.{ts,tsx}"], 
       exclude: [
-        "src/**/*.test.{ts,tsx}", // Ignore test files
-        "src/**/*.spec.{ts,tsx}", // Ignore spec files
-        "src/**/*.d.ts", // Ignore TypeScript declaration files
-        "src/main.tsx", // Optional: ignore entry point files if you want
+        "src/**/*.test.{ts,tsx}", 
+        "src/**/*.spec.{ts,tsx}", 
+        "src/**/*.d.ts", 
+        "src/main.tsx", 
         "src/vite-env.d.ts",
         "vite.config.ts",
       ],
