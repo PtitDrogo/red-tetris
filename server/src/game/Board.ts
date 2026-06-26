@@ -1,6 +1,11 @@
 import { COLS, ROWS } from "../../../shared/constants.js";
-import { GameInput, GRID_STATES } from "../../../shared/types.js";
-import { Coordinate, Piece, PieceType, Shapes, SPAWN_COOR } from "./Piece.js";
+import {
+    Coordinate,
+    GameInput,
+    GRID_STATES,
+    PieceType,
+} from "../../../shared/types.js";
+import { Piece, SPAWN_COOR } from "./Piece.js";
 import { rng } from "./rng.js";
 
 type PieceTypeRng = {
@@ -12,6 +17,7 @@ type PieceTypeRng = {
 type clearRowsData = {
     grid: number[][];
     clearedRows: number;
+    indexesOfClear: number[]; //Its possible for cleared lines to not be contiguous
 };
 
 export type BoardTypeRng = {
@@ -29,6 +35,7 @@ export class Board {
     private bag: PieceType[];
     private nextPiece: PieceType;
     private clearedLines: number;
+    private clearedLinesIndexes: number[];
 
     constructor(
         seed: number,
@@ -37,6 +44,7 @@ export class Board {
         grid?: number[][],
         isAlive?: boolean,
         clearedLines?: number,
+        clearedLinesIndexes?: number[],
     ) {
         this.seed = seed;
         this.bag = bag;
@@ -45,6 +53,8 @@ export class Board {
         );
         this.lockedGrid = clearRowsData.grid;
         this.clearedLines = clearedLines ?? clearRowsData.clearedRows;
+        this.clearedLinesIndexes =
+            clearedLinesIndexes ?? clearRowsData.indexesOfClear;
         if (activePiece) this.activePiece = activePiece;
         else {
             const pieceRng = Board.getPieceFromBag(this.seed, this.bag);
@@ -70,6 +80,7 @@ export class Board {
             grid: number[][];
             isAlive: boolean;
             clearedLines: number;
+            clearedLinesIndexes: number[];
         }> = {},
     ): Board {
         return new Board(
@@ -79,6 +90,7 @@ export class Board {
             overrides.grid ?? board.lockedGrid,
             overrides.isAlive ?? board.isAlive,
             overrides.clearedLines ?? board.clearedLines,
+            overrides.clearedLinesIndexes ?? board.clearedLinesIndexes,
         );
     }
 
@@ -88,6 +100,10 @@ export class Board {
 
     getClearedLines() {
         return this.clearedLines;
+    }
+
+    getClearedLinesIndexes() {
+        return this.clearedLinesIndexes;
     }
 
     getIsAlive() {
@@ -208,12 +224,22 @@ export class Board {
     }
 
     private static handleFilledRows(grid: number[][]): clearRowsData {
-        let nonCompleteRows = grid.filter((row) =>
+        const indexedGrid = grid.map((row, y) => ({ row, y }));
+
+        const nonCompleteRowsWithIndex = indexedGrid.filter(({ row }) =>
             row.some(
                 (cell) =>
                     Board.isEmptyCell(cell) || cell === GRID_STATES.BLOCKED,
             ),
         );
+        const remainingIndices = new Set(
+            nonCompleteRowsWithIndex.map((item) => item.y),
+        );
+        const clearedRowIndices = grid
+            .map((_, y) => y)
+            .filter((y) => !remainingIndices.has(y));
+
+        let nonCompleteRows = nonCompleteRowsWithIndex.map((item) => item.row);
 
         const numRemovedRows = grid.length - nonCompleteRows.length;
         let linesToClearFromBlocks = numRemovedRows;
@@ -240,7 +266,8 @@ export class Board {
 
         return {
             grid: [...emptyRows, ...nonCompleteRows],
-            clearedRows: numRemovedRows, // Still return original amount for scoring/combo tracking
+            clearedRows: numRemovedRows,
+            indexesOfClear: clearedRowIndices,
         };
     }
 
@@ -306,7 +333,9 @@ export class Board {
             const newLocked = board.getLockedGrid();
             const ghostPiece = board.getGhostPiece();
             Piece.getComputedCoordinates(ghostPiece).forEach(({ x, y }) => {
-                newLocked[y][x] = oldPiece.getColor();
+                if (newLocked[y][x] !== GRID_STATES.BLOCKED) {
+                    newLocked[y][x] = oldPiece.getColor();
+                }
             });
             const { bag, seed, pieceType } = Board.getPieceFromBag(
                 boardData.seed,

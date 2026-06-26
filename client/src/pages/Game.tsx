@@ -18,65 +18,47 @@ import {
     GameOverRanking,
     GameStatus,
     GRID_STATES,
+    PieceType,
     RoomPlayers,
     ServerMessage,
 } from "../../../shared/types";
+
 import { Crown } from "lucide-react";
 import { current } from "@reduxjs/toolkit";
 
-const cellColor: Record<GRID_STATES, string> = {
-    [GRID_STATES.EMPTY]: "",
-    [GRID_STATES.RED]: "bg-red-400",
-    [GRID_STATES.BLUE]: "bg-blue-400",
-    [GRID_STATES.GREEN]: "bg-green-300",
-    [GRID_STATES.ORANGE]: "bg-amber-300",
-    [GRID_STATES.GHOST]: "bg-gray-300 opacity-50",
-    [GRID_STATES.BLOCKED]: "bg-gray-700",
-};
+import Grid from "./Grid";
+import { Score } from "./Score";
+import { PiecePreview } from "./Piece";
 
-function MainGrid({
-    playerName,
-    grid,
-    score,
-    level,
-}: {
+type gridProps = {
     playerName: string;
     grid: GRID_STATES[][];
     score: number;
-    level: number;
-}) {
+    level?: number;
+    nextPiece?: PieceType;
+};
+
+function MainGrid({ playerName, grid, score, nextPiece, level }: gridProps) {
     return (
         <>
             <div className="flex flex-col items-center">
-                <div className="py-4">{playerName}</div>
-                <div className="grid grid-cols-10 grid-rows-20 border-l border-t border-white">
-                    {grid.map((row, rowIndex) =>
-                        row.map((cell, colIndex) => (
-                            <div
-                                key={`${rowIndex}-${colIndex}`}
-                                className={`border-r border-b border-white w-8 h-8 ${cellColor[cell]}`}
-                            />
-                        )),
-                    )}
+                <div className="flex items-center gap-4 py-1">
+                    <PiecePreview type={nextPiece} />
+                    {playerName}
                 </div>
-                <div className="flex flex-col border border-white w-full bg-gray-700 text-center">
-                    <span>Score: {score}</span>
-                    <span>Level: {level}</span>
-                </div>
+                <Grid
+                    grid={grid}
+                    gridColsClass="grid-cols-10"
+                    gridRowsClass="grid-rows-20"
+                    cellSizeClass="w-8 h-8"
+                />
+                <Score score={score} level={level} />
             </div>
         </>
     );
 }
 
-function OpponentGrid({
-    opponentName,
-    grid,
-    score,
-}: {
-    opponentName: string;
-    grid: GRID_STATES[][];
-    score: number;
-}) {
+function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
     const isPresent = opponentName !== "Empty";
     return (
         <>
@@ -86,19 +68,13 @@ function OpponentGrid({
                 }`}
             >
                 <div className="py-2 text-sm">{opponentName}</div>
-                <div className="grid grid-cols-10 grid-rows-20 border-l border-t border-white">
-                    {grid.map((row, rowIndex) =>
-                        row.map((cell, colIndex) => (
-                            <div
-                                key={`${rowIndex}-${colIndex}`}
-                                className={`border-r border-b border-white w-4 h-4 ${cellColor[cell]}`}
-                            />
-                        )),
-                    )}
-                </div>
-                <div className="border border-white w-full bg-gray-700 text-center">
-                    Score: {score}
-                </div>
+                <Grid
+                    grid={grid}
+                    gridColsClass="grid-cols-10"
+                    gridRowsClass="grid-rows-20"
+                    cellSizeClass="w-4 h-4"
+                />
+                <Score score={score} />
             </div>
         </>
     );
@@ -128,7 +104,7 @@ function Game() {
         ranking: [],
     });
     const levelRef = useRef(0);
-    
+
     useAuthGuard();
 
     const initSockets = () => {
@@ -149,6 +125,7 @@ function Game() {
                     { length: 4 },
                     (_, index) => ({
                         name: opponents[index]?.name || `Empty`,
+                        id: opponents[index]?.socketId || "Empty",
                         score: 0,
                         board: grids[index],
                         isAlive: true,
@@ -158,6 +135,7 @@ function Game() {
 
                 const myGrid: PlayerGrid = {
                     name: playerName,
+                    id: socket.id || "Empty",
                     score: 0,
                     board: grids[4],
                     isAlive: true,
@@ -173,10 +151,10 @@ function Game() {
 
         socket.on(ServerMessage.GAME_STATE, (payload) => {
             const myGrid = payload.players.find(
-                (grid: PlayerGrid) => grid.name === playerName,
+                (grid: PlayerGrid) => grid.id === socket.id,
             );
             const playerGrids = payload.players.filter(
-                (grid: PlayerGrid) => grid.name !== playerName,
+                (grid: PlayerGrid) => grid.id !== socket.id,
             );
             levelRef.current = myGrid.level;
             dispatch(setMyGrid(myGrid!));
@@ -216,6 +194,7 @@ function Game() {
                     socket.emit("i", GameInput.DOWN);
                     break;
                 case "ArrowUp":
+                    if (e.repeat) return;
                     socket.emit("i", GameInput.ROTATE);
                     break;
                 case " ":
@@ -340,12 +319,12 @@ function Game() {
             <div className="flex justify-center items-center pt-20 gap-40">
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
-                        opponentName={gameGrids[0]?.name ?? "Empty"}
+                        playerName={gameGrids[0]?.name ?? "Empty"}
                         grid={gameGrids[0]?.board ?? emptyGrid}
                         score={gameGrids[0]?.score ?? 0}
                     ></OpponentGrid>
                     <OpponentGrid
-                        opponentName={gameGrids[1]?.name ?? "Empty"}
+                        playerName={gameGrids[1]?.name ?? "Empty"}
                         grid={gameGrids[1]?.board ?? emptyGrid}
                         score={gameGrids[1]?.score ?? 0}
                     ></OpponentGrid>
@@ -355,15 +334,16 @@ function Game() {
                     grid={myGrid?.board ?? emptyGrid}
                     score={myGrid.score}
                     level={myGrid.level}
+                    nextPiece={myGrid.nextPiece}
                 ></MainGrid>
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
-                        opponentName={gameGrids[2]?.name ?? "Empty"}
+                        playerName={gameGrids[2]?.name ?? "Empty"}
                         grid={gameGrids[2]?.board ?? emptyGrid}
                         score={gameGrids[2]?.score ?? 0}
                     ></OpponentGrid>
                     <OpponentGrid
-                        opponentName={gameGrids[3]?.name ?? "Empty"}
+                        playerName={gameGrids[3]?.name ?? "Empty"}
                         grid={gameGrids[3]?.board ?? emptyGrid}
                         score={gameGrids[3]?.score ?? 0}
                     ></OpponentGrid>

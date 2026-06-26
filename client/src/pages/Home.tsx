@@ -7,6 +7,8 @@ import { setLobbies } from "../redux/lobbiesSlice";
 import { socket } from "../socket";
 import { LobbyState, ServerMessage } from "../../../shared/types";
 
+const MAX_LEN_NAME = 12
+
 function Home() {
     const navigate = useNavigate();
     const playerName = useSelector((state: RootState) => state.player.name);
@@ -22,6 +24,10 @@ function Home() {
     const handleStart = () => {
         if (inputValue.length < 3) {
             setError("Your name must contain at least 3 characters");
+            return;
+        }
+        if (inputValue.length > MAX_LEN_NAME) {
+            setError(`Your name must contain no more than ${MAX_LEN_NAME} characters`);
             return;
         }
         dispatch(setPlayerName(inputValue));
@@ -54,6 +60,7 @@ function Home() {
                         type="text"
                         className="bg-gray-800 rounded-xs px-3 py-3 hover:bg-gray-700 focus:outline-none focus:bg-gray-700 text-center transition-colors"
                         value={inputValue}
+                        maxLength={MAX_LEN_NAME}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") handleStart();

@@ -57,11 +57,13 @@ export class Game {
         const playersData = this.players.map((player) => {
             return {
                 name: player.getName(),
+                id: player.getSocketId(),
                 score: player.getPoints(),
                 board: player.getBoard().getFullGrid(),
                 isAlive: player.getBoard().getIsAlive(),
                 level: Math.floor(player.getPoints() / 500),
                 nextPiece: player.getBoard().getNextPiece(),
+                clearedLinesIndexes: player.getBoard().getClearedLinesIndexes(),
             };
         });
         const gameUpdate: GameState = {
@@ -191,7 +193,10 @@ export class Game {
             .map((p, i) => Player.addBlockLines(to_add[i], p))
             .map((p) => {
                 return Player.copy(p, {
-                    board: Board.copy(p.getBoard(), { clearedLines: 0 }),
+                    board: Board.copy(p.getBoard(), {
+                        clearedLines: 0,
+                        clearedLinesIndexes: [],
+                    }),
                 });
             });
 
