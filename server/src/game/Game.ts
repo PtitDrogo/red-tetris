@@ -148,10 +148,7 @@ export class Game {
             );
 
             if (alivePlayers.length === 1) {
-                //We send a message on a new subscriptions, GAME_OVER
-                console.log("One player alive");
                 const potentialWinnerPoints = alivePlayers[0].getPoints();
-
                 const isWinner = this.players.every(
                     (p) =>
                         p === alivePlayers[0] ||
@@ -159,19 +156,26 @@ export class Game {
                 );
 
                 if (!isWinner) return;
+                this.stopGameAndUpdate();
+            }
 
-                const playersData: GameOverData = {
-                    ranking: Game.getRanking(this.players),
-                };
-
-                this.stopGame();
-                UpdateManager.updateGameOver(this.io, this.roomId, playersData);
-                UpdateManager.updateLobby(this.io);
-                const updatedRoom = roomManager.get(this.roomId);
-                if (!updatedRoom) return;
-                UpdateManager.updateRoom(updatedRoom, this.io);
+            //Yes this can happen
+            if (alivePlayers.length === 0) {
+                this.stopGameAndUpdate();
             }
         }, META_UPDATE_DELAY_MS);
+    }
+
+    private stopGameAndUpdate() {
+        const playersData: GameOverData = {
+            ranking: Game.getRanking(this.players),
+        };
+        this.stopGame();
+        UpdateManager.updateGameOver(this.io, this.roomId, playersData);
+        UpdateManager.updateLobby(this.io);
+        const updatedRoom = roomManager.get(this.roomId);
+        if (!updatedRoom) return;
+        UpdateManager.updateRoom(updatedRoom, this.io);
     }
 
     private static getRanking(players: Player[]): GameOverRanking[] {
