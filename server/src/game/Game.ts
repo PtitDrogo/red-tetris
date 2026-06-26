@@ -149,7 +149,17 @@ export class Game {
 
             if (alivePlayers.length === 1) {
                 //We send a message on a new subscriptions, GAME_OVER
-                const winner = alivePlayers[0];
+                console.log("One player alive");
+                const potentialWinnerPoints = alivePlayers[0].getPoints();
+
+                const isWinner = this.players.every(
+                    (p) =>
+                        p === alivePlayers[0] ||
+                        p.getPoints() < potentialWinnerPoints,
+                );
+
+                if (!isWinner) return;
+
                 const playersData: GameOverData = {
                     ranking: Game.getRanking(this.players),
                 };
