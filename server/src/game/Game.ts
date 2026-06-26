@@ -9,7 +9,7 @@ import {
 import { Player } from "./Player.js";
 import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
-import { roomManager, RoomManager } from "../services/RoomManager.js";
+import { roomManager } from "../services/RoomManager.js";
 import { Board } from "./Board.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
 

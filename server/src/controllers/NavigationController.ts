@@ -1,4 +1,4 @@
-import { DefaultEventsMap, Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import { GameStatus, PieceType, ServerMessage } from "../../../shared/types.js";
 import { roomManager } from "../services/RoomManager.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
@@ -34,7 +34,6 @@ export class NavigationController {
         const room = roomManager.create(roomID);
         this.join(socket, roomID, playerName, io);
 
-        console.log(`Created Room with roomId ${room.id}`);
     }
 
     static join(
