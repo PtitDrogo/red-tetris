@@ -2,7 +2,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Game from "./components/Game";
 import Home from "./components/Home";
 import LobbyList from "./components/LobbyList";
-import TestGame from "./TestGame";
 import { io } from "socket.io-client";
 
 //This is temp, depending on when we decide to give a websocket connection to a user.
@@ -23,7 +22,6 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/lobbylist" element={<LobbyList />} />
                 <Route path="/:roomName/:playerName" element={<Game />} />
-                <Route path="/test" element={<TestGame socket={socket} />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
