@@ -19,7 +19,14 @@ interface GameState {
 }
 
 const initialState: GameState = {
-    myGrid: { name: "Empty", id: "Empty", score: 0, board: [], isAlive: true, level: 1 },
+    myGrid: {
+        name: "Empty",
+        id: "Empty",
+        score: 0,
+        board: [],
+        isAlive: true,
+        level: 1,
+    },
     grids: [],
     ownerId: "None",
     status: GameStatus.WAITING,
@@ -40,7 +47,7 @@ const gameSlice = createSlice({
         },
         setStatus(state, action: PayloadAction<GameStatus>) {
             state.status = action.payload;
-        }
+        },
     },
 });
 

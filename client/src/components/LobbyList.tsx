@@ -38,13 +38,14 @@ function LobbyList() {
 
         socket.on(ServerMessage.ROOM_STATE, (payload) => {
             const opponents: RoomPlayers[] = payload.players.filter(
-                (player: RoomPlayers) => player.name !== playerName,
+                (player: RoomPlayers) => player.socketId !== socket.id,
             );
 
             const gridsState: PlayerGrid[] = Array.from(
                 { length: 4 },
                 (_, index) => ({
                     name: opponents[index]?.name || `Empty`,
+                    id: opponents[index]?.socketId || `Empty`,
                     score: 0,
                     board: grids[index],
                     isAlive: true,
@@ -54,6 +55,7 @@ function LobbyList() {
 
             const myGrid: PlayerGrid = {
                 name: playerName,
+                id: socket.id || "Empty",
                 score: 0,
                 board: grids[4],
                 isAlive: true,
