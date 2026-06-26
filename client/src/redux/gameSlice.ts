@@ -48,6 +48,10 @@ const gameSlice = createSlice({
         setStatus(state, action: PayloadAction<GameStatus>) {
             state.status = action.payload;
         },
+        // setGameOver: (state, action: PayloadAction<GameOver>) => {
+        //     state.gameOver.active = true;
+        //     state.gameOver.ranking = action.payload; // Saves the server's ranking list
+        // },
     },
 });
 

@@ -1,14 +1,13 @@
-import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../redux";
 import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import type { LobbyState } from "../../../shared/types";
+import { RootState } from "../redux";
 import { setLobbies } from "../redux/lobbiesSlice";
-import type { LobbyState, RoomPlayers } from "../../../shared/types";
 import { socket } from "../socket";
 
 import { ClientMessage, ServerMessage } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
-import { PlayerGrid, setGrids, setMyGrid, setOwner } from "../redux/gameSlice";
 
 import { Crown } from "lucide-react";
 
@@ -19,77 +18,56 @@ function LobbyList() {
     const dispatch = useDispatch();
 
     const createLobby = () => {
-        socket.emit(ClientMessage.CREATE_ROOM, playerName);
+        dispatch({
+            type: "socket/emit",
+            payload: {
+                event: ClientMessage.CREATE_ROOM,
+                data: playerName,
+            },
+        });
     };
 
     const joinLobby = (id: string) => {
-        socket.emit(ClientMessage.JOIN_ROOM, {
-            roomID: id,
-            playerName: playerName,
+        dispatch({
+            type: "socket/emit",
+            payload: {
+                event: ClientMessage.JOIN_ROOM,
+                data: {
+                    roomID: id,
+                    playerName: playerName,
+                },
+            },
         });
     };
 
     useAuthGuard();
 
     useEffect(() => {
-        const grids: number[][][] = Array.from({ length: 5 }, () =>
-            Array.from({ length: 20 }, (_, i) => Array(10).fill(0)),
-        );
-
-        socket.on(ServerMessage.ROOM_STATE, (payload) => {
-            const opponents: RoomPlayers[] = payload.players.filter(
-                (player: RoomPlayers) => player.socketId !== socket.id,
-            );
-
-            const gridsState: PlayerGrid[] = Array.from(
-                { length: 4 },
-                (_, index) => ({
-                    name: opponents[index]?.name || `Empty`,
-                    id: opponents[index]?.socketId || `Empty`,
-                    score: 0,
-                    board: grids[index],
-                    isAlive: true,
-                    level: 0,
-                }),
-            );
-
-            const myGrid: PlayerGrid = {
-                name: playerName,
-                id: socket.id || "Empty",
-                score: 0,
-                board: grids[4],
-                isAlive: true,
-                level: 0,
-            };
-
-            dispatch(setMyGrid(myGrid));
-            dispatch(setGrids(gridsState));
-            dispatch(setOwner(payload.players[0].socketId));
-        });
+        // Pass the navigate function to the middleware
+        dispatch({ type: "socket/initLobby", payload: { navigate } });
 
         return () => {
-            socket.off(ServerMessage.ROOM_STATE);
+            dispatch({ type: "socket/cleanupLobby" });
         };
-    }, []);
+    }, [dispatch, navigate]);
 
-    useEffect(() => {
-        socket.on(ServerMessage.ERROR, (payload) => {
-            console.log(payload);
-        });
-        socket.off(ServerMessage.LOBBY_STATE);
-        socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
-            dispatch(setLobbies(payload));
-        });
-        socket.on(ServerMessage.JOIN_ROOM, (payload: string) =>
-            navigate(`/${payload}/${playerName}`),
-        );
+    // useEffect(() => {
+    //     socket.on(ServerMessage.ERROR, (payload) => {
+    //         console.log(payload);
+    //     });
+    //     socket.off(ServerMessage.LOBBY_STATE);
+    //     socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
+    //         dispatch(setLobbies(payload));
+    //     });
+    //     socket.on(ServerMessage.JOIN_ROOM, (payload: string) =>
+    //         navigate(`/${payload}/${playerName}`),
+    //     );
 
-        return () => {
-            socket.off(ServerMessage.ERROR);
-
-            socket.off(ServerMessage.LOBBY_STATE);
-        };
-    }, []);
+    //     return () => {
+    //         socket.off(ServerMessage.ERROR);
+    //         socket.off(ServerMessage.LOBBY_STATE);
+    //     };
+    // }, []);
 
     return (
         <>

@@ -1,7 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import playerReducer from "./playerSlice";
-import lobbiesReducer from "./lobbiesSlice";
 import gameReducer from "./gameSlice";
+import lobbiesReducer from "./lobbiesSlice";
+import socketMiddleware from "./middleware/middleware";
+import playerReducer from "./playerSlice";
 
 export const store = configureStore({
     reducer: {
@@ -9,6 +10,12 @@ export const store = configureStore({
         lobbies: lobbiesReducer,
         game: gameReducer,
     },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: ["socket/initLobby"],
+            },
+        }).concat(socketMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
