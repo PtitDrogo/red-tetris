@@ -1,15 +1,13 @@
-import { GRID_STATES } from "../../../shared/types";
-import { cellColor } from "./types";
-
 type ScoreProps = {
     score: number;
-    // level: string;//Add level later
+    level?: number;
 };
 
-export function Score({ score }: ScoreProps) {
+export function Score({ score, level }: ScoreProps) {
     return (
-        <div className="border border-white w-full bg-gray-700 text-center">
-            Score: {score}
+        <div className="flex flex-col border border-white w-full bg-gray-700 text-center">
+            <span>Score: {score}</span>
+            {level !== undefined && <span>Level: {level}</span>}
         </div>
     );
 }

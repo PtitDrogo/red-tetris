@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { socket } from "../socket";
 
 import {
@@ -15,12 +15,17 @@ import { useAuthGuard } from "../hooks/useAuthGuard";
 import {
     ClientMessage,
     GameInput,
+    GameOverRanking,
     GameStatus,
     GRID_STATES,
     PieceType,
     RoomPlayers,
     ServerMessage,
 } from "../../../shared/types";
+
+import { Crown } from "lucide-react";
+import { current } from "@reduxjs/toolkit";
+
 import Grid from "./Grid";
 import { Score } from "./Score";
 import { PiecePreview } from "./Piece";
@@ -33,7 +38,7 @@ type gridProps = {
     nextPiece?: PieceType;
 };
 
-function MainGrid({ playerName, grid, score, nextPiece }: gridProps) {
+function MainGrid({ playerName, grid, score, nextPiece, level }: gridProps) {
     return (
         <>
             <div className="flex flex-col items-center">
@@ -47,7 +52,7 @@ function MainGrid({ playerName, grid, score, nextPiece }: gridProps) {
                     gridRowsClass="grid-rows-20"
                     cellSizeClass="w-8 h-8"
                 />
-                <Score score={score} />
+                <Score score={score} level={level} />
             </div>
         </>
     );
@@ -75,6 +80,12 @@ function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
     );
 }
 
+interface GameOverState {
+    active: boolean;
+    level: number;
+    ranking: GameOverRanking[];
+}
+
 function Game() {
     const navigate = useNavigate();
     const playerName = useSelector((state: RootState) => state.player.name);
@@ -82,12 +93,21 @@ function Game() {
     const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const ownerId = useSelector((state: RootState) => state.game.ownerId);
     const gameStatus = useSelector((state: RootState) => state.game.status);
+
     const dispatch = useDispatch();
-    const [gameStartButton, setGameStartButton] = useState(false);
+
+    const gameStartButton =
+        ownerId === socket.id && gameStatus === GameStatus.WAITING;
+    const [gameOverOverlay, setGameOverOverlay] = useState<GameOverState>({
+        active: false,
+        level: 0,
+        ranking: [],
+    });
+    const levelRef = useRef(0);
 
     useAuthGuard();
 
-    const initGame = () => {
+    const initSockets = () => {
         socket.off(ServerMessage.ROOM_STATE);
         socket.off(ServerMessage.GAME_STATE);
 
@@ -96,42 +116,37 @@ function Game() {
         );
 
         socket.on(ServerMessage.ROOM_STATE, (payload) => {
-            const opponents: RoomPlayers[] = payload.players.filter(
-                (player: RoomPlayers) => player.socketId !== socket.id,
-            );
+            if (payload.gameInfo.status === GameStatus.WAITING) {
+                const opponents: RoomPlayers[] = payload.players.filter(
+                    (player: RoomPlayers) => player.name !== playerName,
+                );
 
-            const gridsState: PlayerGrid[] = Array.from(
-                { length: 4 },
-                (_, index) => ({
-                    name: opponents[index]?.name || "Empty",
-                    id: opponents[index]?.socketId || "Empty",
+                const gridsState: PlayerGrid[] = Array.from(
+                    { length: 4 },
+                    (_, index) => ({
+                        name: opponents[index]?.name || `Empty`,
+                        id: opponents[index]?.socketId || "Empty",
+                        score: 0,
+                        board: grids[index],
+                        isAlive: true,
+                        level: 0,
+                    }),
+                );
+
+                const myGrid: PlayerGrid = {
+                    name: playerName,
+                    id: socket.id || "Empty",
                     score: 0,
-                    board: grids[index],
+                    board: grids[4],
                     isAlive: true,
                     level: 0,
-                }),
-            );
+                };
 
-            const myGrid: PlayerGrid = {
-                name: playerName,
-                id: socket.id || "Empty",
-                score: 0,
-                board: grids[4],
-                isAlive: true,
-                level: 0,
-            };
-
-            dispatch(setMyGrid(myGrid));
-            dispatch(setGrids(gridsState));
+                dispatch(setMyGrid(myGrid));
+                dispatch(setGrids(gridsState));
+            }
             dispatch(setOwner(payload.players[0].socketId));
             dispatch(setStatus(payload.gameInfo.status));
-
-            //I have to check against the payload the const ts variables seems to be stale.
-            if (
-                payload.players[0].socketId === socket.id &&
-                payload.gameInfo.status === GameStatus.WAITING
-            )
-                setGameStartButton(true);
         });
 
         socket.on(ServerMessage.GAME_STATE, (payload) => {
@@ -141,34 +156,28 @@ function Game() {
             const playerGrids = payload.players.filter(
                 (grid: PlayerGrid) => grid.id !== socket.id,
             );
+            levelRef.current = myGrid.level;
             dispatch(setMyGrid(myGrid!));
             dispatch(setGrids(playerGrids));
         });
 
-        if (ownerId === socket.id && gameStatus === GameStatus.WAITING)
-            setGameStartButton(true);
+        socket.on(ServerMessage.GAME_OVER, (payload) => {
+            setGameOverOverlay({
+                active: true,
+                level: levelRef.current,
+                ranking: payload.ranking,
+            });
+        });
     };
 
     useEffect(() => {
-        initGame();
+        initSockets();
         return () => {
             socket.off(ServerMessage.ROOM_STATE);
             socket.off(ServerMessage.GAME_STATE);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (ownerId === socket.id && gameStatus === GameStatus.WAITING)
-            setGameStartButton(true);
-        else setGameStartButton(false);
-    }, [ownerId]);
-
-    useEffect(() => {
-        socket.on(ServerMessage.GAME_OVER, (payload) => {
-            initGame();
-        });
-        return () => {
             socket.off(ServerMessage.GAME_OVER);
+            socket.emit(ClientMessage.LEAVE_ROOM);
+            dispatch(setStatus(GameStatus.WAITING));
         };
     }, []);
 
@@ -198,38 +207,115 @@ function Game() {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
-    useEffect(() => {
-        return () => {
-            socket.emit(ClientMessage.LEAVE_ROOM);
-            dispatch(setStatus(GameStatus.WAITING));
-        };
-    }, []);
-
-    const handleGameStart = () => {
-        setGameStartButton(false);
-        socket.off(ServerMessage.ROOM_STATE);
-        socket.on(ServerMessage.ROOM_STATE, (payload) => {
-            dispatch(setOwner(payload.players[0].socketId));
-            dispatch(setStatus(payload.gameInfo.status));
-        });
-        socket.emit(ClientMessage.START_GAME);
-    };
-
     const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (
         <>
             {gameStartButton && (
-                <div className="fixed inset-0 flex justify-center items-center z-50 pointer-events-none">
+                <div className="pointer-events-none fixed inset-0 flex justify-center items-center z-50">
                     <button
-                        className="pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-2xl px-8 py-4 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
+                        className="pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-2xl px-35 py-7 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
                         onClick={() => {
-                            handleGameStart();
+                            socket.emit(ClientMessage.START_GAME);
                         }}
                     >
-                        START
+                        <span className="animate-slow-pulse">START</span>
                     </button>
                 </div>
             )}
+            {gameStatus === GameStatus.WAITING && !gameStartButton && (
+                <div className="pointer-events-none fixed inset-0 flex justify-center items-center z-50">
+                    <div className="bg-gray-900/80 border-t border-b border-electric-red/50 px-20 py-8 text-center rounded-xl animate-shadow-pulse2">
+                        <span className="text-xl font-medium text-slate-300 tracking-wide animate-slow-pulse">
+                            Waiting for host...
+                        </span>
+                    </div>
+                </div>
+            )}
+            {gameOverOverlay.active && (
+                <div className="fixed inset-0 flex justify-center items-center z-51">
+                    <div className="bg-gray-800/70 border-t border-b border-electric-red/50 px-30 py-15 rounded-xl backdrop-blur-sm">
+                        {gameOverOverlay.ranking[0]?.name === playerName ? (
+                            <div className="flex flex-col items-center">
+                                <Crown
+                                    className="w-7 h-7 text-amber-400 fill-amber-400 animate-pulse"
+                                    strokeWidth={2}
+                                />
+
+                                <p className="text-xl font-medium text-amber-400 tracking-wide animate-pulse">
+                                    Congratulations !
+                                </p>
+                                <p className="text-xl font-medium text-slate-300 tracking-wide">
+                                    Score : {gameOverOverlay.ranking[0]?.points}
+                                </p>
+                                <p className="text-xl font-medium text-slate-300 tracking-wide">
+                                    Level : {gameOverOverlay.level}
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center animate-pulse">
+                                <p className="text-xl font-medium text-red-500 tracking-wide">
+                                    You lost...
+                                </p>
+                                <p className="text-xl font-medium text-slate-300 tracking-wide">
+                                    Score :{" "}
+                                    {
+                                        gameOverOverlay.ranking.find(
+                                            (val) => val.name === playerName,
+                                        )?.points
+                                    }
+                                </p>
+                                <p className="text-xl font-medium text-slate-300 tracking-wide">
+                                    Level : {gameOverOverlay.level}
+                                </p>
+                            </div>
+                        )}
+                        <div className="flex flex-col justify-center">
+                            <span className="mt-10 text-center text-xl">
+                                Winner :{" "}
+                                {gameOverOverlay.ranking[0].name ?? "Empty"}
+                            </span>
+                            <span className="text-center text-xl">
+                                Score :{" "}
+                                {gameOverOverlay.ranking[0].points ?? "0"}
+                            </span>
+                            <div className="mt-5 grid grid-cols-1 gap-2 w-full py-3">
+                                {Array.from({ length: 4 }, (_, index) => (
+                                    <div
+                                        key={index}
+                                        className="border rounded-xs flex justify-between px-4"
+                                    >
+                                        <span>
+                                            {index + 2 + " - "}
+                                            {gameOverOverlay.ranking[index + 1]
+                                                ?.name ?? "Empty"}
+                                        </span>
+                                        <span>
+                                            {gameOverOverlay.ranking[index + 1]
+                                                ?.points ?? "0"}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="flex justify-center items-center z-50">
+                            <button
+                                className="mt-10 pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
+                                onClick={() => {
+                                    setGameOverOverlay((current) => ({
+                                        ...current,
+                                        active: false,
+                                    }));
+                                }}
+                            >
+                                <span className="animate-slow-pulse">
+                                    Continue
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="flex justify-center items-center pt-20 gap-40">
                 <div className="flex flex-col gap-20">
                     <OpponentGrid
@@ -247,6 +333,7 @@ function Game() {
                     playerName={myGrid?.name}
                     grid={myGrid?.board ?? emptyGrid}
                     score={myGrid.score}
+                    level={myGrid.level}
                     nextPiece={myGrid.nextPiece}
                 ></MainGrid>
                 <div className="flex flex-col gap-20">
