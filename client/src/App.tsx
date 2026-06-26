@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import Game from "./pages/Game";
-import Home from "./pages/Home";
-import LobbyList from "./pages/LobbyList";
+import Game from "./components/Game";
+import Home from "./components/Home";
+import LobbyList from "./components/LobbyList";
 import TestGame from "./TestGame";
 import { io } from "socket.io-client";
 
