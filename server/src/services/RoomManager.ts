@@ -1,7 +1,6 @@
 import {
     GameStatus,
     type Room,
-    type LobbyState,
 } from "../../../shared/types.js";
 
 export class RoomManager {

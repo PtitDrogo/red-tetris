@@ -9,7 +9,7 @@ import {
 import { Player } from "./Player.js";
 import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
-import { roomManager, RoomManager } from "../services/RoomManager.js";
+import { roomManager } from "../services/RoomManager.js";
 import { Board } from "./Board.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
 
@@ -148,20 +148,34 @@ export class Game {
             );
 
             if (alivePlayers.length === 1) {
-                //We send a message on a new subscriptions, GAME_OVER
-                const winner = alivePlayers[0];
-                const playersData: GameOverData = {
-                    ranking: Game.getRanking(this.players),
-                };
+                const potentialWinnerPoints = alivePlayers[0].getPoints();
+                const isWinner = this.players.every(
+                    (p) =>
+                        p === alivePlayers[0] ||
+                        p.getPoints() < potentialWinnerPoints,
+                );
 
-                this.stopGame();
-                UpdateManager.updateGameOver(this.io, this.roomId, playersData);
-                UpdateManager.updateLobby(this.io);
-                const updatedRoom = roomManager.get(this.roomId);
-                if (!updatedRoom) return;
-                UpdateManager.updateRoom(updatedRoom, this.io);
+                if (!isWinner) return;
+                this.stopGameAndUpdate();
+            }
+
+            //Yes this can happen
+            if (alivePlayers.length === 0) {
+                this.stopGameAndUpdate();
             }
         }, META_UPDATE_DELAY_MS);
+    }
+
+    private stopGameAndUpdate() {
+        const playersData: GameOverData = {
+            ranking: Game.getRanking(this.players),
+        };
+        this.stopGame();
+        UpdateManager.updateGameOver(this.io, this.roomId, playersData);
+        UpdateManager.updateLobby(this.io);
+        const updatedRoom = roomManager.get(this.roomId);
+        if (!updatedRoom) return;
+        UpdateManager.updateRoom(updatedRoom, this.io);
     }
 
     private static getRanking(players: Player[]): GameOverRanking[] {

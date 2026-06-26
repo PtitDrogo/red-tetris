@@ -12,8 +12,3 @@ export function rng(seed: number): RNGResult {
     const value = ((z ^ (z >>> 14)) >>> 0) / 0x100000000;
     return { value, nextSeed: seed };
 }
-
-//Probably dumb functions, just here to I remember.
-export function randomIndex(value: number, arrayLength: number): number {
-  return Math.floor(value * arrayLength);
-}
