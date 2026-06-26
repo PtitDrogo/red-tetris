@@ -26,9 +26,9 @@ import {
 import { current } from "@reduxjs/toolkit";
 
 import Grid from "./Grid";
-import { Score } from "./Score";
+import { Score } from "../components/Score";
 import { PiecePreview } from "./Piece";
-import GameOverOverlay, { GameOverState } from "./GameOverOverlay";
+import GameOverOverlay, { GameOverState } from "../components/GameOverOverlay";
 
 type gridProps = {
     playerName: string;
@@ -79,8 +79,6 @@ function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
         </>
     );
 }
-
-
 
 function Game() {
     const navigate = useNavigate();
