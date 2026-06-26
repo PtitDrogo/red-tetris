@@ -1,4 +1,3 @@
-
 import { Crown } from "lucide-react";
 import { GameOverRanking } from "../../../shared/types";
 
@@ -14,7 +13,11 @@ interface GameOverOverlayProps {
     onClose: () => void;
 }
 
-function GameOverOverlay({gameOverOverlay, playerName, onClose} : GameOverOverlayProps) {
+function GameOverOverlay({
+    gameOverOverlay,
+    playerName,
+    onClose,
+}: GameOverOverlayProps) {
     if (!gameOverOverlay.active) return null;
     return (
         <div className="fixed inset-0 flex justify-center items-center z-51">
@@ -62,22 +65,30 @@ function GameOverOverlay({gameOverOverlay, playerName, onClose} : GameOverOverla
                         Score : {gameOverOverlay.ranking[0].points ?? "0"}
                     </span>
                     <div className="mt-5 grid grid-cols-1 gap-2 w-full py-3">
-                        {Array.from({ length: 4 }, (_, index) => (
-                            <div
-                                key={index}
-                                className="border rounded-xs flex justify-between px-4"
-                            >
-                                <span>
-                                    {index + 2 + " - "}
-                                    {gameOverOverlay.ranking[index + 1]?.name ??
-                                        "Empty"}
-                                </span>
-                                <span>
-                                    {gameOverOverlay.ranking[index + 1]
-                                        ?.points ?? "0"}
-                                </span>
-                            </div>
-                        ))}
+                        {Array.from(
+                            {
+                                length: Math.max(
+                                    0,
+                                    gameOverOverlay.ranking.length - 1,
+                                ),
+                            },
+                            (_, index) => (
+                                <div
+                                    key={index}
+                                    className="border rounded-xs flex justify-between px-4"
+                                >
+                                    <span>
+                                        {index + 2 + " - "}
+                                        {gameOverOverlay.ranking[index + 1]
+                                            ?.name ?? "Empty"}
+                                    </span>
+                                    <span>
+                                        {gameOverOverlay.ranking[index + 1]
+                                            ?.points ?? "0"}
+                                    </span>
+                                </div>
+                            ),
+                        )}
                     </div>
                 </div>
                 <div className="flex justify-center items-center z-50">
