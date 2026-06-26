@@ -1,114 +1,13 @@
-import { GRID_STATES } from "../../../shared/types.js";
-
-export enum PieceType {
-    I = "I",
-    J = "J",
-    L = "L",
-    O = "O",
-    S = "S",
-    T = "T",
-    Z = "Z",
-}
-
-export type Coordinate = {
-    x: number;
-    y: number;
-};
+import {
+    Coordinate,
+    GRID_STATES,
+    PieceType,
+    Shapes,
+} from "../../../shared/types.js";
 
 export const SPAWN_COOR: Coordinate = {
     x: 5,
     y: 1,
-};
-
-export const Shapes: Record<
-    PieceType,
-    { cells: Coordinate[]; color: GRID_STATES }
-> = {
-    //□□□□
-    [PieceType.I]: {
-        cells: [
-            { x: 0, y: 0 },
-            { x: -1, y: 0 },
-            { x: 1, y: 0 },
-            { x: 2, y: 0 },
-        ],
-        color: GRID_STATES.BLUE,
-    },
-
-    // □□
-    // □□
-    [PieceType.O]: {
-        cells: [
-            { x: 0, y: 0 },
-            { x: 1, y: 0 },
-            { x: 0, y: 1 },
-            { x: 1, y: 1 },
-        ],
-        color: GRID_STATES.GREEN,
-    },
-
-    // □
-    // □□□
-
-    [PieceType.J]: {
-        cells: [
-            { x: -1, y: -1 },
-            { x: -1, y: 0 },
-            { x: 0, y: 0 },
-            { x: 1, y: 0 },
-        ],
-        color: GRID_STATES.ORANGE,
-    },
-
-    //   □
-    // □□□
-
-    [PieceType.L]: {
-        cells: [
-            { x: -1, y: 0 },
-            { x: 0, y: 0 },
-            { x: 1, y: 0 },
-            { x: +1, y: -1 },
-        ],
-        color: GRID_STATES.RED,
-    },
-
-    //  □□
-    // □□
-    [PieceType.S]: {
-        cells: [
-            { x: -1, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: -1 },
-            { x: 1, y: -1 },
-        ],
-        color: GRID_STATES.GREEN,
-    },
-
-    // □□
-    //  □□
-    [PieceType.Z]: {
-        cells: [
-            { x: -1, y: -1 },
-            { x: 0, y: -1 },
-            { x: 0, y: 0 },
-            { x: 1, y: 0 },
-        ],
-        color: GRID_STATES.ORANGE,
-    },
-
-    //  □
-    // □□□
-
-    [PieceType.T]: {
-        cells: [
-            { x: -1, y: 0 },
-            { x: 0, y: 0 },
-            { x: 1, y: 0 },
-            { x: 0, y: -1 },
-        ],
-        color: GRID_STATES.GREEN,
-    },
 };
 
 export class Piece {

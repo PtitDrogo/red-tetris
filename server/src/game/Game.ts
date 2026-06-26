@@ -57,11 +57,13 @@ export class Game {
         const playersData = this.players.map((player) => {
             return {
                 name: player.getName(),
+                id: player.getSocketId(),
                 score: player.getPoints(),
                 board: player.getBoard().getFullGrid(),
                 isAlive: player.getBoard().getIsAlive(),
                 level: Math.floor(player.getPoints() / 500),
                 nextPiece: player.getBoard().getNextPiece(),
+                clearedLinesIndexes: player.getBoard().getClearedLinesIndexes(),
             };
         });
         const gameUpdate: GameState = {
@@ -147,7 +149,17 @@ export class Game {
 
             if (alivePlayers.length === 1) {
                 //We send a message on a new subscriptions, GAME_OVER
-                const winner = alivePlayers[0];
+                console.log("One player alive");
+                const potentialWinnerPoints = alivePlayers[0].getPoints();
+
+                const isWinner = this.players.every(
+                    (p) =>
+                        p === alivePlayers[0] ||
+                        p.getPoints() < potentialWinnerPoints,
+                );
+
+                if (!isWinner) return;
+
                 const playersData: GameOverData = {
                     ranking: Game.getRanking(this.players),
                 };
@@ -191,7 +203,10 @@ export class Game {
             .map((p, i) => Player.addBlockLines(to_add[i], p))
             .map((p) => {
                 return Player.copy(p, {
-                    board: Board.copy(p.getBoard(), { clearedLines: 0 }),
+                    board: Board.copy(p.getBoard(), {
+                        clearedLines: 0,
+                        clearedLinesIndexes: [],
+                    }),
                 });
             });
 

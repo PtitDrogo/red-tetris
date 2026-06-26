@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { ROWS, COLS } from "../../../shared/constants.js";
-import { GRID_STATES, GameInput } from "../../../shared/types.js";
+import { GRID_STATES, GameInput, PieceType } from "../../../shared/types.js";
 import { Board } from "../game/Board.js";
-import { Piece, PieceType } from "../game/Piece.js";
+import { Piece } from "../game/Piece.js";
 
 // Because otherwise tests are complaining that -0 !== 0
 const normalize = (cells: { x: number; y: number }[]) =>

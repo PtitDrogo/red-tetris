@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Game from "./pages/Game";
 import Home from "./pages/Home";
 import LobbyList from "./pages/LobbyList";
@@ -18,14 +18,16 @@ socket.on("connect", () => {
 
 function App() {
     return (
-        <>
+        <div className="min-h-screen bg-gray-900 font-tetris text-white">
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/lobbylist" element={<LobbyList />} />
                 <Route path="/:roomName/:playerName" element={<Game />} />
                 <Route path="/test" element={<TestGame socket={socket} />} />
+
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-        </>
+        </div>
     );
 }
 

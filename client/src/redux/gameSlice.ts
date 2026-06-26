@@ -1,12 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GameStatus } from "../../../shared/types";
+import { GameStatus, PieceType } from "../../../shared/types";
 
 export interface PlayerGrid {
     name: string;
+    id: string;
     score: number;
     board: number[][];
     isAlive: boolean;
     level: number;
+    nextPiece?: PieceType;
 }
 
 interface GameState {
@@ -17,7 +19,7 @@ interface GameState {
 }
 
 const initialState: GameState = {
-    myGrid: { name: "Empty", score: 0, board: [], isAlive: true, level: 1 },
+    myGrid: { name: "Empty", id: "Empty", score: 0, board: [], isAlive: true, level: 1 },
     grids: [],
     ownerId: "None",
     status: GameStatus.WAITING,

@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { GameStatus, ServerMessage } from "../../../shared/types.js";
+import { GameStatus, PieceType, ServerMessage } from "../../../shared/types.js";
 import { roomManager } from "../services/RoomManager.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
 import { SocketType } from "../types/types.js";
@@ -7,7 +7,8 @@ import { gameService } from "../services/GameService.js";
 import { Game } from "../game/Game.js";
 import { Player, STARTING_SPEED } from "../game/Player.js";
 import { Board } from "../game/Board.js";
-import { PieceType } from "../game/Piece.js";
+import { randomUUID, randomBytes } from "crypto";
+import { MAX_ROOM_PLAYERS } from "../../../shared/constants.js";
 
 export class NavigationController {
     static leave(socket: SocketType, io: Server) {
@@ -20,7 +21,7 @@ export class NavigationController {
         gameService.findGame(socket.id)?.killPlayer(socket.id);
         const updatedRoom = roomManager.deletePlayer(socket.id);
         socket.leave(room.id);
-        socket.emit(ServerMessage.LEAVE_ROOM); 
+        socket.emit(ServerMessage.LEAVE_ROOM);
         UpdateManager.updateRoomAndLobby(updatedRoom, io);
     }
 
@@ -29,7 +30,7 @@ export class NavigationController {
             throw new Error("User is already in a room");
         }
 
-        const roomID = "IAmAGameID" + Date.now(); 
+        const roomID = randomUUID();
         const room = roomManager.create(roomID);
         this.join(socket, roomID, playerName, io);
 
@@ -49,6 +50,11 @@ export class NavigationController {
         if (!room) {
             throw new Error("Could not find the room user is trying to join.");
         }
+
+        if (room.players.length >= MAX_ROOM_PLAYERS) {
+            throw new Error("You cannot join this room, it's full.");
+        }
+
         room.players.push({
             name: playerName,
             socketId: socket.id,
@@ -77,7 +83,9 @@ export class NavigationController {
 
         room.gameInfo.status = GameStatus.ONGOING;
 
-        const seed = Math.random();
+        const buffer = randomBytes(4);
+        const seed = buffer.readUInt32BE(0);
+
         const players = room.players.map((player) => {
             return new Player(
                 player.socketId,

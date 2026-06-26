@@ -1,1 +1,52 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: "VeniteAdoremus";
+    src: url("./assets/fonts/VeniteAdoremusStraight-Yzo6v.ttf")
+        format("truetype");
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "VeniteAdoremus";
+    src: url("./assets/fonts/VeniteAdoremus-rgRBA.ttf") format("truetype");
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@theme {
+    --font-tetris: "VeniteAdoremus", sans-serif;
+    --color-electric-red: #ff0800;
+    --color-jade-green: #03c03c;
+    --color-cyan: #00ffff;
+    --color-digital-blue: #0070ff;
+
+    @keyframes shadow-pulse {
+        50% {
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+        }
+    }
+    --animate-shadow-pulse: shadow-pulse 1.5s ease-in-out infinite;
+
+    @keyframes shadow-pulse2 {
+        0%,
+        100% {
+            filter: drop-shadow(0 0 20px rgba(255, 50, 50, 0.8));
+        }
+
+        50% {
+            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.8));
+        }
+    }
+
+    --animate-shadow-pulse2: shadow-pulse2 1.5s cubic-bezier(0.4, 0, 0.6, 1)
+        infinite;
+
+    --animate-shadow-pulse2: shadow-pulse2 3s cubic-bezier(0.4, 0, 0.6, 1)
+        infinite;
+
+    --animate-slow-pulse: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
