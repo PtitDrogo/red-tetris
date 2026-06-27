@@ -51,8 +51,8 @@ function Home() {
     return (
         <>
             <div className="flex flex-col items-center justify-start pt-75">
-                <h1 className="text-5xl md:text-7xl font-black tracking-widest text-electric-red uppercase mb-16 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
-                    Red <span className="text-white">Tetris</span>
+                <h1 className="text-5xl md:text-7xl font-black tracking-widest  uppercase mb-16 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
+                    <span className="text-electric-red animate-shadow-pulse2">Red </span><span className="text-white animate-shadow-pulse3">Tetris</span>
                 </h1>
                 <h1 className="px-2 py-3">Enter your name</h1>
                 <div className="flex flex-col gap-2">
@@ -69,9 +69,9 @@ function Home() {
                     <button
                         type="button"
                         onClick={() => handleStart()}
-                        className="rounded-xs bg-electric-red hover:bg-red-400 font-medium px-4 py-3 transition-colors"
+                        className="rounded-xs bg-electric-red hover:bg-red-400 font-medium px-4 py-3 transition-colors "
                     >
-                        PLAY NOW!
+                        <span className="animate-slow-pulse">PLAY NOW!</span>
                     </button>
                 </div>
                 {error && (

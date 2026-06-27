@@ -42,10 +42,21 @@
         }
     }
 
-    --animate-shadow-pulse2: shadow-pulse2 1.5s cubic-bezier(0.4, 0, 0.6, 1)
+    --animate-shadow-pulse2: shadow-pulse2 3s cubic-bezier(0.4, 0, 0.6, 1)
         infinite;
 
-    --animate-shadow-pulse2: shadow-pulse2 3s cubic-bezier(0.4, 0, 0.6, 1)
+    @keyframes shadow-pulse3 {
+        0%,
+        100% {
+            filter: drop-shadow(0 0 20px rgba(150, 150, 150, 0.8));
+        }
+
+        50% {
+            filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.8));
+        }
+    }
+
+    --animate-shadow-pulse3: shadow-pulse3 3s cubic-bezier(0.4, 0, 0.6, 1)
         infinite;
 
     --animate-slow-pulse: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
