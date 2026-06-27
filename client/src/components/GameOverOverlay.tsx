@@ -1,20 +1,15 @@
-
 import { Crown } from "lucide-react";
-import { GameOverRanking } from "../../../shared/types";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux";
+import { clearGameOver } from "../redux/gameSlice";
 
-export interface GameOverState {
-    active: boolean;
-    level: number;
-    ranking: GameOverRanking[];
-}
+function GameOverOverlay() {
+    const dispatch = useDispatch();
 
-interface GameOverOverlayProps {
-    gameOverOverlay: GameOverState;
-    playerName: string;
-    onClose: () => void;
-}
+    const playerName = useSelector((state: RootState) => state.player.name);
+    const gameOverOverlay = useSelector((state: RootState) => state.game.gameOver);
 
-function GameOverOverlay({gameOverOverlay, playerName, onClose} : GameOverOverlayProps) {
+
     if (!gameOverOverlay.active) return null;
     return (
         <div className="fixed inset-0 flex justify-center items-center z-51">
@@ -62,28 +57,36 @@ function GameOverOverlay({gameOverOverlay, playerName, onClose} : GameOverOverla
                         Score : {gameOverOverlay.ranking[0].points ?? "0"}
                     </span>
                     <div className="mt-5 grid grid-cols-1 gap-2 w-full py-3">
-                        {Array.from({ length: 4 }, (_, index) => (
-                            <div
-                                key={index}
-                                className="border rounded-xs flex justify-between px-4"
-                            >
-                                <span>
-                                    {index + 2 + " - "}
-                                    {gameOverOverlay.ranking[index + 1]?.name ??
-                                        "Empty"}
-                                </span>
-                                <span>
-                                    {gameOverOverlay.ranking[index + 1]
-                                        ?.points ?? "0"}
-                                </span>
-                            </div>
-                        ))}
+                        {Array.from(
+                            {
+                                length: Math.max(
+                                    0,
+                                    gameOverOverlay.ranking.length - 1,
+                                ),
+                            },
+                            (_, index) => (
+                                <div
+                                    key={index}
+                                    className="border rounded-xs flex justify-between px-4"
+                                >
+                                    <span>
+                                        {index + 2 + " - "}
+                                        {gameOverOverlay.ranking[index + 1]
+                                            ?.name ?? "Empty"}
+                                    </span>
+                                    <span>
+                                        {gameOverOverlay.ranking[index + 1]
+                                            ?.points ?? "0"}
+                                    </span>
+                                </div>
+                            ),
+                        )}
                     </div>
                 </div>
                 <div className="flex justify-center items-center z-50">
                     <button
                         className="mt-10 pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
-                        onClick={onClose}
+                        onClick={() => dispatch(clearGameOver())}
                     >
                         <span className="animate-slow-pulse">Continue</span>
                     </button>
