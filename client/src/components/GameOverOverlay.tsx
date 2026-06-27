@@ -1,23 +1,15 @@
 import { Crown } from "lucide-react";
-import { GameOverRanking } from "../../../shared/types";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux";
+import { clearGameOver } from "../redux/gameSlice";
 
-export interface GameOverState {
-    active: boolean;
-    level: number;
-    ranking: GameOverRanking[];
-}
+function GameOverOverlay() {
+    const dispatch = useDispatch();
 
-interface GameOverOverlayProps {
-    gameOverOverlay: GameOverState;
-    playerName: string;
-    onClose: () => void;
-}
+    const playerName = useSelector((state: RootState) => state.player.name);
+    const gameOverOverlay = useSelector((state: RootState) => state.game.gameOver);
 
-function GameOverOverlay({
-    gameOverOverlay,
-    playerName,
-    onClose,
-}: GameOverOverlayProps) {
+
     if (!gameOverOverlay.active) return null;
     return (
         <div className="fixed inset-0 flex justify-center items-center z-51">
@@ -94,7 +86,7 @@ function GameOverOverlay({
                 <div className="flex justify-center items-center z-50">
                     <button
                         className="mt-10 pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
-                        onClick={onClose}
+                        onClick={() => dispatch(clearGameOver())}
                     >
                         <span className="animate-slow-pulse">Continue</span>
                     </button>

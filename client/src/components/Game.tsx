@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../redux";
-import { socket } from "../socket";
 
 import {
     ClientMessage,
@@ -14,7 +13,7 @@ import {
 import { useAuthGuard } from "../hooks/useAuthGuard";
 import { setStatus } from "../redux/gameSlice";
 
-import GameOverOverlay, { GameOverState } from "../components/GameOverOverlay";
+import GameOverOverlay from "../components/GameOverOverlay";
 import { Score } from "../components/Score";
 import Grid from "./Grid";
 import { PiecePreview } from "./Piece";
@@ -80,12 +79,8 @@ function Game() {
     const dispatch = useDispatch();
 
     const gameStartButton =
-        ownerId === socket.id && gameStatus === GameStatus.WAITING;
-    const [gameOverOverlay, setGameOverOverlay] = useState<GameOverState>({
-        active: false,
-        level: 0,
-        ranking: [],
-    });
+        ownerId === myGrid?.id && gameStatus === GameStatus.WAITING;
+
     const levelRef = useRef(0);
 
     useAuthGuard();
@@ -169,16 +164,7 @@ function Game() {
                     </div>
                 </div>
             )}
-            <GameOverOverlay
-                gameOverOverlay={gameOverOverlay}
-                playerName={playerName}
-                onClose={() => {
-                    setGameOverOverlay((current) => ({
-                        ...current,
-                        active: false,
-                    }));
-                }}
-            ></GameOverOverlay>
+            <GameOverOverlay />
 
             <div className="flex justify-center items-center pt-20 gap-40">
                 <div className="flex flex-col gap-20">

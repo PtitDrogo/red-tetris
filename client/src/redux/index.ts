@@ -13,7 +13,7 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
-                ignoredActions: ["socket/initLobby"],
+                ignoredActions: ["socket/initLobby", "socket/connectPlayer"],
             },
         }).concat(socketMiddleware),
 });

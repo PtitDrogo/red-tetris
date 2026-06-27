@@ -1,12 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import type { LobbyState } from "../../../shared/types";
 import { RootState } from "../redux";
-import { setLobbies } from "../redux/lobbiesSlice";
-import { socket } from "../socket";
 
-import { ClientMessage, ServerMessage } from "../../../shared/types";
+import { ClientMessage } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
 
 import { Crown } from "lucide-react";
@@ -43,31 +40,12 @@ function LobbyList() {
     useAuthGuard();
 
     useEffect(() => {
-        // Pass the navigate function to the middleware
         dispatch({ type: "socket/initLobby", payload: { navigate } });
 
         return () => {
             dispatch({ type: "socket/cleanupLobby" });
         };
     }, [dispatch, navigate]);
-
-    // useEffect(() => {
-    //     socket.on(ServerMessage.ERROR, (payload) => {
-    //         console.log(payload);
-    //     });
-    //     socket.off(ServerMessage.LOBBY_STATE);
-    //     socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
-    //         dispatch(setLobbies(payload));
-    //     });
-    //     socket.on(ServerMessage.JOIN_ROOM, (payload: string) =>
-    //         navigate(`/${payload}/${playerName}`),
-    //     );
-
-    //     return () => {
-    //         socket.off(ServerMessage.ERROR);
-    //         socket.off(ServerMessage.LOBBY_STATE);
-    //     };
-    // }, []);
 
     return (
         <>

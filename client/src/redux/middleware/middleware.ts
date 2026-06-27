@@ -1,6 +1,12 @@
 import { Middleware } from "@reduxjs/toolkit";
-import { ClientMessage, ServerMessage } from "../../../../shared/types";
-import { socket } from "../../socket"; 
+import {
+    ClientMessage,
+    LobbyState,
+    ServerMessage,
+} from "../../../../shared/types";
+import { socket } from "../../socket";
+import { setLobbies } from "../lobbiesSlice";
+import { setPlayerName } from "../playerSlice";
 import { initGame, initLobbies } from "./initializers";
 
 const socketMiddleware: Middleware = (store) => (next) => (action: any) => {
@@ -29,6 +35,37 @@ const socketMiddleware: Middleware = (store) => (next) => (action: any) => {
         socket.off(ServerMessage.GAME_STATE);
         socket.off(ServerMessage.GAME_OVER);
         socket.emit(ClientMessage.LEAVE_ROOM);
+    }
+
+    if (action.type === "socket/initHome") {
+        socket.disconnect();
+
+        socket.off(ServerMessage.LOBBY_STATE);
+        socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
+            store.dispatch(setLobbies(payload));
+        });
+    }
+
+    if (action.type === "socket/connectPlayer") {
+        const { navigate } = action.payload;
+
+        socket.off("connect");
+        socket.on("connect", () => {
+            navigate("/lobbylist");
+            socket.off("connect");
+        });
+
+        socket.connect();
+        socket.off("disconnect");
+
+        socket.on("disconnect", () => {
+            store.dispatch(setPlayerName(""));
+        });
+    }
+
+    if (action.type === "socket/cleanupHome") {
+        socket.off(ServerMessage.LOBBY_STATE);
+        socket.off("connect");
     }
 
     return next(action);

@@ -1,10 +1,17 @@
 import {
+    GameOverRanking,
     GameStatus,
     LobbyState,
     ServerMessage,
 } from "../../../../shared/types";
 import { socket } from "../../socket";
-import { setGrids, setMyGrid, setOwner, setStatus } from "../gameSlice";
+import {
+    setGameOver,
+    setGrids,
+    setMyGrid,
+    setOwner,
+    setStatus,
+} from "../gameSlice";
 import { setLobbies } from "../lobbiesSlice";
 
 export function initGame(store: any) {
@@ -61,12 +68,13 @@ export function initGame(store: any) {
         store.dispatch(setGrids(playerGrids));
     });
 
-    socket.on(ServerMessage.GAME_OVER, (payload) => {
-        store.dispatch({
-            type: "game/setGameOver",
-            payload: payload.ranking,
-        });
-    });
+    socket.off(ServerMessage.GAME_OVER);
+    socket.on(
+        ServerMessage.GAME_OVER,
+        (payload: { level: number; ranking: GameOverRanking[] }) => {
+            store.dispatch(setGameOver(payload));
+        },
+    );
 }
 
 export function initLobbies(store: any, action: any) {
