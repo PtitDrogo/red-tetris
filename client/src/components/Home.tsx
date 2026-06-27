@@ -1,25 +1,23 @@
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../redux";
-import { useState, useEffect } from "react";
 import { setPlayerName } from "../redux/playerSlice";
-import { setLobbies } from "../redux/lobbiesSlice";
-import { socket } from "../socket";
-import { LobbyState, ServerMessage } from "../../../shared/types";
 
-const MAX_LEN_NAME = 12
+const MAX_LEN_NAME = 12;
 
 function Home() {
     const navigate = useNavigate();
-    const playerName = useSelector((state: RootState) => state.player.name);
     const dispatch = useDispatch();
 
     const [inputValue, setInputValue] = useState("");
     const [error, setError] = useState("");
 
     useEffect(() => {
-        socket.disconnect();
-    }, []);
+        dispatch({ type: "socket/initHome" });
+        return () => {
+            dispatch({ type: "socket/cleanupHome" });
+        };
+    }, [dispatch]);
 
     const handleStart = () => {
         if (inputValue.length < 3) {
@@ -27,26 +25,15 @@ function Home() {
             return;
         }
         if (inputValue.length > MAX_LEN_NAME) {
-            setError(`Your name must contain no more than ${MAX_LEN_NAME} characters`);
+            setError(
+                `Your name must contain no more than ${MAX_LEN_NAME} characters`,
+            );
             return;
         }
-        dispatch(setPlayerName(inputValue));
-        socket.off("connect");
-        socket.on("connect", () => {
-            navigate("/lobbylist");
-            socket.off("connect");
-        });
-        socket.connect();
-    };
 
-    useEffect(() => {
-        socket.on(ServerMessage.LOBBY_STATE, (payload: LobbyState[]) => {
-            dispatch(setLobbies(payload));
-        });
-        return () => {
-            socket.off(ServerMessage.LOBBY_STATE);
-        };
-    }, []);
+        dispatch(setPlayerName(inputValue));
+        dispatch({ type: "socket/connectPlayer", payload: { navigate } });
+    };
 
     return (
         <>

@@ -1,34 +1,22 @@
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
-import { useState, useEffect, useRef } from "react";
-import { socket } from "../socket";
 
-import {
-    setGrids,
-    setMyGrid,
-    setOwner,
-    setStatus,
-    type PlayerGrid,
-} from "../redux/gameSlice";
-import { useAuthGuard } from "../hooks/useAuthGuard";
 import {
     ClientMessage,
     GameInput,
-    GameOverRanking,
     GameStatus,
     GRID_STATES,
     PieceType,
-    RoomPlayers,
-    ServerMessage,
 } from "../../../shared/types";
+import { useAuthGuard } from "../hooks/useAuthGuard";
+import { setStatus } from "../redux/gameSlice";
 
-import { current } from "@reduxjs/toolkit";
-
-import Grid from "./Grid";
+import GameOverOverlay from "../components/GameOverOverlay";
 import { Score } from "../components/Score";
+import Grid from "./Grid";
 import { PiecePreview } from "./Piece";
-import GameOverOverlay, { GameOverState } from "../components/GameOverOverlay";
 
 type gridProps = {
     playerName: string;
@@ -91,115 +79,61 @@ function Game() {
     const dispatch = useDispatch();
 
     const gameStartButton =
-        ownerId === socket.id && gameStatus === GameStatus.WAITING;
-    const [gameOverOverlay, setGameOverOverlay] = useState<GameOverState>({
-        active: false,
-        level: 0,
-        ranking: [],
-    });
+        ownerId === myGrid?.id && gameStatus === GameStatus.WAITING;
+
     const levelRef = useRef(0);
 
     useAuthGuard();
 
-    const initSockets = () => {
-        socket.off(ServerMessage.ROOM_STATE);
-        socket.off(ServerMessage.GAME_STATE);
-
-        const grids: number[][][] = Array.from({ length: 5 }, () =>
-            Array.from({ length: 20 }, (_, i) => Array(10).fill(0)),
-        );
-
-        socket.on(ServerMessage.ROOM_STATE, (payload) => {
-            if (payload.gameInfo.status === GameStatus.WAITING) {
-                const opponents: RoomPlayers[] = payload.players.filter(
-                    (player: RoomPlayers) => player.name !== playerName,
-                );
-
-                const gridsState: PlayerGrid[] = Array.from(
-                    { length: 4 },
-                    (_, index) => ({
-                        name: opponents[index]?.name || `Empty`,
-                        id: opponents[index]?.socketId || "Empty",
-                        score: 0,
-                        board: grids[index],
-                        isAlive: true,
-                        level: 0,
-                    }),
-                );
-
-                const myGrid: PlayerGrid = {
-                    name: playerName,
-                    id: socket.id || "Empty",
-                    score: 0,
-                    board: grids[4],
-                    isAlive: true,
-                    level: 0,
-                };
-
-                dispatch(setMyGrid(myGrid));
-                dispatch(setGrids(gridsState));
-            }
-            dispatch(setOwner(payload.players[0].socketId));
-            dispatch(setStatus(payload.gameInfo.status));
-        });
-
-        socket.on(ServerMessage.GAME_STATE, (payload) => {
-            const myGrid = payload.players.find(
-                (grid: PlayerGrid) => grid.id === socket.id,
-            );
-            const playerGrids = payload.players.filter(
-                (grid: PlayerGrid) => grid.id !== socket.id,
-            );
-            levelRef.current = myGrid.level;
-            dispatch(setMyGrid(myGrid!));
-            dispatch(setGrids(playerGrids));
-        });
-
-        socket.on(ServerMessage.GAME_OVER, (payload) => {
-            setGameOverOverlay({
-                active: true,
-                level: levelRef.current,
-                ranking: payload.ranking,
-            });
-        });
-    };
-
     useEffect(() => {
-        initSockets();
+        dispatch({ type: "socket/initGame" });
+
         return () => {
-            socket.off(ServerMessage.ROOM_STATE);
-            socket.off(ServerMessage.GAME_STATE);
-            socket.off(ServerMessage.GAME_OVER);
-            socket.emit(ClientMessage.LEAVE_ROOM);
+            dispatch({ type: "socket/cleanupGame" });
             dispatch(setStatus(GameStatus.WAITING));
         };
-    }, []);
+    }, [dispatch]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             switch (e.key) {
                 case "ArrowLeft":
-                    socket.emit("i", GameInput.LEFT);
+                    dispatch({
+                        type: "socket/emit",
+                        payload: { event: "i", data: GameInput.LEFT },
+                    });
                     break;
                 case "ArrowRight":
-                    socket.emit("i", GameInput.RIGHT);
+                    dispatch({
+                        type: "socket/emit",
+                        payload: { event: "i", data: GameInput.RIGHT },
+                    });
                     break;
                 case "ArrowDown":
-                    socket.emit("i", GameInput.DOWN);
+                    dispatch({
+                        type: "socket/emit",
+                        payload: { event: "i", data: GameInput.DOWN },
+                    });
                     break;
                 case "ArrowUp":
                     if (e.repeat) return;
-                    socket.emit("i", GameInput.ROTATE);
+                    dispatch({
+                        type: "socket/emit",
+                        payload: { event: "i", data: GameInput.ROTATE },
+                    });
                     break;
                 case " ":
-                    socket.emit("i", GameInput.SPACE);
+                    dispatch({
+                        type: "socket/emit",
+                        payload: { event: "i", data: GameInput.SPACE },
+                    });
                     break;
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, []);
+    }, [dispatch]);
 
     const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (
@@ -209,7 +143,12 @@ function Game() {
                     <button
                         className="pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-2xl px-35 py-7 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
                         onClick={() => {
-                            socket.emit(ClientMessage.START_GAME);
+                            dispatch({
+                                type: "socket/emit",
+                                payload: {
+                                    event: ClientMessage.START_GAME,
+                                },
+                            });
                         }}
                     >
                         <span className="animate-slow-pulse">START</span>
@@ -225,16 +164,7 @@ function Game() {
                     </div>
                 </div>
             )}
-            <GameOverOverlay
-                gameOverOverlay={gameOverOverlay}
-                playerName={playerName}
-                onClose={() => {
-                    setGameOverOverlay((current) => ({
-                        ...current,
-                        active: false,
-                    }));
-                }}
-            ></GameOverOverlay>
+            <GameOverOverlay />
 
             <div className="flex justify-center items-center pt-20 gap-40">
                 <div className="flex flex-col gap-20">
