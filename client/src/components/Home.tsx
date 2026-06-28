@@ -56,7 +56,7 @@ function Home() {
                     <button
                         type="button"
                         onClick={() => handleStart()}
-                        className="rounded-xs bg-electric-red hover:bg-red-400 font-medium px-4 py-3 transition-colors "
+                        className="rounded-xs bg-electric-red hover:bg-red-400 font-medium px-4 py-3 transform hover:scale-105 transition-all "
                     >
                         <span className="animate-slow-pulse">PLAY NOW!</span>
                     </button>

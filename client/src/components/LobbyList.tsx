@@ -53,7 +53,7 @@ function LobbyList() {
                 <div>Welcome {playerName}</div>
                 <input
                     type="button"
-                    className="px-5 pt-3 pb-3 rounded-xs bg-electric-red hover:bg-red-400 transition-all duration-300"
+                    className="px-5 pt-3 pb-3 rounded-xs bg-electric-red hover:bg-red-400 transition-all duration-300 transform hover:scale-105"
                     value="Create a lobby"
                     onClick={() => createLobby()}
                 ></input>

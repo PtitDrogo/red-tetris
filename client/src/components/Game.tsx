@@ -218,7 +218,7 @@ function Game() {
             <div className="fixed bottom-4 right-4">
                 <input
                     type="button"
-                    className="border border-white px-3"
+                    className="border border-white opacity-50 bg-gray-700 rounded-xl px-3 hover:opacity-100 transform hover:scale-105 transition-all"
                     value="Quit"
                     onClick={() => navigate("/lobbylist")}
                 ></input>
