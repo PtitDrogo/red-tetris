@@ -73,6 +73,12 @@ export class Player {
         return this.name;
     }
 
+    static AddBlessedPiece(player: Player): Player {
+        return Player.copy(player, {
+            board: Board.AddBlessedPiece(player.getBoard()),
+        });
+    }
+
     static killPlayer(player: Player) {
         return Player.copy(player, {
             board: Board.copy(player.getBoard(), { isAlive: false }),

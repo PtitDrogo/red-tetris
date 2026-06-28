@@ -62,9 +62,9 @@ export class SocketRouter {
                 }
             });
 
-            socket.on(ClientMessage.START_GAME, () => {
+        socket.on(ClientMessage.START_GAME, (payload: { playWithBlessed: boolean}) => {
                 try {
-                    NavigationController.start(socket, this.io);
+                    NavigationController.start(socket, this.io, payload.playWithBlessed);
                 } catch (error) {
                     socket.emit(ServerMessage.ERROR, getErrorMessage(error));
                 }

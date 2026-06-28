@@ -123,14 +123,26 @@ export class Board {
         bag: PieceType[],
     ): PieceTypeRng {
         const { nextSeed, value } = rng(seed);
-        const pieceType = bag[Math.floor(value * bag.length)];
+        const index = Math.floor(value * bag.length);
+        const pieceType = bag[index];
 
-        let newBag = bag.filter((piece) => piece !== pieceType);
+        let newBag = [...bag.slice(0, index), ...bag.slice(index + 1)];
+
         if (newBag.length === 0) {
-            newBag = Object.values(PieceType);
+            newBag = Object.values(PieceType).filter((p) => p !== PieceType.B);
         }
 
         return { seed: nextSeed, pieceType: pieceType, bag: newBag };
+    }
+
+    static AddBlessedPiece(board: Board): Board {
+        const clearedLines = board.getClearedLines();
+        if (clearedLines < 2) return board;
+
+        const blessedPieces = Array(clearedLines - 1).fill(PieceType.B);
+        const newBag = [...board.getBag(), ...blessedPieces];
+
+        return Board.copy(board, { bag: newBag });
     }
 
     getFullGrid(): number[][] {

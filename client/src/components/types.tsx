@@ -9,6 +9,8 @@ export const cellColor: Record<GRID_STATES, string> = {
     [GRID_STATES.CYAN]: "bg-cyan-400",
     [GRID_STATES.PURPLE]: "bg-purple-700",
     [GRID_STATES.YELLOW]: "bg-yellow-300",
+    [GRID_STATES.BLESSED]:
+        "bg-yellow-300 animate-pulse shadow-[0_0_10px_3px_rgba(253,224,71,0.8)]",
 
     [GRID_STATES.GHOST]: "bg-white/20 backdrop-blur-sm",
     [GRID_STATES.BLOCKED]: "bg-zinc-800",
