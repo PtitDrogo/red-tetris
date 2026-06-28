@@ -6,6 +6,7 @@ export enum PieceType {
     S = "S",
     T = "T",
     Z = "Z",
+    B = "B",
 }
 
 export enum ClientMessage {
@@ -79,6 +80,7 @@ export enum GRID_STATES {
     YELLOW = 7,
     GHOST = 10,
     BLOCKED = 9,
+    BLESSED = 11,
     //Whatever colors we are using add them here.
 }
 
@@ -91,6 +93,7 @@ export type GameState = {
         board: number[][];
         clearedLinesIndexes: number[];
     }[];
+    playWithBlessed: boolean;
 };
 
 export const Shapes: Record<
@@ -181,6 +184,13 @@ export const Shapes: Record<
             { x: 0, y: -1 },
         ],
         color: GRID_STATES.PURPLE,
+    },
+
+    [PieceType.B]: {
+        cells: [
+            { x: 0, y: 0 },
+        ],
+        color: GRID_STATES.BLESSED,
     },
 };
 

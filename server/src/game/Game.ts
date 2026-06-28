@@ -1,3 +1,4 @@
+import { Server } from "socket.io";
 import {
     GameInput,
     GameOverData,
@@ -6,12 +7,11 @@ import {
     GameStatus,
     Room,
 } from "../../../shared/types.js";
-import { Player } from "./Player.js";
-import { Server } from "socket.io";
 import { gameService } from "../services/GameService.js";
 import { roomManager } from "../services/RoomManager.js";
-import { Board } from "./Board.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
+import { Board } from "./Board.js";
+import { Player } from "./Player.js";
 
 const UPDATE_DELAY_MS = 100;
 const META_UPDATE_DELAY_MS = 1000;
@@ -21,11 +21,18 @@ export class Game {
     private roomId: string;
     private gameLoop: NodeJS.Timeout | undefined;
     private metaLoop: NodeJS.Timeout | undefined;
+    private playWithBlessedPiece: boolean;
 
-    constructor(players: Player[], io: Server, roomId: string) {
+    constructor(
+        players: Player[],
+        io: Server,
+        roomId: string,
+        playWithBlessed: boolean,
+    ) {
         this.players = players;
         this.io = io;
         this.roomId = roomId;
+        this.playWithBlessedPiece = playWithBlessed;
     }
 
     getPlayers() {
@@ -68,6 +75,7 @@ export class Game {
         });
         const gameUpdate: GameState = {
             players: playersData,
+            playWithBlessed: this.playWithBlessedPiece,
         };
         UpdateManager.gameUpdate(this.io, this.roomId, gameUpdate);
     }
@@ -79,7 +87,10 @@ export class Game {
                 ? Player.handleInput(player, newInput, currTime)
                 : player,
         );
-        this.players = Game.handleClearedLines(this.players);
+        this.players = Game.handleClearedLines(
+            this.players,
+            this.playWithBlessedPiece,
+        );
         this.sendDataToPlayers();
     }
 
@@ -89,8 +100,13 @@ export class Game {
         );
     }
 
-    static createGame(players: Player[], io: Server, room: Room) {
-        const newGame = new Game(players, io, room.id);
+    static createGame(
+        players: Player[],
+        io: Server,
+        room: Room,
+        playWithBlessed: boolean,
+    ) {
+        const newGame = new Game(players, io, room.id, playWithBlessed);
         gameService.addGame(newGame);
         return newGame;
     }
@@ -193,9 +209,18 @@ export class Game {
         return ranking.sort((a, b) => b.points - a.points);
     }
 
-    private static handleClearedLines(players: Player[]): Player[] {
+    private static addBlessedPiece(player: Player, playWithBlessed: boolean) {
+        return playWithBlessed ? Player.AddBlessedPiece(player) : player;
+    }
+
+    private static handleClearedLines(
+        players: Player[],
+        playWithBlessed: boolean,
+    ): Player[] {
         if (players.length === 1) {
-            return players;
+            return playWithBlessed
+                ? players.map((p) => Player.AddBlessedPiece(p))
+                : players;
         }
         let to_add: number[] = Array(players.length).fill(0);
 
@@ -212,6 +237,7 @@ export class Game {
 
         const newPlayers: Player[] = players
             .map((p, i) => Player.addBlockLines(to_add[i], p))
+            .map((p) => Game.addBlessedPiece(p, playWithBlessed))
             .map((p) => {
                 return Player.copy(p, {
                     board: Board.copy(p.getBoard(), {
