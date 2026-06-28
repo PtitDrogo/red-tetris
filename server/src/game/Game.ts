@@ -147,6 +147,9 @@ export class Game {
                         {
                             name: this.players[0].getName(),
                             points: this.players[0].getPoints(),
+                            level: Math.floor(
+                                this.players[0].getPoints() / 500,
+                            ),
                         },
                     ],
                 };
@@ -196,7 +199,11 @@ export class Game {
 
     private static getRanking(players: Player[]): GameOverRanking[] {
         const ranking: GameOverRanking[] = players.map((p) => {
-            return { name: p.getName(), points: p.getPoints() };
+            return {
+                name: p.getName(),
+                points: p.getPoints(),
+                level: Math.floor(p.getPoints() / 500),
+            };
         });
 
         return ranking.sort((a, b) => b.points - a.points);

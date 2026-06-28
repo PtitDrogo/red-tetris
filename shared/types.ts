@@ -56,6 +56,7 @@ export enum GameStatus {
 export type GameOverRanking = {
     name: string;
     points: number;
+    level: number;
 };
 
 export type GameOverData = {
@@ -90,6 +91,7 @@ export type GameState = {
         score: number;
         isAlive: boolean;
         board: number[][];
+        clearedLinesIndexes: number[];
     }[];
     playWithBlessed: boolean;
 };

@@ -67,8 +67,8 @@ describe("gameSlice", () => {
 
     test("devrait gérer setGameOver et forcer le status à WAITING", () => {
         const mockRanking: GameOverRanking[] = [
-            { name: "Alex", points: 1500 },
-            { name: "Bob", points: 900 },
+            { name: "Alex", points: 1500, level: 2 },
+            { name: "Bob", points: 900, level: 1 },
         ];
 
         const initialStateWithOngoing = gameReducer(
@@ -78,28 +78,28 @@ describe("gameSlice", () => {
 
         const state = gameReducer(
             initialStateWithOngoing,
-            setGameOver({ level: 5, ranking: mockRanking }),
+            setGameOver({ ranking: mockRanking }),
         );
 
         expect(state.gameOver.active).toBe(true);
-        expect(state.gameOver.level).toBe(5);
         expect(state.gameOver.ranking).toEqual(mockRanking);
 
         expect(state.status).toBe(GameStatus.WAITING);
     });
 
     test("devrait gérer clearGameOver", () => {
-        const mockRanking: GameOverRanking[] = [{ name: "Alex", points: 100 }];
+        const mockRanking: GameOverRanking[] = [
+            { name: "Alex", points: 100, level: 0 },
+        ];
         const stateWithGameOver = gameReducer(
             undefined,
-            setGameOver({ level: 1, ranking: mockRanking }),
+            setGameOver({ ranking: mockRanking }),
         );
         expect(stateWithGameOver.gameOver.active).toBe(true);
 
         const cleanState = gameReducer(stateWithGameOver, clearGameOver());
 
         expect(cleanState.gameOver.active).toBe(false);
-        expect(cleanState.gameOver.level).toBe(0);
         expect(cleanState.gameOver.ranking).toHaveLength(0);
     });
 });

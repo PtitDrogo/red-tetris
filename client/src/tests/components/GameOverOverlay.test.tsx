@@ -6,6 +6,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import gameReducer, { clearGameOver } from "../../redux/gameSlice";
 import playerReducer from "../../redux/playerSlice";
 import GameOverOverlay from "../../components/GameOverOverlay";
+import { GameOverRanking } from "../../../../shared/types";
 
 vi.mock("../../redux/gameSlice", async (importOriginal) => {
     const actual = await importOriginal<any>();
@@ -43,15 +44,14 @@ const renderOverlayWithRedux = (
 };
 
 describe("GameOverOverlay Component", () => {
-    const mockRanking = [
-        { name: "Alex", points: 1200 },
-        { name: "Bob", points: 800 },
+    const mockRanking : GameOverRanking[] = [
+        { name: "Alex", points: 1200, level: 2 },
+        { name: "Bob", points: 800, level: 1 },
     ];
 
     test("Branche Inactif : retourne null si active est false", () => {
         const { container } = renderOverlayWithRedux("Alex", {
             active: false,
-            level: 1,
             ranking: [],
         });
         expect(container.firstChild).toBeNull();
@@ -60,7 +60,6 @@ describe("GameOverOverlay Component", () => {
     test("Branche Gagnant : affiche les félicitations et la couronne si le joueur est premier", () => {
         renderOverlayWithRedux("Alex", {
             active: true,
-            level: 5,
             ranking: mockRanking,
         });
 
@@ -69,13 +68,12 @@ describe("GameOverOverlay Component", () => {
         const scoreElements = screen.getAllByText(/Score : 1200/i);
         expect(scoreElements.length).toBeGreaterThanOrEqual(1);
 
-        expect(screen.getByText(/Level : 5/i)).toBeInTheDocument();
+        expect(screen.getByText(/Level : 2/i)).toBeInTheDocument();
     });
 
     test("Branche Perdant : affiche 'You lost...' si un autre joueur a gagné", () => {
         renderOverlayWithRedux("Bob", {
             active: true,
-            level: 3,
             ranking: mockRanking,
         });
 
@@ -86,7 +84,6 @@ describe("GameOverOverlay Component", () => {
     test("Clic sur Continue déclenche le dispatch de clearGameOver", () => {
         renderOverlayWithRedux("Alex", {
             active: true,
-            level: 1,
             ranking: mockRanking,
         });
 
@@ -99,8 +96,7 @@ describe("GameOverOverlay Component", () => {
     test("Branche de secours (Fallbacks) : gère le classement vide ou partiel", () => {
         renderOverlayWithRedux("Alex", {
             active: true,
-            level: 1,
-            ranking: [{ name: "Alex", points: 100 }, undefined, {}],
+            ranking: [{ name: "Alex", points: 100, level: 0}, undefined, {}],
         });
 
         const containerText = document.body.textContent;

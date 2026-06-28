@@ -60,4 +60,18 @@
         infinite;
 
     --animate-slow-pulse: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+    @keyframes generateSnap {
+        0% {
+            opacity: 0;
+            filter: brightness(2);
+        }
+        100% {
+            opacity: 1;
+            filter: brightness(1);
+        }
+    }
+ 
+    --animate-generate: generateSnap 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
+
