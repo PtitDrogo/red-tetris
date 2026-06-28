@@ -7,8 +7,9 @@ function GameOverOverlay() {
     const dispatch = useDispatch();
 
     const playerName = useSelector((state: RootState) => state.player.name);
-    const gameOverOverlay = useSelector((state: RootState) => state.game.gameOver);
-
+    const gameOverOverlay = useSelector(
+        (state: RootState) => state.game.gameOver,
+    );
 
     if (!gameOverOverlay.active) return null;
     return (
@@ -28,7 +29,7 @@ function GameOverOverlay() {
                             Score : {gameOverOverlay.ranking[0]?.points}
                         </p>
                         <p className="text-xl font-medium text-slate-300 tracking-wide">
-                            Level : {gameOverOverlay.level}
+                            Level : {gameOverOverlay.ranking[0]?.level}
                         </p>
                     </div>
                 ) : (
@@ -45,7 +46,12 @@ function GameOverOverlay() {
                             }
                         </p>
                         <p className="text-xl font-medium text-slate-300 tracking-wide">
-                            Level : {gameOverOverlay.level}
+                            Level :{" "}
+                            {
+                                gameOverOverlay.ranking.find(
+                                    (val) => val.name === playerName,
+                                )?.level
+                            }
                         </p>
                     </div>
                 )}

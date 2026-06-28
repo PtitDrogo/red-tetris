@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GameOverRanking, GameStatus, PieceType } from "../../../shared/types";
+import { GameOverData, GameOverRanking, GameStatus, PieceType } from "../../../shared/types";
 
 export interface PlayerGrid {
     name: string;
@@ -9,6 +9,7 @@ export interface PlayerGrid {
     isAlive: boolean;
     level: number;
     nextPiece?: PieceType;
+    clearedLinesIndexes?: number[];
 }
 
 interface GameState {
@@ -18,7 +19,6 @@ interface GameState {
     status: GameStatus;
     gameOver: {
         active: boolean;
-        level: number;
         ranking: GameOverRanking[];
     };
 }
@@ -31,13 +31,13 @@ const initialState: GameState = {
         board: [],
         isAlive: true,
         level: 1,
+        clearedLinesIndexes: [],
     },
     grids: [],
     ownerId: "None",
     status: GameStatus.WAITING,
     gameOver: {
         active: false,
-        level: 0,
         ranking: [],
     },
 };
@@ -60,23 +60,25 @@ const gameSlice = createSlice({
         },
         setGameOver(
             state,
-            action: PayloadAction<{
-                level: number;
-                ranking: GameOverRanking[];
-            }>,
+            action: PayloadAction<GameOverData>,
         ) {
             state.gameOver.active = true;
-            state.gameOver.level = action.payload.level;
             state.gameOver.ranking = action.payload.ranking;
             state.status = GameStatus.WAITING;
         },
         clearGameOver(state) {
             state.gameOver.active = false;
-            state.gameOver.level = 0;
             state.gameOver.ranking = [];
         },
     },
 });
 
-export const { setMyGrid, setGrids, setOwner, setStatus, setGameOver, clearGameOver } = gameSlice.actions;
+export const {
+    setMyGrid,
+    setGrids,
+    setOwner,
+    setStatus,
+    setGameOver,
+    clearGameOver,
+} = gameSlice.actions;
 export default gameSlice.reducer;

@@ -11,5 +11,5 @@ export const cellColor: Record<GRID_STATES, string> = {
     [GRID_STATES.YELLOW]: "bg-yellow-300",
 
     [GRID_STATES.GHOST]: "bg-white/20 backdrop-blur-sm",
-    [GRID_STATES.BLOCKED]: "bg-zinc-800",
+    [GRID_STATES.BLOCKED]: "bg-electric-red animate-generate",
 };
