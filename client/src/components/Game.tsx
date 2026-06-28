@@ -144,7 +144,7 @@ function Game() {
         <>
             {gameStartButton && (
                 <div className="pointer-events-none fixed inset-0 flex flex-col justify-center items-center z-50">
-                    <label className="pointer-events-auto flex items-center gap-2 text-white text-lg select-none mb-2">
+                    <label className="pointer-events-auto bg-gray-700/90 px-3 py-1 rounded-xl flex items-center gap-2 text-white text-lg select-none mb-2">
                         <input
                             type="checkbox"
                             className="w-5 h-5 accent-electric-red"
@@ -153,7 +153,7 @@ function Game() {
                                 setPlayWithBlessed(e.target.checked)
                             }
                         />
-                        Play with Blessed Pieces
+                        Play with <span className="text-amber-400 animate-pulse">Blessed</span> Pieces
                     </label>
                     <button
                         className="pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-2xl px-35 py-7 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
