@@ -16,6 +16,7 @@ interface GameState {
     grids: PlayerGrid[];
     ownerId: string;
     status: GameStatus;
+    playWithBlessed: boolean;
     gameOver: {
         active: boolean;
         level: number;
@@ -35,6 +36,7 @@ const initialState: GameState = {
     grids: [],
     ownerId: "None",
     status: GameStatus.WAITING,
+    playWithBlessed: false,
     gameOver: {
         active: false,
         level: 0,
@@ -58,6 +60,9 @@ const gameSlice = createSlice({
         setStatus(state, action: PayloadAction<GameStatus>) {
             state.status = action.payload;
         },
+        setPlayWithBlessed(state, action: PayloadAction<boolean>) {
+            state.playWithBlessed = action.payload;
+        },
         setGameOver(
             state,
             action: PayloadAction<{
@@ -78,5 +83,13 @@ const gameSlice = createSlice({
     },
 });
 
-export const { setMyGrid, setGrids, setOwner, setStatus, setGameOver, clearGameOver } = gameSlice.actions;
+export const {
+    setMyGrid,
+    setGrids,
+    setOwner,
+    setStatus,
+    setGameOver,
+    setPlayWithBlessed,
+    clearGameOver,
+} = gameSlice.actions;
 export default gameSlice.reducer;

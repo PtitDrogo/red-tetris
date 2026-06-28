@@ -10,6 +10,7 @@ import {
     setGrids,
     setMyGrid,
     setOwner,
+    setPlayWithBlessed,
     setStatus,
 } from "../gameSlice";
 import { setLobbies } from "../lobbiesSlice";
@@ -66,6 +67,7 @@ export function initGame(store: any) {
 
         store.dispatch(setMyGrid(myGrid!));
         store.dispatch(setGrids(playerGrids));
+        store.dispatch(setPlayWithBlessed(payload.playWithBlessed));
     });
 
     socket.off(ServerMessage.GAME_OVER);

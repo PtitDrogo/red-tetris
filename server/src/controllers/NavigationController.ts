@@ -1,14 +1,14 @@
+import { randomBytes, randomUUID } from "crypto";
 import { Server } from "socket.io";
+import { MAX_ROOM_PLAYERS } from "../../../shared/constants.js";
 import { GameStatus, PieceType, ServerMessage } from "../../../shared/types.js";
+import { Board } from "../game/Board.js";
+import { Game } from "../game/Game.js";
+import { Player, STARTING_SPEED } from "../game/Player.js";
+import { gameService } from "../services/GameService.js";
 import { roomManager } from "../services/RoomManager.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
 import { SocketType } from "../types/types.js";
-import { gameService } from "../services/GameService.js";
-import { Game } from "../game/Game.js";
-import { Player, STARTING_SPEED } from "../game/Player.js";
-import { Board } from "../game/Board.js";
-import { randomUUID, randomBytes } from "crypto";
-import { MAX_ROOM_PLAYERS } from "../../../shared/constants.js";
 
 export class NavigationController {
     static leave(socket: SocketType, io: Server) {
@@ -33,7 +33,6 @@ export class NavigationController {
         const roomID = randomUUID();
         const room = roomManager.create(roomID);
         this.join(socket, roomID, playerName, io);
-
     }
 
     static join(
@@ -63,7 +62,7 @@ export class NavigationController {
         UpdateManager.updateRoomAndLobby(room, io);
     }
 
-    static start(socket: SocketType, io: Server) {
+    static start(socket: SocketType, io: Server, playWithBlessed: boolean) {
         const room = roomManager.getRoomBySocketId(socket.id);
         if (!room) {
             throw new Error(
@@ -88,14 +87,17 @@ export class NavigationController {
         const players = room.players.map((player) => {
             return new Player(
                 player.socketId,
-                new Board(seed, Object.values(PieceType)),
+                new Board(
+                    seed,
+                    Object.values(PieceType).filter((p) => p !== PieceType.B),
+                ),
                 0,
                 0,
                 STARTING_SPEED,
                 player.name,
             );
         });
-        const newGame = Game.createGame(players, io, room);
+        const newGame = Game.createGame(players, io, room, playWithBlessed);
 
         UpdateManager.updateRoomAndLobby(room, io);
         newGame.start();

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { RootState } from "../redux";
@@ -80,7 +80,7 @@ function Game() {
 
     const gameStartButton =
         ownerId === myGrid?.id && gameStatus === GameStatus.WAITING;
-
+    const [playWithBlessed, setPlayWithBlessed] = useState(false);
     const levelRef = useRef(0);
 
     useAuthGuard();
@@ -139,7 +139,18 @@ function Game() {
     return (
         <>
             {gameStartButton && (
-                <div className="pointer-events-none fixed inset-0 flex justify-center items-center z-50">
+                <div className="pointer-events-none fixed inset-0 flex flex-col justify-center items-center z-50">
+                    <label className="pointer-events-auto flex items-center gap-2 text-white text-lg select-none mb-2">
+                        <input
+                            type="checkbox"
+                            className="w-5 h-5 accent-electric-red"
+                            checked={playWithBlessed}
+                            onChange={(e) =>
+                                setPlayWithBlessed(e.target.checked)
+                            }
+                        />
+                        Play with Blessed Pieces
+                    </label>
                     <button
                         className="pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-2xl px-35 py-7 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
                         onClick={() => {
@@ -147,6 +158,7 @@ function Game() {
                                 type: "socket/emit",
                                 payload: {
                                     event: ClientMessage.START_GAME,
+                                    data: { playWithBlessed },
                                 },
                             });
                         }}
