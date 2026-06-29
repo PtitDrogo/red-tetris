@@ -31,6 +31,11 @@ function Home() {
             return;
         }
 
+        if ([...inputValue].every((c) => c === " ")) {
+            setError(`Your name cannot be just spaces`);
+            return;
+        }
+
         dispatch(setPlayerName(inputValue));
         dispatch({ type: "socket/connectPlayer", payload: { navigate } });
     };
@@ -39,7 +44,12 @@ function Home() {
         <>
             <div className="flex flex-col items-center justify-start pt-75">
                 <h1 className="text-5xl md:text-7xl font-black tracking-widest  uppercase mb-16 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
-                    <span className="text-electric-red animate-shadow-pulse2">Red </span><span className="text-white animate-shadow-pulse3">Tetris</span>
+                    <span className="text-electric-red animate-shadow-pulse2">
+                        Red{" "}
+                    </span>
+                    <span className="text-white animate-shadow-pulse3">
+                        Tetris
+                    </span>
                 </h1>
                 <h1 className="px-2 py-3">Enter your name</h1>
                 <div className="flex flex-col gap-2">
