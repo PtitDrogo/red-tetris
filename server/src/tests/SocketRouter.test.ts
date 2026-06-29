@@ -227,10 +227,13 @@ describe("SocketRouter", () => {
 
         describe("START_GAME event", () => {
             it("should invoke NavigationController.start successfully", () => {
-                registeredEvents[ClientMessage.START_GAME]();
+                registeredEvents[ClientMessage.START_GAME]({
+                    playWithBlessed: false,
+                });
                 expect(NavigationController.start).toHaveBeenCalledWith(
                     mockSocket,
                     mockIo,
+                    false,
                 );
             });
 
@@ -238,8 +241,9 @@ describe("SocketRouter", () => {
                 vi.mocked(NavigationController.start).mockImplementation(() => {
                     throw new Error("Can't start game, player isnt host");
                 });
-
-                registeredEvents[ClientMessage.START_GAME]();
+                registeredEvents[ClientMessage.START_GAME]({
+                    playWithBlessed: false,
+                });
                 expect(mockSocket.emit).toHaveBeenCalledWith(
                     ServerMessage.ERROR,
                     "Can't start game, player isnt host",
