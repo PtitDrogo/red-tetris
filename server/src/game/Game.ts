@@ -49,7 +49,6 @@ export class Game {
         this.metaLoop = undefined;
 
         gameService.removeGame(this);
-        //Room le statut de redevenir waiting dans le room
         const room = roomManager.get(this.roomId);
         if (!room) {
             console.log(

@@ -76,10 +76,6 @@ function Game() {
     const ownerId = useSelector((state: RootState) => state.game.ownerId);
     const gameStatus = useSelector((state: RootState) => state.game.status);
 
-    useEffect(() => {
-        if (myGrid.clearedLinesIndexes?.[0]) console.log("LINE CLEARED OMG");
-    }, [myGrid]);
-
     const dispatch = useDispatch();
 
     const gameStartButton =
