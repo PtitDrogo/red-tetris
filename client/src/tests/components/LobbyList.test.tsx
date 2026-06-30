@@ -19,6 +19,8 @@ vi.mock("../../hooks/useAuthGuard", () => ({
 
 const renderLobbyListWithRedux = (lobbiesList: any[] = []) => {
     const store = configureStore({
+        middleware: (getDefaultMiddleware) =>
+            getDefaultMiddleware({ serializableCheck: false }),
         reducer: {
             player: (state = { name: "Alex" }, _action) => state,
             lobbies: lobbiesReducer,

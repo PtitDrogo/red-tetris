@@ -17,6 +17,15 @@ describe("socket", () => {
         vi.unstubAllEnvs();
     });
 
+    it("falls back to http://localhost:3000 when VITE_BACKEND_URL is not set", async () => {
+        vi.stubEnv("VITE_BACKEND_URL", undefined as unknown as string);
+        await import("./../../socket");
+        expect(ioMock).toHaveBeenCalledWith(
+            "http://localhost:3000",
+            expect.anything(),
+        );
+    });
+
     it("calls io with the backend URL from VITE_BACKEND_URL", async () => {
         vi.stubEnv("VITE_BACKEND_URL", "http://localhost:4000");
         await import("./../../socket");

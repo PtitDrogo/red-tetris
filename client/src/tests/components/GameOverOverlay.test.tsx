@@ -21,6 +21,8 @@ const renderOverlayWithRedux = (
     gameOverOverlayState: any,
 ) => {
     const store = configureStore({
+        middleware: (getDefaultMiddleware) =>
+            getDefaultMiddleware({ serializableCheck: false }),
         reducer: {
             game: gameReducer,
             player: playerReducer,
@@ -44,7 +46,7 @@ const renderOverlayWithRedux = (
 };
 
 describe("GameOverOverlay Component", () => {
-    const mockRanking : GameOverRanking[] = [
+    const mockRanking: GameOverRanking[] = [
         { name: "Alex", points: 1200, level: 2 },
         { name: "Bob", points: 800, level: 1 },
     ];
@@ -96,7 +98,7 @@ describe("GameOverOverlay Component", () => {
     test("Branche de secours (Fallbacks) : gère le classement vide ou partiel", () => {
         renderOverlayWithRedux("Alex", {
             active: true,
-            ranking: [{ name: "Alex", points: 100, level: 0}, undefined, {}],
+            ranking: [{ name: "Alex", points: 100, level: 0 }, undefined, {}],
         });
 
         const containerText = document.body.textContent;

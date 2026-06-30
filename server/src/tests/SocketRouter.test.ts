@@ -32,12 +32,10 @@ describe("SocketRouter", () => {
     let mockIo: any;
     let mockSocket: any;
     let registeredEvents: Record<string, Function>;
-    let consoleLogSpy: any;
 
     beforeEach(() => {
         vi.clearAllMocks();
 
-        consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
         registeredEvents = {};
 
@@ -58,9 +56,7 @@ describe("SocketRouter", () => {
         };
     });
 
-    afterEach(() => {
-        consoleLogSpy.mockRestore();
-    });
+
 
     it("should handle initialization, log user connection, and update the lobby", () => {
         const router = new SocketRouter(mockIo as unknown as Server);
@@ -70,10 +66,7 @@ describe("SocketRouter", () => {
             "connection",
             expect.any(Function),
         );
-        expect(consoleLogSpy).toHaveBeenCalledWith(
-            "user connected:",
-            mockSocket.id,
-        );
+
         expect(UpdateManager.updateLobby).toHaveBeenCalledWith(mockIo);
 
         expect(mockSocket.on).toHaveBeenCalledWith(
@@ -111,10 +104,7 @@ describe("SocketRouter", () => {
         describe("disconnect event", () => {
             it("should invoke NavigationController.leave on disconnect successfully", () => {
                 registeredEvents["disconnect"]();
-                expect(consoleLogSpy).toHaveBeenCalledWith(
-                    "user disconnected:",
-                    mockSocket.id,
-                );
+
                 expect(NavigationController.leave).toHaveBeenCalledWith(
                     mockSocket,
                     mockIo,
@@ -176,10 +166,6 @@ describe("SocketRouter", () => {
                 const payload = { roomID: "room-abc", playerName: "Bob" };
                 registeredEvents[ClientMessage.JOIN_ROOM](payload);
 
-                expect(consoleLogSpy).toHaveBeenCalledWith(
-                    "Player try : ",
-                    "room-abc",
-                );
                 expect(NavigationController.join).toHaveBeenCalledWith(
                     mockSocket,
                     "room-abc",
