@@ -16,6 +16,7 @@ type PieceTypeRng = {
 
 type clearRowsData = {
     grid: number[][];
+    oldGrid: number[][];
     clearedRows: number;
     indexesOfClear: number[]; //Its possible for cleared lines to not be contiguous
 };
@@ -28,6 +29,7 @@ export type BoardTypeRng = {
 
 export class Board {
     private lockedGrid: number[][];
+    private oldGrid: number[][];
     private activePiece: Piece;
     private ghostPiece: Piece;
     private isAlive: boolean = false;
@@ -42,6 +44,7 @@ export class Board {
         bag: PieceType[],
         activePiece?: Piece,
         grid?: number[][],
+        oldgrid?: number[][],
         isAlive?: boolean,
         clearedLines?: number,
         clearedLinesIndexes?: number[],
@@ -52,6 +55,10 @@ export class Board {
             grid ?? Board.createEmptyGrid(),
         );
         this.lockedGrid = clearRowsData.grid;
+        this.oldGrid =
+            clearRowsData.indexesOfClear.length === 0 && oldgrid
+                ? oldgrid
+                : clearRowsData.oldGrid;
         this.clearedLines = clearedLines ?? clearRowsData.clearedRows;
         this.clearedLinesIndexes =
             clearedLinesIndexes ?? clearRowsData.indexesOfClear;
@@ -78,6 +85,7 @@ export class Board {
             bag: PieceType[];
             activePiece: Piece;
             grid: number[][];
+            oldGrid: number[][];
             isAlive: boolean;
             clearedLines: number;
             clearedLinesIndexes: number[];
@@ -88,6 +96,7 @@ export class Board {
             overrides.bag ?? board.bag,
             overrides.activePiece ?? board.activePiece,
             overrides.grid ?? board.lockedGrid,
+            overrides.oldGrid ?? board.oldGrid,
             overrides.isAlive ?? board.isAlive,
             overrides.clearedLines ?? board.clearedLines,
             overrides.clearedLinesIndexes ?? board.clearedLinesIndexes,
@@ -152,6 +161,26 @@ export class Board {
         Piece.getComputedCoordinates(this.ghostPiece).forEach(({ x, y }) => {
             if (display[y][x] === GRID_STATES.EMPTY)
                 display[y][x] = GRID_STATES.GHOST;
+        });
+        Piece.getComputedCoordinates(this.activePiece).forEach(({ x, y }) => {
+            display[y][x] = color;
+        });
+
+        return display;
+    }
+
+    getOldGrid(): number[][] {
+        const display = this.oldGrid.map((row) => [...row]);
+        if (display.length === 0) return display;
+        const color = this.activePiece.getColor();
+
+        Piece.getComputedCoordinates(this.ghostPiece).forEach(({ x, y }) => {
+            const lineAdjustedY = Math.max(
+                y - this.clearedLinesIndexes.length,
+                0,
+            );
+            if (display[lineAdjustedY][x] === GRID_STATES.EMPTY)
+                display[lineAdjustedY][x] = GRID_STATES.GHOST;
         });
         Piece.getComputedCoordinates(this.activePiece).forEach(({ x, y }) => {
             display[y][x] = color;
@@ -277,10 +306,27 @@ export class Board {
         );
 
         return {
+            oldGrid: Board.colorFilledRows(grid, clearedRowIndices),
             grid: [...emptyRows, ...nonCompleteRows],
             clearedRows: numRemovedRows,
             indexesOfClear: clearedRowIndices,
         };
+    }
+
+    private static colorFilledRows(
+        grid: number[][],
+        indices: number[],
+    ): number[][] {
+        if (indices.length === 0) return [];
+        const newGrid = structuredClone(grid);
+
+        indices.forEach((i) => {
+            if (newGrid[i]) {
+                newGrid[i] = newGrid[i].map(() => GRID_STATES.FULL);
+            }
+        });
+        console.log(JSON.stringify(newGrid, null, 2));
+        return newGrid;
     }
 
     private static isValidCoordinates(

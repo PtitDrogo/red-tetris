@@ -37,6 +37,7 @@ export function initGame(store: any) {
                 id: opponents[index]?.socketId || "Empty",
                 score: 0,
                 board: grids[index],
+                oldBoard: [],
                 isAlive: true,
                 level: 0,
             }));
@@ -46,6 +47,7 @@ export function initGame(store: any) {
                 id: socket.id || "Empty",
                 score: 0,
                 board: grids[4],
+                oldBoard: [],
                 isAlive: true,
                 level: 0,
             };
@@ -64,8 +66,19 @@ export function initGame(store: any) {
         const playerGrids = payload.players.filter(
             (grid: any) => grid.id !== socket.id,
         );
+        // console.log(JSON.stringify(payload, null, 2));
+        if (myGrid.oldBoard.length !== 0) {
+            console.log("Received non empty old board !", myGrid.oldBoard);
+        } else {
+            console.log("Received empty old board");
+        }
 
-        store.dispatch(setMyGrid(myGrid!));
+        const boardToShow =
+            myGrid.oldBoard && myGrid.oldBoard.length > 0
+                ? myGrid.oldBoard
+                : myGrid.board;
+
+        store.dispatch(setMyGrid({ ...myGrid, board: boardToShow }));
         store.dispatch(setGrids(playerGrids));
         store.dispatch(setPlayWithBlessed(payload.playWithBlessed));
     });
@@ -103,6 +116,7 @@ export function initLobbies(store: any, action: any) {
             id: opponents[index]?.socketId || `Empty`,
             score: 0,
             board: grids[index],
+            oldBoard: [],
             isAlive: true,
             level: 0,
         }));
@@ -112,6 +126,7 @@ export function initLobbies(store: any, action: any) {
             id: socket.id || "Empty",
             score: 0,
             board: grids[4],
+            oldBoard: [],
             isAlive: true,
             level: 0,
         };

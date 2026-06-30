@@ -81,6 +81,7 @@ export enum GRID_STATES {
     GHOST = 10,
     BLOCKED = 9,
     BLESSED = 11,
+    FULL = 12,
     //Whatever colors we are using add them here.
 }
 

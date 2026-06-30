@@ -66,6 +66,7 @@ export class Game {
                 id: player.getSocketId(),
                 score: player.getPoints(),
                 board: player.getBoard().getFullGrid(),
+                oldBoard: player.getBoard().getOldGrid(),
                 isAlive: player.getBoard().getIsAlive(),
                 level: Math.floor(player.getPoints() / 500),
                 nextPiece: player.getBoard().getNextPiece(),
