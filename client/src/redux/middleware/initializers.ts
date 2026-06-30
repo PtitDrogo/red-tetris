@@ -59,7 +59,6 @@ export function initGame(store: any) {
         store.dispatch(setStatus(payload.gameInfo.status));
     });
 
-
     const MIN_OLD_BOARD_DISPLAY_MS = 100;
 
     let oldBoardFirstShownAt: number | null = null;
@@ -141,18 +140,37 @@ export function initGame(store: any) {
     }
 
     socket.on(ServerMessage.GAME_STATE, (payload: any) => {
+        // Find our current grid in the incoming payload
+        const myGrid = payload.players.find(
+            (grid: any) => grid.id === socket.id,
+        );
+        const incomingHasOldBoard =
+            myGrid?.oldBoard && myGrid.oldBoard.length > 0;
+
+        // GUARD: If we are already mid-animation...
         if (oldBoardFirstShownAt !== null) {
+            // ...and the incoming update is ANOTHER old board, ignore it completely!
+            if (incomingHasOldBoard) {
+                console.log(
+                    `[Socket] 🛑 Ignored incoming oldBoard payload. Animation already in progress.`,
+                );
+                return;
+            }
+
+            // Otherwise, it's a real-time/normal board update. Check if we need to queue it.
             const elapsed = Date.now() - oldBoardFirstShownAt;
             const remaining = MIN_OLD_BOARD_DISPLAY_MS - elapsed;
 
             if (remaining > 0) {
-                // Keep refreshing our pending payload buffer with the latest server data
+                console.log(
+                    `[Socket] Normal update arrived early (${elapsed}ms elapsed). Routing to scheduler.`,
+                );
                 scheduleApply(payload, remaining);
                 return;
             }
         }
 
-        // Past the window, execute cleanly
+        // Past the window or normal state, execute cleanly
         if (pendingTimeout) {
             clearTimeout(pendingTimeout);
             pendingTimeout = null;
