@@ -24,6 +24,8 @@ vi.mock("../../redux/playerSlice", async (importOriginal) => {
 
 const renderHomeWithRedux = () => {
     const store = configureStore({
+        middleware: (getDefaultMiddleware) =>
+            getDefaultMiddleware({ serializableCheck: false }),
         reducer: {
             player: playerReducer,
         },

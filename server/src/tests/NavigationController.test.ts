@@ -6,7 +6,7 @@ import { Game } from "../game/Game.js";
 import { Player } from "../game/Player.js";
 import { Board } from "../game/Board.js";
 import { randomUUID, randomBytes } from "crypto";
-import { NavigationController } from "../controllers/NavigationController.js"
+import { NavigationController } from "../controllers/NavigationController.js";
 
 vi.mock("../services/RoomManager.js", () => ({
     roomManager: {
@@ -56,7 +56,13 @@ vi.mock("../../../shared/types.js", () => ({
         OVER: "Over",
     },
     PieceType: {
-        I: "I", J: "J", L: "L", O: "O", S: "S", T: "T", Z: "Z"
+        I: "I",
+        J: "J",
+        L: "L",
+        O: "O",
+        S: "S",
+        T: "T",
+        Z: "Z",
     },
     ServerMessage: {
         LEAVE_ROOM: "lr",
@@ -76,7 +82,7 @@ describe("NavigationController", () => {
     beforeEach(() => {
         vi.clearAllMocks();
         consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-        
+
         mockSocket = {
             id: "socket-123",
             leave: vi.fn(),
@@ -97,9 +103,9 @@ describe("NavigationController", () => {
         it("should throw an error if the user is not found in any room", () => {
             vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(undefined);
 
-            expect(() => NavigationController.leave(mockSocket, mockIo)).toThrow(
-                "Didn't find the user in any Room, so he cant leave"
-            );
+            expect(() =>
+                NavigationController.leave(mockSocket, mockIo),
+            ).toThrow("Didn't find the user in any Room, so he cant leave");
         });
 
         it("should kill the player if a game is found and remove player from room", () => {
@@ -107,45 +113,65 @@ describe("NavigationController", () => {
             const mockGame = { killPlayer: vi.fn() };
             const mockUpdatedRoom = { id: "room-123", players: [] };
 
-            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(mockRoom as any);
+            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(
+                mockRoom as any,
+            );
             vi.mocked(gameService.findGame).mockReturnValue(mockGame as any);
-            vi.mocked(roomManager.deletePlayer).mockReturnValue(mockUpdatedRoom as any);
+            vi.mocked(roomManager.deletePlayer).mockReturnValue(
+                mockUpdatedRoom as any,
+            );
 
             NavigationController.leave(mockSocket, mockIo);
 
             expect(gameService.findGame).toHaveBeenCalledWith(mockSocket.id);
             expect(mockGame.killPlayer).toHaveBeenCalledWith(mockSocket.id);
-            expect(roomManager.deletePlayer).toHaveBeenCalledWith(mockSocket.id);
+            expect(roomManager.deletePlayer).toHaveBeenCalledWith(
+                mockSocket.id,
+            );
             expect(mockSocket.leave).toHaveBeenCalledWith(mockRoom.id);
             expect(mockSocket.emit).toHaveBeenCalledWith("lr");
-            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(mockUpdatedRoom, mockIo);
+            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(
+                mockUpdatedRoom,
+                mockIo,
+            );
         });
 
         it("should handle leaving cleanly when no game is active (covers optional chaining fallback)", () => {
             const mockRoom = { id: "room-123" };
             const mockUpdatedRoom = { id: "room-123", players: [] };
 
-            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(mockRoom as any);
+            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(
+                mockRoom as any,
+            );
             vi.mocked(gameService.findGame).mockReturnValue(undefined);
-            vi.mocked(roomManager.deletePlayer).mockReturnValue(mockUpdatedRoom as any);
+            vi.mocked(roomManager.deletePlayer).mockReturnValue(
+                mockUpdatedRoom as any,
+            );
 
             NavigationController.leave(mockSocket, mockIo);
 
             expect(gameService.findGame).toHaveBeenCalledWith(mockSocket.id);
-            expect(roomManager.deletePlayer).toHaveBeenCalledWith(mockSocket.id);
+            expect(roomManager.deletePlayer).toHaveBeenCalledWith(
+                mockSocket.id,
+            );
             expect(mockSocket.leave).toHaveBeenCalledWith(mockRoom.id);
             expect(mockSocket.emit).toHaveBeenCalledWith("lr");
-            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(mockUpdatedRoom, mockIo);
+            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(
+                mockUpdatedRoom,
+                mockIo,
+            );
         });
     });
 
     describe("create", () => {
         it("should throw an error if the user is already in a room", () => {
-            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue({ id: "existing-room" } as any);
+            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue({
+                id: "existing-room",
+            } as any);
 
-            expect(() => NavigationController.create(mockSocket, "Player1", mockIo)).toThrow(
-                "User is already in a room"
-            );
+            expect(() =>
+                NavigationController.create(mockSocket, "Player1", mockIo),
+            ).toThrow("User is already in a room");
         });
 
         it("should create a room and join it successfully", () => {
@@ -162,40 +188,63 @@ describe("NavigationController", () => {
             expect(roomManager.create).toHaveBeenCalledWith(mockRoomId);
             expect(mockSocket.join).toHaveBeenCalledWith(mockRoomId);
             expect(mockSocket.emit).toHaveBeenCalledWith("jr", mockRoomId);
-            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(mockRoom, mockIo);
+            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(
+                mockRoom,
+                mockIo,
+            );
         });
     });
 
     describe("join", () => {
         it("should throw an error if the user is already in a room", () => {
-            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue({ id: "existing-room" } as any);
+            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue({
+                id: "existing-room",
+            } as any);
 
-            expect(() => NavigationController.join(mockSocket, "room-id", "Player1", mockIo)).toThrow(
-                "User is already in a room"
-            );
+            expect(() =>
+                NavigationController.join(
+                    mockSocket,
+                    "room-id",
+                    "Player1",
+                    mockIo,
+                ),
+            ).toThrow("User is already in a room");
         });
 
         it("should throw an error if the room is not found", () => {
             vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(undefined);
             vi.mocked(roomManager.get).mockReturnValue(undefined);
 
-            expect(() => NavigationController.join(mockSocket, "invalid-room", "Player1", mockIo)).toThrow(
-                "Could not find the room user is trying to join."
-            );
+            expect(() =>
+                NavigationController.join(
+                    mockSocket,
+                    "invalid-room",
+                    "Player1",
+                    mockIo,
+                ),
+            ).toThrow("Could not find the room user is trying to join.");
         });
 
         it("should throw an error if the room is full", () => {
             const mockRoom = {
                 id: "full-room",
-                players: new Array(5).fill({ name: "User", socketId: "other-socket" }),
+                players: new Array(5).fill({
+                    name: "User",
+                    socketId: "other-socket",
+                }),
             };
 
             vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(undefined);
             vi.mocked(roomManager.get).mockReturnValue(mockRoom as any);
 
-            expect(() => NavigationController.join(mockSocket, "full-room", "Player1", mockIo)).toThrow(
-                "You cannot join this room, it's full."
-            );
+            expect(() =>
+                NavigationController.join(
+                    mockSocket,
+                    "full-room",
+                    "Player1",
+                    mockIo,
+                ),
+            ).toThrow("You cannot join this room, it's full.");
         });
 
         it("should join the room successfully if not full", () => {
@@ -207,7 +256,12 @@ describe("NavigationController", () => {
             vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(undefined);
             vi.mocked(roomManager.get).mockReturnValue(mockRoom as any);
 
-            NavigationController.join(mockSocket, "joinable-room", "Player2", mockIo);
+            NavigationController.join(
+                mockSocket,
+                "joinable-room",
+                "Player2",
+                mockIo,
+            );
 
             expect(mockRoom.players).toContainEqual({
                 name: "Player2",
@@ -215,7 +269,10 @@ describe("NavigationController", () => {
             });
             expect(mockSocket.join).toHaveBeenCalledWith("joinable-room");
             expect(mockSocket.emit).toHaveBeenCalledWith("jr", "joinable-room");
-            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(mockRoom, mockIo);
+            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(
+                mockRoom,
+                mockIo,
+            );
         });
     });
 
@@ -223,8 +280,10 @@ describe("NavigationController", () => {
         it("should throw an error if the room is not found", () => {
             vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(undefined);
 
-            expect(() => NavigationController.start(mockSocket, mockIo)).toThrow(
-                "Could not find the room user is trying to start the game in."
+            expect(() =>
+                NavigationController.start(mockSocket, mockIo, false),
+            ).toThrow(
+                "Could not find the room user is trying to start the game in.",
             );
         });
 
@@ -234,11 +293,13 @@ describe("NavigationController", () => {
                 players: [],
                 gameInfo: { status: "Waiting" },
             };
-            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(mockRoom as any);
-
-            expect(() => NavigationController.start(mockSocket, mockIo)).toThrow(
-                "Can't start game, player isnt host of his room"
+            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(
+                mockRoom as any,
             );
+
+            expect(() =>
+                NavigationController.start(mockSocket, mockIo, false),
+            ).toThrow("Can't start game, player isnt host of his room");
         });
 
         it("should throw an error if the requesting player is not the host", () => {
@@ -247,11 +308,13 @@ describe("NavigationController", () => {
                 players: [{ name: "Host", socketId: "host-socket" }],
                 gameInfo: { status: "Waiting" },
             };
-            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(mockRoom as any);
-
-            expect(() => NavigationController.start(mockSocket, mockIo)).toThrow(
-                "Can't start game, player isnt host of his room"
+            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(
+                mockRoom as any,
             );
+
+            expect(() =>
+                NavigationController.start(mockSocket, mockIo, false),
+            ).toThrow("Can't start game, player isnt host of his room");
         });
 
         it("should throw an error if the game has already started", () => {
@@ -260,11 +323,13 @@ describe("NavigationController", () => {
                 players: [{ name: "Host", socketId: mockSocket.id }],
                 gameInfo: { status: "Ongoing" },
             };
-            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(mockRoom as any);
-
-            expect(() => NavigationController.start(mockSocket, mockIo)).toThrow(
-                "This game already started"
+            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(
+                mockRoom as any,
             );
+
+            expect(() =>
+                NavigationController.start(mockSocket, mockIo, false),
+            ).toThrow("This game already started");
         });
 
         it("should initialize players, create and start the game successfully", () => {
@@ -285,21 +350,31 @@ describe("NavigationController", () => {
                 start: vi.fn(),
             };
 
-            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(mockRoom as any);
+            vi.mocked(roomManager.getRoomBySocketId).mockReturnValue(
+                mockRoom as any,
+            );
             vi.mocked(randomBytes).mockReturnValue(mockBuffer as any);
             vi.mocked(Game.createGame).mockReturnValue(mockGameInstance as any);
 
-            NavigationController.start(mockSocket, mockIo);
+            NavigationController.start(mockSocket, mockIo, false);
 
             expect(mockRoom.gameInfo.status).toBe("Ongoing");
             expect(randomBytes).toHaveBeenCalledWith(4);
             expect(mockBuffer.readUInt32BE).toHaveBeenCalledWith(0);
-            
+
             expect(Player).toHaveBeenCalledTimes(2);
             expect(Board).toHaveBeenCalledTimes(2);
 
-            expect(Game.createGame).toHaveBeenCalledWith(expect.any(Array), mockIo, mockRoom);
-            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(mockRoom, mockIo);
+            expect(Game.createGame).toHaveBeenCalledWith(
+                expect.any(Array),
+                mockIo,
+                mockRoom,
+                expect.any(Boolean),
+            );
+            expect(UpdateManager.updateRoomAndLobby).toHaveBeenCalledWith(
+                mockRoom,
+                mockIo,
+            );
             expect(mockGameInstance.start).toHaveBeenCalled();
         });
     });

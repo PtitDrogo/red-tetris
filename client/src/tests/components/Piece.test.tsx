@@ -7,9 +7,11 @@ import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 
 const mockStore = configureStore({
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({ serializableCheck: false }),
     reducer: {
-        game: (state = {}) => state 
-    }
+        game: (state = {}) => state,
+    },
 });
 
 describe("PiecePreview Component", () => {
@@ -17,7 +19,7 @@ describe("PiecePreview Component", () => {
         const { container } = render(
             <Provider store={mockStore}>
                 <PiecePreview type={undefined} />
-            </Provider>
+            </Provider>,
         );
 
         expect(container.firstChild).toBeNull();
@@ -27,7 +29,7 @@ describe("PiecePreview Component", () => {
         const { container } = render(
             <Provider store={mockStore}>
                 <PiecePreview type={"I" as PieceType} />
-            </Provider>
+            </Provider>,
         );
 
         expect(screen.getByText(/Next:/i)).toBeInTheDocument();
@@ -47,7 +49,7 @@ describe("PiecePreview Component", () => {
         const { container } = render(
             <Provider store={mockStore}>
                 <PiecePreview type={"O" as PieceType} />
-            </Provider>
+            </Provider>,
         );
 
         const gridContainer = container.querySelector(".grid");

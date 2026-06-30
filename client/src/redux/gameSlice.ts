@@ -6,6 +6,7 @@ export interface PlayerGrid {
     id: string;
     score: number;
     board: number[][];
+    oldBoard: number[][];
     isAlive: boolean;
     level: number;
     nextPiece?: PieceType;
@@ -30,6 +31,7 @@ const initialState: GameState = {
         id: "Empty",
         score: 0,
         board: [],
+        oldBoard: [],
         isAlive: true,
         level: 1,
         clearedLinesIndexes: [],

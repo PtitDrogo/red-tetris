@@ -27,6 +27,8 @@ const renderGameWithRedux = (customGameState = {}) => {
             game: gameReducer,
             player: playerReducer,
         },
+        middleware: (getDefaultMiddleware) =>
+            getDefaultMiddleware({ serializableCheck: false }),
         preloadedState: {
             player: { name: "Alex" },
             game: {

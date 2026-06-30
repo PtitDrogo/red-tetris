@@ -6,6 +6,8 @@
     "main": "index.js",
     "scripts": {
         "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+        "start": "npm install && npm install --prefix client && npm install --prefix server && concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+        "prod": "npm run build --prefix client && npm run build --prefix server && concurrently \"npm run preview --prefix client\" \"npm start --prefix server\"",
         "test": "echo '\\033[1;32mRUNNING CLIENT TESTS\\033[0m' && npm test --prefix client && echo '\\033[1;36mRUNNING SERVER TESTS\\033[0m' && npm test --prefix server",
         "coverage": "npm run coverage --prefix client && npm run coverage --prefix server"
     },
@@ -19,5 +21,8 @@
     "bugs": {
         "url": "https://github.com/PtitDrogo/red-tetris/issues"
     },
-    "homepage": "https://github.com/PtitDrogo/red-tetris#readme"
+    "homepage": "https://github.com/PtitDrogo/red-tetris#readme",
+    "devDependencies": {
+        "concurrently": "^10.0.3"
+    }
 }

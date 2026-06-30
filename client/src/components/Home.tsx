@@ -31,6 +31,11 @@ function Home() {
             return;
         }
 
+        if ([...inputValue].every((c) => c === " ")) {
+            setError(`Your name cannot be just spaces`);
+            return;
+        }
+
         dispatch(setPlayerName(inputValue));
         dispatch({ type: "socket/connectPlayer", payload: { navigate } });
     };

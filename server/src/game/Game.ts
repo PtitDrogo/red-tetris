@@ -49,7 +49,6 @@ export class Game {
         this.metaLoop = undefined;
 
         gameService.removeGame(this);
-        //Room le statut de redevenir waiting dans le room
         const room = roomManager.get(this.roomId);
         if (!room) {
             console.log(
@@ -67,6 +66,7 @@ export class Game {
                 id: player.getSocketId(),
                 score: player.getPoints(),
                 board: player.getBoard().getFullGrid(),
+                oldBoard: player.getBoard().getOldGrid(),
                 isAlive: player.getBoard().getIsAlive(),
                 level: Math.floor(player.getPoints() / 500),
                 nextPiece: player.getBoard().getNextPiece(),

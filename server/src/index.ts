@@ -13,7 +13,7 @@ const io = new Server(httpServer, {
             "http://localhost:4173",
             "https://tetris-battles.vercel.app",
         ],
-    }, //TODO: Put this in an env var later.
+    },
 });
 
 const socket = new SocketRouter(io);

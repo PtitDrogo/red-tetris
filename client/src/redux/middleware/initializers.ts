@@ -37,6 +37,7 @@ export function initGame(store: any) {
                 id: opponents[index]?.socketId || "Empty",
                 score: 0,
                 board: grids[index],
+                oldBoard: [],
                 isAlive: true,
                 level: 0,
             }));
@@ -46,6 +47,7 @@ export function initGame(store: any) {
                 id: socket.id || "Empty",
                 score: 0,
                 board: grids[4],
+                oldBoard: [],
                 isAlive: true,
                 level: 0,
             };
@@ -57,17 +59,106 @@ export function initGame(store: any) {
         store.dispatch(setStatus(payload.gameInfo.status));
     });
 
-    socket.on(ServerMessage.GAME_STATE, (payload) => {
+
+    const MIN_OLD_BOARD_DISPLAY_MS = 100;
+
+    let oldBoardFirstShownAt: number | null = null;
+    let pendingTimeout: ReturnType<typeof setTimeout> | null = null;
+    let pendingPayload: any = null;
+
+    function applyGameState(payload: any) {
         const myGrid = payload.players.find(
             (grid: any) => grid.id === socket.id,
         );
         const playerGrids = payload.players.filter(
             (grid: any) => grid.id !== socket.id,
         );
+        const hasOldBoard = myGrid.oldBoard && myGrid.oldBoard.length > 0;
+        const boardToShow = hasOldBoard ? myGrid.oldBoard : myGrid.board;
 
-        store.dispatch(setMyGrid(myGrid!));
+        store.dispatch(setMyGrid({ ...myGrid, board: boardToShow }));
         store.dispatch(setGrids(playerGrids));
         store.dispatch(setPlayWithBlessed(payload.playWithBlessed));
+
+        if (hasOldBoard) {
+            if (oldBoardFirstShownAt === null) {
+                oldBoardFirstShownAt = Date.now();
+                console.log(
+                    `%c[OldBoard] INITIAL PAINT at: ${oldBoardFirstShownAt}ms`,
+                    "color: #e67e22; font-weight: bold;",
+                );
+
+                // FIX: Set the fallback timeout IMMEDIATELY upon initial paint!
+                // This protects us if the server goes dead silent.
+                scheduleApply(payload, MIN_OLD_BOARD_DISPLAY_MS);
+            } else {
+                console.log(
+                    `[OldBoard] Still displaying old board. Elapsed: ${Date.now() - oldBoardFirstShownAt}ms`,
+                );
+            }
+        } else {
+            if (oldBoardFirstShownAt !== null) {
+                const totalDuration = Date.now() - oldBoardFirstShownAt;
+                console.log(
+                    `%c[OldBoard] CLEAN SWAP back to fresh board! Total duration shown: ${totalDuration}ms (Target: ${MIN_OLD_BOARD_DISPLAY_MS}ms)`,
+                    `color: ${totalDuration >= MIN_OLD_BOARD_DISPLAY_MS && totalDuration < MIN_OLD_BOARD_DISPLAY_MS + 30 ? "#2ecc71" : "#e74c3c"}; font-weight: bold;`,
+                );
+            }
+            oldBoardFirstShownAt = null;
+        }
+    }
+
+    function scheduleApply(payload: any, delay: number) {
+        pendingPayload = payload;
+
+        if (pendingTimeout) {
+            return;
+        }
+
+        console.log(`[Scheduler] Setting self-clearing timer for ${delay}ms`);
+        pendingTimeout = setTimeout(() => {
+            pendingTimeout = null;
+            const p = pendingPayload;
+            pendingPayload = null;
+
+            const myGrid = p.players.find((grid: any) => grid.id === socket.id);
+            if (myGrid && myGrid.oldBoard && myGrid.oldBoard.length > 0) {
+                console.log(
+                    `%c[Scheduler] ⏰ Timeout hit! Force-clearing old board.`,
+                    "color: #3498db;",
+                );
+                const updatedPlayers = p.players.map((grid: any) =>
+                    grid.id === socket.id ? { ...grid, oldBoard: [] } : grid,
+                );
+                applyGameState({ ...p, players: updatedPlayers });
+            } else {
+                console.log(
+                    `[Scheduler] Timeout hit! Executing standard payload.`,
+                );
+                applyGameState(p);
+            }
+        }, delay);
+    }
+
+    socket.on(ServerMessage.GAME_STATE, (payload: any) => {
+        if (oldBoardFirstShownAt !== null) {
+            const elapsed = Date.now() - oldBoardFirstShownAt;
+            const remaining = MIN_OLD_BOARD_DISPLAY_MS - elapsed;
+
+            if (remaining > 0) {
+                // Keep refreshing our pending payload buffer with the latest server data
+                scheduleApply(payload, remaining);
+                return;
+            }
+        }
+
+        // Past the window, execute cleanly
+        if (pendingTimeout) {
+            clearTimeout(pendingTimeout);
+            pendingTimeout = null;
+            pendingPayload = null;
+        }
+        applyGameState(payload);
     });
 
     socket.off(ServerMessage.GAME_OVER);
@@ -103,6 +194,7 @@ export function initLobbies(store: any, action: any) {
             id: opponents[index]?.socketId || `Empty`,
             score: 0,
             board: grids[index],
+            oldBoard: [],
             isAlive: true,
             level: 0,
         }));
@@ -112,6 +204,7 @@ export function initLobbies(store: any, action: any) {
             id: socket.id || "Empty",
             score: 0,
             board: grids[4],
+            oldBoard: [],
             isAlive: true,
             level: 0,
         };

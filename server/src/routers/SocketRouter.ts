@@ -14,11 +14,9 @@ export class SocketRouter {
 
     init() {
         this.io.on("connection", (socket) => {
-            console.log("user connected:", socket.id);
             UpdateManager.updateLobby(this.io);
 
             socket.on("disconnect", () => {
-                console.log("user disconnected:", socket.id);
                 try {
                     NavigationController.leave(socket, this.io);
                 } catch (error) {
@@ -38,7 +36,6 @@ export class SocketRouter {
                 ClientMessage.JOIN_ROOM,
                 (payload: { roomID: string; playerName: string }) => {
                     try {
-                        console.log("Player try : ", payload.roomID);
                         NavigationController.join(
                             socket,
                             payload.roomID,
