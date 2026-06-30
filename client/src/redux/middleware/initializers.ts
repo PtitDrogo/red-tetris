@@ -59,9 +59,13 @@ export function initGame(store: any) {
         store.dispatch(setStatus(payload.gameInfo.status));
     });
 
+    // Inside initGame ...
+
     const MIN_OLD_BOARD_DISPLAY_MS = 100;
+    const LAGGING_PACKET_LOCKOUT_MS = 50; // Ignore rapid consecutive flashes
 
     let oldBoardFirstShownAt: number | null = null;
+    let lastOldBoardClearedAt: number = 0; // Tracks when the last animation ended
     let pendingTimeout: ReturnType<typeof setTimeout> | null = null;
     let pendingPayload: any = null;
 
@@ -83,25 +87,18 @@ export function initGame(store: any) {
             if (oldBoardFirstShownAt === null) {
                 oldBoardFirstShownAt = Date.now();
                 console.log(
-                    `%c[OldBoard] INITIAL PAINT at: ${oldBoardFirstShownAt}ms`,
+                    `%c[OldBoard] INITIAL PAINT`,
                     "color: #e67e22; font-weight: bold;",
                 );
-
-                // FIX: Set the fallback timeout IMMEDIATELY upon initial paint!
-                // This protects us if the server goes dead silent.
                 scheduleApply(payload, MIN_OLD_BOARD_DISPLAY_MS);
-            } else {
-                console.log(
-                    `[OldBoard] Still displaying old board. Elapsed: ${Date.now() - oldBoardFirstShownAt}ms`,
-                );
             }
         } else {
             if (oldBoardFirstShownAt !== null) {
-                const totalDuration = Date.now() - oldBoardFirstShownAt;
                 console.log(
-                    `%c[OldBoard] CLEAN SWAP back to fresh board! Total duration shown: ${totalDuration}ms (Target: ${MIN_OLD_BOARD_DISPLAY_MS}ms)`,
-                    `color: ${totalDuration >= MIN_OLD_BOARD_DISPLAY_MS && totalDuration < MIN_OLD_BOARD_DISPLAY_MS + 30 ? "#2ecc71" : "#e74c3c"}; font-weight: bold;`,
+                    `%c[OldBoard] CLEAN SWAP back to fresh board!`,
+                    "color: #2ecc71; font-weight: bold;",
                 );
+                lastOldBoardClearedAt = Date.now(); // Start the lockout clock right now
             }
             oldBoardFirstShownAt = null;
         }
@@ -110,11 +107,8 @@ export function initGame(store: any) {
     function scheduleApply(payload: any, delay: number) {
         pendingPayload = payload;
 
-        if (pendingTimeout) {
-            return;
-        }
+        if (pendingTimeout) return;
 
-        console.log(`[Scheduler] Setting self-clearing timer for ${delay}ms`);
         pendingTimeout = setTimeout(() => {
             pendingTimeout = null;
             const p = pendingPayload;
@@ -123,51 +117,50 @@ export function initGame(store: any) {
             const myGrid = p.players.find((grid: any) => grid.id === socket.id);
             if (myGrid && myGrid.oldBoard && myGrid.oldBoard.length > 0) {
                 console.log(
-                    `%c[Scheduler] ⏰ Timeout hit! Force-clearing old board.`,
-                    "color: #3498db;",
+                    `[Scheduler] ⏰ Timeout hit! Force-clearing old board.`,
                 );
                 const updatedPlayers = p.players.map((grid: any) =>
                     grid.id === socket.id ? { ...grid, oldBoard: [] } : grid,
                 );
                 applyGameState({ ...p, players: updatedPlayers });
             } else {
-                console.log(
-                    `[Scheduler] Timeout hit! Executing standard payload.`,
-                );
                 applyGameState(p);
             }
         }, delay);
     }
 
     socket.on(ServerMessage.GAME_STATE, (payload: any) => {
-        // Find our current grid in the incoming payload
         const myGrid = payload.players.find(
             (grid: any) => grid.id === socket.id,
         );
         const incomingHasOldBoard =
             myGrid?.oldBoard && myGrid.oldBoard.length > 0;
 
-        // GUARD: If we are already mid-animation...
+        // 1. GUARD: Check if we are actively mid-animation
         if (oldBoardFirstShownAt !== null) {
-            // ...and the incoming update is ANOTHER old board, ignore it completely!
             if (incomingHasOldBoard) {
-                console.log(
-                    `[Socket] 🛑 Ignored incoming oldBoard payload. Animation already in progress.`,
-                );
+                // Already tracking an old board, ignore extra server updates containing it
                 return;
             }
 
-            // Otherwise, it's a real-time/normal board update. Check if we need to queue it.
             const elapsed = Date.now() - oldBoardFirstShownAt;
             const remaining = MIN_OLD_BOARD_DISPLAY_MS - elapsed;
 
             if (remaining > 0) {
-                console.log(
-                    `[Socket] Normal update arrived early (${elapsed}ms elapsed). Routing to scheduler.`,
-                );
                 scheduleApply(payload, remaining);
                 return;
             }
+        }
+
+        // 2. GUARD: Lockout lagging network updates that try to start a new flash too soon
+        if (
+            incomingHasOldBoard &&
+            Date.now() - lastOldBoardClearedAt < LAGGING_PACKET_LOCKOUT_MS
+        ) {
+            console.log(
+                `[Socket] 🛡️ Blocked a double-flash caused by a lagging server packet.`,
+            );
+            return;
         }
 
         // Past the window or normal state, execute cleanly
