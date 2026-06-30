@@ -18,36 +18,69 @@ import { Score } from "../components/Score";
 import Grid from "./Grid";
 import { PiecePreview } from "./Piece";
 
-type gridProps = {
-    playerName: string;
-    grid: GRID_STATES[][];
-    score: number;
-    level?: number;
-    nextPiece?: PieceType;
-};
+function MainGrid() {
+    const playerName = useSelector((state: RootState) => state.player.name);
+    const grid = useSelector((state: RootState) => state.game.myGrid);
+    const lineCleared = useSelector(
+        (state: RootState) => state.game.myGrid.clearedLinesIndexes,
+    );
 
-function MainGrid({ playerName, grid, score, nextPiece, level }: gridProps) {
+    const [shakingLevel, setShakingLevel] = useState(0);
+    const timerRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (lineCleared && lineCleared.length > 0) {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            } else {
+                setShakingLevel(lineCleared.length);
+            }
+
+            timerRef.current = setTimeout(() => {
+                setShakingLevel(0);
+                timerRef.current = null;
+            }, 300);
+        }
+    }, [lineCleared]);
+
+    useEffect(() => {
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+    }, []);
+
+    const shakeAnimationClasses: { [key: number]: string } = {
+        1: "animate-shake-1",
+        2: "animate-shake-2",
+        3: "animate-shake-3",
+        4: "animate-shake-4",
+    };
+
     return (
         <>
-            <div className="flex flex-col items-center">
+            <div
+                className={`flex flex-col items-center ${shakeAnimationClasses[shakingLevel] || ""}`}
+            >
                 <div className="flex items-center gap-4 py-1">
-                    <PiecePreview type={nextPiece} />
+                    <PiecePreview type={grid.nextPiece} />
                     {playerName}
                 </div>
                 <Grid
-                    grid={grid}
+                    grid={grid.board}
                     gridColsClass="grid-cols-10"
                     gridRowsClass="grid-rows-20"
                     cellSizeClass="w-8 h-8"
                 />
-                <Score score={score} level={level} />
+                <Score score={grid.score} level={grid.level} />
             </div>
         </>
     );
 }
 
-function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
-    const isPresent = opponentName !== "Empty";
+function OpponentGrid({ id }: { id: number }) {
+    const grids = useSelector((state: RootState) => state.game.grids);
+
+    const isPresent = grids[id]?.name && grids[id]?.name !== "Empty";
     return (
         <>
             <div
@@ -55,14 +88,17 @@ function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
                     isPresent ? "opacity-100" : "opacity-30"
                 }`}
             >
-                <div className="py-2 text-sm">{opponentName}</div>
+                <div className="py-2 text-sm">{grids[id]?.name ?? "Empty"}</div>
                 <Grid
-                    grid={grid}
+                    grid={
+                        grids[id]?.board ??
+                        Array.from({ length: 20 }, () => Array(10).fill(0))
+                    }
                     gridColsClass="grid-cols-10"
                     gridRowsClass="grid-rows-20"
                     cellSizeClass="w-4 h-4"
                 />
-                <Score score={score} />
+                <Score score={grids[id]?.score ?? 0} />
             </div>
         </>
     );
@@ -70,8 +106,6 @@ function OpponentGrid({ playerName: opponentName, grid, score }: gridProps) {
 
 function Game() {
     const navigate = useNavigate();
-    const playerName = useSelector((state: RootState) => state.player.name);
-    const gameGrids = useSelector((state: RootState) => state.game.grids);
     const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const ownerId = useSelector((state: RootState) => state.game.ownerId);
     const gameStatus = useSelector((state: RootState) => state.game.status);
@@ -135,7 +169,6 @@ function Game() {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [dispatch]);
 
-    const emptyGrid = Array.from({ length: 20 }, () => Array(10).fill(0));
     return (
         <>
             {gameStartButton && (
@@ -149,10 +182,14 @@ function Game() {
                                 setPlayWithBlessed(e.target.checked)
                             }
                         />
-                        Play with <span className="text-amber-400 animate-pulse">Blessed</span> Pieces
+                        Play with{" "}
+                        <span className="text-amber-400 animate-pulse">
+                            Blessed
+                        </span>{" "}
+                        Pieces
                     </label>
                     <button
-                        className="pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-2xl px-35 py-7 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
+                        className="pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-2xl px-35 py-7 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse-red"
                         onClick={() => {
                             dispatch({
                                 type: "socket/emit",
@@ -169,7 +206,7 @@ function Game() {
             )}
             {gameStatus === GameStatus.WAITING && !gameStartButton && (
                 <div className="pointer-events-none fixed inset-0 flex justify-center items-center z-50">
-                    <div className="bg-gray-900/80 border-t border-b border-electric-red/50 px-20 py-8 text-center rounded-xl animate-shadow-pulse2">
+                    <div className="bg-gray-900/80 border-t border-b border-electric-red/50 px-20 py-8 text-center rounded-xl animate-shadow-pulse-red">
                         <span className="text-xl font-medium text-slate-300 tracking-wide animate-slow-pulse">
                             Waiting for host...
                         </span>
@@ -180,35 +217,13 @@ function Game() {
 
             <div className="flex justify-center items-center pt-20 gap-40">
                 <div className="flex flex-col gap-20">
-                    <OpponentGrid
-                        playerName={gameGrids[0]?.name ?? "Empty"}
-                        grid={gameGrids[0]?.board ?? emptyGrid}
-                        score={gameGrids[0]?.score ?? 0}
-                    ></OpponentGrid>
-                    <OpponentGrid
-                        playerName={gameGrids[1]?.name ?? "Empty"}
-                        grid={gameGrids[1]?.board ?? emptyGrid}
-                        score={gameGrids[1]?.score ?? 0}
-                    ></OpponentGrid>
+                    <OpponentGrid id={0}></OpponentGrid>
+                    <OpponentGrid id={1}></OpponentGrid>
                 </div>
-                <MainGrid
-                    playerName={myGrid?.name}
-                    grid={myGrid?.board ?? emptyGrid}
-                    score={myGrid.score}
-                    level={myGrid.level}
-                    nextPiece={myGrid.nextPiece}
-                ></MainGrid>
+                <MainGrid></MainGrid>
                 <div className="flex flex-col gap-20">
-                    <OpponentGrid
-                        playerName={gameGrids[2]?.name ?? "Empty"}
-                        grid={gameGrids[2]?.board ?? emptyGrid}
-                        score={gameGrids[2]?.score ?? 0}
-                    ></OpponentGrid>
-                    <OpponentGrid
-                        playerName={gameGrids[3]?.name ?? "Empty"}
-                        grid={gameGrids[3]?.board ?? emptyGrid}
-                        score={gameGrids[3]?.score ?? 0}
-                    ></OpponentGrid>
+                    <OpponentGrid id={2}></OpponentGrid>
+                    <OpponentGrid id={3}></OpponentGrid>
                 </div>
             </div>
             <div className="fixed bottom-4 right-4">

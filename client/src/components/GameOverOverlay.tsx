@@ -91,7 +91,7 @@ function GameOverOverlay() {
                 </div>
                 <div className="flex justify-center items-center z-50">
                     <button
-                        className="mt-10 pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse2"
+                        className="mt-10 pointer-events-auto bg-electric-red hover:bg-red-400 text-white font-bold text-xl px-8 py-4 rounded-xl shadow-2xl transform hover:scale-105 transition-all animate-shadow-pulse-red"
                         onClick={() => dispatch(clearGameOver())}
                     >
                         <span className="animate-slow-pulse">Continue</span>

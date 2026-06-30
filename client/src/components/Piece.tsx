@@ -10,8 +10,6 @@ type PieceProps = {
 };
 
 export function PiecePreview({ type }: PieceProps) {
-    if (!type) return;
-
     const grid: GRID_STATES[][] = Array.from({ length: 3 }, (_, i) =>
         Array(4).fill(GRID_STATES.EMPTY),
     );
@@ -19,6 +17,7 @@ export function PiecePreview({ type }: PieceProps) {
         (state: RootState) => state.game.playWithBlessed,
     );
 
+    if (!type) return null;
     const shapeData = Shapes[type];
     shapeData.cells.forEach((c) => {
         grid[c.y + PREVIEW_PIVOT.y][c.x + PREVIEW_PIVOT.x] = shapeData.color;
