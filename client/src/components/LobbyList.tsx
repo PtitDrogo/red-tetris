@@ -61,7 +61,7 @@ function LobbyList() {
                     <div key={lobby.id} className="w-96">
                         <button
                             type="button"
-                            className="rounded-xl bg-gray-800 px-15 w-full hover:bg-gray-700 transition-all duration-300 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] animate-shadow-pulse transform hover:-translate-y-1 hover:scale-[1.03]"
+                            className="rounded-xl bg-gray-800 px-15 w-full hover:bg-gray-700 transition-all duration-300 drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)] animate-shadow-pulse-white transform hover:-translate-y-1 hover:scale-[1.03]"
                             onClick={() => joinLobby(lobby.id)}
                         >
                             <div className="mt-2 flex justify-center">

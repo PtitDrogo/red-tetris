@@ -24,14 +24,7 @@
     --color-cyan: #00ffff;
     --color-digital-blue: #0070ff;
 
-    @keyframes shadow-pulse {
-        50% {
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
-        }
-    }
-    --animate-shadow-pulse: shadow-pulse 1.5s ease-in-out infinite;
-
-    @keyframes shadow-pulse2 {
+    @keyframes shadow-pulse-red {
         0%,
         100% {
             filter: drop-shadow(0 0 20px rgba(255, 50, 50, 0.8));
@@ -42,10 +35,10 @@
         }
     }
 
-    --animate-shadow-pulse2: shadow-pulse2 3s cubic-bezier(0.4, 0, 0.6, 1)
+    --animate-shadow-pulse-red: shadow-pulse-red 3s cubic-bezier(0.4, 0, 0.6, 1)
         infinite;
 
-    @keyframes shadow-pulse3 {
+    @keyframes shadow-pulse-white {
         0%,
         100% {
             filter: drop-shadow(0 0 20px rgba(150, 150, 150, 0.8));
@@ -56,8 +49,8 @@
         }
     }
 
-    --animate-shadow-pulse3: shadow-pulse3 3s cubic-bezier(0.4, 0, 0.6, 1)
-        infinite;
+    --animate-shadow-pulse-white: shadow-pulse-white 3s
+        cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
     --animate-slow-pulse: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
@@ -71,7 +64,78 @@
             filter: brightness(1);
         }
     }
- 
-    --animate-generate: generateSnap 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-}
 
+    --animate-generate: generateSnap 0.5s cubic-bezier(0.19, 1, 0.22, 1)
+        forwards;
+
+    @keyframes generateShadow-red {
+        0% {
+            filter: drop-shadow(0 0 20px rgba(255, 50, 50, 0.8));
+        }
+    }
+
+    --animate-generateShadow-red: generateShadow-red 1s
+        cubic-bezier(1, 0, 0.99, 0.64) forwards;
+
+    @keyframes shake-1 {
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+        20%,
+        60% {
+            transform: translateX(-2px);
+        }
+        40%,
+        80% {
+            transform: translateX(2px);
+        }
+    }
+    @keyframes shake-2 {
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+        20%,
+        60% {
+            transform: translateX(-3px);
+        }
+        40%,
+        80% {
+            transform: translateX(3px);
+        }
+    }
+    @keyframes shake-3 {
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+        20%,
+        60% {
+            transform: translateX(-5px);
+        }
+        40%,
+        80% {
+            transform: translateX(5px);
+        }
+    }
+    @keyframes shake-4 {
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+        20%,
+        60% {
+            transform: translateX(-10px);
+        }
+        40%,
+        80% {
+            transform: translateX(10px);
+        }
+    }
+
+    --animate-shake-1: shake-1 0.1s ease-in-out;
+    --animate-shake-2: shake-2 0.15s ease-in-out;
+    --animate-shake-3: shake-3 0.2s ease-in-out;
+    --animate-shake-4: shake-4 0.25s ease-in-out;
+}
