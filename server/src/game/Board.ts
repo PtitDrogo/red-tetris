@@ -325,7 +325,6 @@ export class Board {
                 newGrid[i] = newGrid[i].map(() => GRID_STATES.FULL);
             }
         });
-        console.log(JSON.stringify(newGrid, null, 2));
         return newGrid;
     }
 
