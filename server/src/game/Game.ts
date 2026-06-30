@@ -61,6 +61,9 @@ export class Game {
 
     private sendDataToPlayers() {
         const playersData = this.players.map((player) => {
+            console.log(
+                JSON.stringify(player.getBoard().getClearedLinesIndexes()),
+            );
             return {
                 name: player.getName(),
                 id: player.getSocketId(),
@@ -78,6 +81,14 @@ export class Game {
             playWithBlessed: this.playWithBlessedPiece,
         };
         UpdateManager.gameUpdate(this.io, this.roomId, gameUpdate);
+        this.players = this.players.map((p) => {
+            return Player.copy(p, {
+                board: Board.copy(p.getBoard(), {
+                    clearedLines: 0,
+                    clearedLinesIndexes: [],
+                }),
+            });
+        });
     }
 
     handleGameInput(newInput: GameInput, socketId: string) {
@@ -237,15 +248,7 @@ export class Game {
 
         const newPlayers: Player[] = players
             .map((p, i) => Player.addBlockLines(to_add[i], p))
-            .map((p) => Game.addBlessedPiece(p, playWithBlessed))
-            .map((p) => {
-                return Player.copy(p, {
-                    board: Board.copy(p.getBoard(), {
-                        clearedLines: 0,
-                        clearedLinesIndexes: [],
-                    }),
-                });
-            });
+            .map((p) => Game.addBlessedPiece(p, playWithBlessed));
 
         return newPlayers;
     }
