@@ -29,8 +29,8 @@ describe("UpdateManager", () => {
             const dummyRoomId = "test-room-id";
             const dummyGameOverData: GameOverData = {
                 ranking: [
-                    { name: "Alice", points: 1200 },
-                    { name: "Bob", points: 800 },
+                    { name: "Alice", points: 1200 , level: 1},
+                    { name: "Bob", points: 800 , level: 1},
                 ],
             };
 
