@@ -61,9 +61,6 @@ export class Game {
 
     private sendDataToPlayers() {
         const playersData = this.players.map((player) => {
-            console.log(
-                JSON.stringify(player.getBoard().getClearedLinesIndexes()),
-            );
             return {
                 name: player.getName(),
                 id: player.getSocketId(),
