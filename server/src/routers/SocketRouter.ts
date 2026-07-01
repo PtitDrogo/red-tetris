@@ -16,12 +16,22 @@ export class SocketRouter {
         this.io.on("connection", (socket) => {
             UpdateManager.updateLobby(this.io);
 
-            socket.on("disconnect", () => {
-                try {
-                    NavigationController.leave(socket, this.io);
-                } catch (error) {
-                    socket.emit(ServerMessage.ERROR, getErrorMessage(error));
+            socket.on("disconnect", (reason) => {
+                if (
+                    reason === "client namespace disconnect" ||
+                    reason === "server namespace disconnect"
+                ) {
+                    try {
+                        NavigationController.leave(socket, this.io);
+                    } catch (error) {
+                        console.error("Error during manual leave:", error);
+                    }
+                    return;
                 }
+
+                console.log(
+                    `Socket ${socket.id} disconnected temporarily due to: ${reason}. Waiting for recovery...`,
+                );
             });
 
             socket.on(ClientMessage.CREATE_ROOM, (playerName: string) => {
@@ -59,13 +69,23 @@ export class SocketRouter {
                 }
             });
 
-        socket.on(ClientMessage.START_GAME, (payload: { playWithBlessed: boolean}) => {
-                try {
-                    NavigationController.start(socket, this.io, payload.playWithBlessed);
-                } catch (error) {
-                    socket.emit(ServerMessage.ERROR, getErrorMessage(error));
-                }
-            });
+            socket.on(
+                ClientMessage.START_GAME,
+                (payload: { playWithBlessed: boolean }) => {
+                    try {
+                        NavigationController.start(
+                            socket,
+                            this.io,
+                            payload.playWithBlessed,
+                        );
+                    } catch (error) {
+                        socket.emit(
+                            ServerMessage.ERROR,
+                            getErrorMessage(error),
+                        );
+                    }
+                },
+            );
 
             socket.on(ClientMessage.PLAYER_INPUT, (input) => {
                 try {
