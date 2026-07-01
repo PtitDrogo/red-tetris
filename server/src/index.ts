@@ -14,10 +14,6 @@ const io = new Server(httpServer, {
             "https://tetris-battles.vercel.app",
         ],
     },
-    connectionStateRecovery: {
-        maxDisconnectionDuration: 2 * 60 * 1000,
-        skipMiddlewares: true,
-    },
 });
 
 const socket = new SocketRouter(io);

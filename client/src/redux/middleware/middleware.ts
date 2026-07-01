@@ -57,11 +57,12 @@ const socketMiddleware: Middleware = (store) => (next) => (action: any) => {
             });
 
             socket.connect();
-            // socket.off("disconnect");
+            socket.off("disconnect");
 
-            // socket.on("disconnect", () => {
-            //     store.dispatch(setPlayerName(""));
-            // });
+            socket.on("disconnect", () => {
+                store.dispatch(setPlayerName(""));
+                console.log("Sorry, your connection disconnected.")
+            });
             break;
         }
 
