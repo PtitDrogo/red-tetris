@@ -86,6 +86,7 @@ export class Game {
                 board: Board.copy(p.getBoard(), {
                     clearedLines: 0,
                     clearedLinesIndexes: [],
+                    oldGrid: [],
                 }),
             });
         });

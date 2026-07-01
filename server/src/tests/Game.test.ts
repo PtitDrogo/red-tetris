@@ -64,19 +64,19 @@ describe("Game Class", () => {
     describe("Initialization & Basics", () => {
         it("should create a game and add it to gameService", () => {
             const p1 = createPlayer("1", "P1");
-            const game = Game.createGame([p1], ioMock, mockRoom);
+            const game = Game.createGame([p1], ioMock, mockRoom, false);
 
             expect(game.getPlayers().length).toBe(1);
             expect(gameService.addGame).toHaveBeenCalledWith(game);
         });
 
         it("should throw an error if starting a game with 0 players", () => {
-            const game = new Game([], ioMock, "room1");
+            const game = new Game([], ioMock, "room1", false);
             expect(() => game.start()).toThrow("Cannot start a game with no players");
         });
 
         it("should cleanly return if stopping a game that hasn't started loops", () => {
-            const game = new Game([createPlayer("1", "P1")], ioMock, "room1");
+            const game = new Game([createPlayer("1", "P1")], ioMock, "room1", false);
             
             game.stopGame(); 
             expect(gameService.removeGame).not.toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe("Game Class", () => {
     describe("Game Loop & Stopping", () => {
         it("should handle start, broadcast data, interval loops, and clean stop", () => {
             const p1 = createPlayer("1", "P1");
-            const game = Game.createGame([p1], ioMock, mockRoom);
+            const game = Game.createGame([p1], ioMock, mockRoom, false);
 
             game.start();
             expect(UpdateManager.gameUpdate).toHaveBeenCalled(); // Initial broadcast
@@ -107,7 +107,7 @@ describe("Game Class", () => {
         });
 
         it("should log and handle room not found in stopGame", () => {
-            const game = Game.createGame([createPlayer("1", "P1")], ioMock, mockRoom);
+            const game = Game.createGame([createPlayer("1", "P1")], ioMock, mockRoom, false);
             game.start();
 
             (roomManager.get as Mock).mockReturnValue(undefined);
@@ -123,7 +123,7 @@ describe("Game Class", () => {
     describe("Player Input & Interactions", () => {
         it("should kill a player successfully", () => {
             const p1 = createPlayer("1", "P1");
-            const game = new Game([p1], ioMock, "room1");
+            const game = new Game([p1], ioMock, "room1", false);
             
             game.killPlayer("1");
             
@@ -132,7 +132,7 @@ describe("Game Class", () => {
         });
 
         it("should handle game input and broadcast new state", () => {
-            const game = new Game([createPlayer("1", "P1")], ioMock, "room1");
+            const game = new Game([createPlayer("1", "P1")], ioMock, "room1", false);
             const handleInputSpy = vi.spyOn(Player, "handleInput");
 
             game.handleGameInput(GameInput.LEFT, "1");
@@ -144,7 +144,7 @@ describe("Game Class", () => {
         it("handleClearedLines: should add block lines to opponents when a player clears rows", () => {
             const p1 = createPlayer("1", "P1");
             const p2 = createPlayer("2", "P2");
-            const game = new Game([p1, p2], ioMock, "room1");
+            const game = new Game([p1, p2], ioMock, "room1", false);
 
             vi.spyOn(Player, "handleInput").mockImplementation((player) => {
                 if (player.getSocketId() === "1") {
@@ -164,7 +164,7 @@ describe("Game Class", () => {
 
     describe("Meta Loop - Game Over Mechanics", () => {
         it("solo game: triggers Game Over when the only player dies", () => {
-            const game = new Game([createPlayer("1", "P1")], ioMock, "room1");
+            const game = new Game([createPlayer("1", "P1")], ioMock, "room1", false);
             game.start();
 
             game.killPlayer("1");
@@ -176,7 +176,7 @@ describe("Game Class", () => {
         });
 
         it("solo game: gracefully handles a missing room during Game Over updates", () => {
-            const game = new Game([createPlayer("1", "P1")], ioMock, "room1");
+            const game = new Game([createPlayer("1", "P1")], ioMock, "room1", false);
             game.start();
             game.killPlayer("1");
 
@@ -191,7 +191,7 @@ describe("Game Class", () => {
         });
 
         it("solo game: does NOT trigger Game Over while player is alive", () => {
-            const game = new Game([createPlayer("1", "P1")], ioMock, "room1");
+            const game = new Game([createPlayer("1", "P1")], ioMock, "room1", false);
             game.start();
 
             vi.advanceTimersByTime(1000);
@@ -203,7 +203,7 @@ describe("Game Class", () => {
             const p1 = createPlayer("1", "P1"); 
             const p2 = Player.copy(createPlayer("2", "P2"), { points: 5000 }); 
             
-            const game = new Game([p1, p2], ioMock, "room1");
+            const game = new Game([p1, p2], ioMock, "room1", false);
             game.start();
             game.killPlayer("2"); 
 
@@ -213,7 +213,7 @@ describe("Game Class", () => {
         });
 
         it("multiplayer game: does NOT trigger Game Over when multiple players are alive", () => {
-            const game = new Game([createPlayer("1", "P1"), createPlayer("2", "P2")], ioMock, "room1");
+            const game = new Game([createPlayer("1", "P1"), createPlayer("2", "P2")], ioMock, "room1", false);
             game.start();
 
             vi.advanceTimersByTime(1000);

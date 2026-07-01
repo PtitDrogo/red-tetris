@@ -5,7 +5,6 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, vi } from "vitest";
 import App from "../../App";
 
-// likely pull in the socket connection and other heavier dependencies).
 vi.mock("../../components/Home", () => ({
     default: () => <div>Home Page</div>,
 }));

@@ -232,7 +232,7 @@ describe("Board Core Game Loop Behaviors", () => {
     });
 
     it("should handle garbage lines correctly and trigger game over if overflow occurs", () => {
-        const board = new Board(1, [PieceType.T], undefined, emptyGrid, true);
+        const board = new Board(1, [PieceType.T], undefined, emptyGrid, [] , true);
 
         const boardWithGarbage = Board.addBlockLines(3, board);
         const lockedGrid = boardWithGarbage.getLockedGrid();

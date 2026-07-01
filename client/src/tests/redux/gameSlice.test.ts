@@ -20,6 +20,7 @@ describe("gameSlice", () => {
         name: "Alex",
         id: "socket-123",
         score: 500,
+        oldBoard: [],
         board: [
             [0, 0],
             [0, 0],

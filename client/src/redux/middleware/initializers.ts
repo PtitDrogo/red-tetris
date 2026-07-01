@@ -59,13 +59,10 @@ export function initGame(store: any) {
         store.dispatch(setStatus(payload.gameInfo.status));
     });
 
-    // Inside initGame ...
-
     const MIN_OLD_BOARD_DISPLAY_MS = 100;
-    const LAGGING_PACKET_LOCKOUT_MS = 50; // Ignore rapid consecutive flashes
 
     let oldBoardFirstShownAt: number | null = null;
-    let lastOldBoardClearedAt: number = 0; // Tracks when the last animation ended
+    let lastOldBoardClearedAt: number = 0; 
     let pendingTimeout: ReturnType<typeof setTimeout> | null = null;
     let pendingPayload: any = null;
 
@@ -86,19 +83,11 @@ export function initGame(store: any) {
         if (hasOldBoard) {
             if (oldBoardFirstShownAt === null) {
                 oldBoardFirstShownAt = Date.now();
-                console.log(
-                    `%c[OldBoard] INITIAL PAINT`,
-                    "color: #e67e22; font-weight: bold;",
-                );
                 scheduleApply(payload, MIN_OLD_BOARD_DISPLAY_MS);
             }
         } else {
             if (oldBoardFirstShownAt !== null) {
-                console.log(
-                    `%c[OldBoard] CLEAN SWAP back to fresh board!`,
-                    "color: #2ecc71; font-weight: bold;",
-                );
-                lastOldBoardClearedAt = Date.now(); // Start the lockout clock right now
+                lastOldBoardClearedAt = Date.now(); 
             }
             oldBoardFirstShownAt = null;
         }
@@ -116,9 +105,6 @@ export function initGame(store: any) {
 
             const myGrid = p.players.find((grid: any) => grid.id === socket.id);
             if (myGrid && myGrid.oldBoard && myGrid.oldBoard.length > 0) {
-                console.log(
-                    `[Scheduler] ⏰ Timeout hit! Force-clearing old board.`,
-                );
                 const updatedPlayers = p.players.map((grid: any) =>
                     grid.id === socket.id ? { ...grid, oldBoard: [] } : grid,
                 );
@@ -136,10 +122,8 @@ export function initGame(store: any) {
         const incomingHasOldBoard =
             myGrid?.oldBoard && myGrid.oldBoard.length > 0;
 
-        // 1. GUARD: Check if we are actively mid-animation
         if (oldBoardFirstShownAt !== null) {
             if (incomingHasOldBoard) {
-                // Already tracking an old board, ignore extra server updates containing it
                 return;
             }
 
@@ -152,18 +136,6 @@ export function initGame(store: any) {
             }
         }
 
-        // 2. GUARD: Lockout lagging network updates that try to start a new flash too soon
-        if (
-            incomingHasOldBoard &&
-            Date.now() - lastOldBoardClearedAt < LAGGING_PACKET_LOCKOUT_MS
-        ) {
-            console.log(
-                `[Socket] 🛡️ Blocked a double-flash caused by a lagging server packet.`,
-            );
-            return;
-        }
-
-        // Past the window or normal state, execute cleanly
         if (pendingTimeout) {
             clearTimeout(pendingTimeout);
             pendingTimeout = null;

@@ -4,7 +4,6 @@ import { Game } from "../game/Game.js";
 import { GameInput } from "../../../shared/types.js";
 
 describe("InputController - handleInput", () => {
-    // 1. Move both variables to the top scope so they are accessible in the tests
     let gameService: typeof import("../services/GameService.js").gameService;
     let InputController: typeof import("./../controllers/InputController.js").InputController;
 
