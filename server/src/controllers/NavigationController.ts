@@ -89,7 +89,7 @@ export class NavigationController {
                 player.socketId,
                 new Board(
                     seed,
-                    Object.values(PieceType).filter((p) => p !== PieceType.B),
+                    Object.values(PieceType).filter((p) => (p !== PieceType.B && p !== PieceType.N)),
                 ),
                 0,
                 0,

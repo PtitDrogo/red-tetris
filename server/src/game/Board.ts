@@ -138,7 +138,7 @@ export class Board {
         let newBag = [...bag.slice(0, index), ...bag.slice(index + 1)];
 
         if (newBag.length === 0) {
-            newBag = Object.values(PieceType).filter((p) => p !== PieceType.B);
+            newBag = Object.values(PieceType).filter((p) => (p !== PieceType.B && p !== PieceType.N));
         }
 
         return { seed: nextSeed, pieceType: pieceType, bag: newBag };
