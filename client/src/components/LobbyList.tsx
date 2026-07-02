@@ -7,6 +7,7 @@ import { ClientMessage } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
 
 import { Crown } from "lucide-react";
+import { Title } from "./Title";
 
 function LobbyList() {
     const navigate = useNavigate();
@@ -49,7 +50,10 @@ function LobbyList() {
 
     return (
         <>
-            <div className="flex flex-col items-center justify-start pt-15 gap-4">
+            <div className="flex flex-col items-center pt-5">
+                <Title />
+            </div>
+            <div className="flex flex-col items-center justify-start gap-4">
                 <div>Welcome {playerName}</div>
                 <input
                     type="button"
