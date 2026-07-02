@@ -17,8 +17,8 @@ export function PiecePreview({ type }: PieceProps) {
         (state: RootState) => state.game.playWithBlessed,
     );
 
-    if (!type) return null;
-    const shapeData = Shapes[type];
+    let shapeData = Shapes[playWithBlessed ? PieceType.B : PieceType.N];
+    if (type) shapeData = Shapes[type];
     shapeData.cells.forEach((c) => {
         grid[c.y + PREVIEW_PIVOT.y][c.x + PREVIEW_PIVOT.x] = shapeData.color;
     });

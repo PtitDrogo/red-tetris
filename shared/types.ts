@@ -7,6 +7,7 @@ export enum PieceType {
     T = "T",
     Z = "Z",
     B = "B",
+    N = "N",
 }
 
 export enum ClientMessage {
@@ -101,6 +102,10 @@ export const Shapes: Record<
     PieceType,
     { cells: Coordinate[]; color: GRID_STATES }
 > = {
+    [PieceType.N]: {
+        cells: [],
+        color: GRID_STATES.CYAN,
+    },
     //□□□□
     [PieceType.I]: {
         cells: [
@@ -188,9 +193,7 @@ export const Shapes: Record<
     },
 
     [PieceType.B]: {
-        cells: [
-            { x: 0, y: 0 },
-        ],
+        cells: [{ x: 0, y: 0 }],
         color: GRID_STATES.BLESSED,
     },
 };

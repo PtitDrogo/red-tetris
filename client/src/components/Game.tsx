@@ -11,7 +11,7 @@ import {
     PieceType,
 } from "../../../shared/types";
 import { useAuthGuard } from "../hooks/useAuthGuard";
-import { setStatus } from "../redux/gameSlice";
+import { setPlayWithBlessed, setStatus } from "../redux/gameSlice";
 
 import GameOverOverlay from "../components/GameOverOverlay";
 import { Score } from "../components/Score";
@@ -114,7 +114,9 @@ function Game() {
 
     const gameStartButton =
         ownerId === myGrid?.id && gameStatus === GameStatus.WAITING;
-    const [playWithBlessed, setPlayWithBlessed] = useState(false);
+    const playWithBlessed = useSelector(
+        (state: RootState) => state.game.playWithBlessed,
+    );
     const levelRef = useRef(0);
 
     useAuthGuard();
@@ -179,7 +181,7 @@ function Game() {
                             className="w-5 h-5 accent-electric-red"
                             checked={playWithBlessed}
                             onChange={(e) =>
-                                setPlayWithBlessed(e.target.checked)
+                                dispatch(setPlayWithBlessed(e.target.checked))
                             }
                         />
                         Play with{" "}
