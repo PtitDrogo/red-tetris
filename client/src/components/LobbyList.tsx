@@ -50,9 +50,6 @@ function LobbyList() {
 
     return (
         <>
-            <div className="flex flex-col items-center pt-5">
-                <Title />
-            </div>
             <div className="flex flex-col items-center justify-start gap-4">
                 <div>Welcome {playerName}</div>
                 <input
