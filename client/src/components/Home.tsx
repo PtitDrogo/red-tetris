@@ -43,8 +43,7 @@ function Home() {
 
     return (
         <>
-            <div className="flex flex-col items-center justify-start pt-75">
-                <Title/>
+            <div className="flex flex-col items-center justify-start">
                 <h1 className="px-2 py-3">Enter your name</h1>
                 <div className="flex flex-col gap-2">
                     <input
