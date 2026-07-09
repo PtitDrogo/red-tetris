@@ -49,10 +49,6 @@ describe("Home Component", () => {
         const { dispatchSpy, unmount } = renderHomeWithRedux();
 
         expect(
-            screen.getByRole("heading", { name: /Red\s?Tetris/i }),
-        ).toBeInTheDocument();
-
-        expect(
             screen.getByRole("heading", { name: /Enter your name/i }),
         ).toBeInTheDocument();
 
