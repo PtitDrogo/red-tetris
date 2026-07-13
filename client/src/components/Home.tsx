@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setPlayerName } from "../redux/playerSlice";
-import { Title } from "./Title";
 
 const MAX_LEN_NAME = 12;
 

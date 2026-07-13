@@ -17,6 +17,16 @@
     font-display: swap;
 }
 
+/* this is stuff for mobile so a drag down doesnt refresh the page */
+canvas, .grid-container, body {
+  /* Prevents the browser from triggering its own swipe-to-scroll or pull-to-refresh actions */
+  touch-action: none; 
+  
+  /* Prevents accidental double-tap text selection zooms */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 @theme {
     --font-tetris: "VeniteAdoremus", sans-serif;
     --color-electric-red: #ff0800;
