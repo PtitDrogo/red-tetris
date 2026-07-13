@@ -16,6 +16,7 @@ import { Score } from "../components/Score";
 import Grid from "./Grid";
 import { PiecePreview } from "./Piece";
 import { ControlsHelp } from "./ControlsHelp";
+import { useGameGestures } from "../hooks/useGameGestures";
 
 function MainGrid() {
   const playerName = useSelector((state: RootState) => state.player.name);
@@ -121,6 +122,7 @@ function Game() {
   const levelRef = useRef(0);
 
   useAuthGuard();
+  useGameGestures(gameStatus === GameStatus.ONGOING);
 
   useEffect(() => {
     dispatch({ type: "socket/initGame" });
