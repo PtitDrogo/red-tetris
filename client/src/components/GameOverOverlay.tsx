@@ -14,7 +14,7 @@ function GameOverOverlay() {
   if (!gameOverOverlay.active) return null;
   return (
     <div className="fixed inset-0 flex justify-center items-center z-51 px-4">
-      <div className="bg-gray-800/70 border-t border-b border-electric-red/50 w-full max-w-sm px-6 py-8 sm:px-16 sm:py-10 lg:px-30 lg:py-15 rounded-xl backdrop-blur-sm">
+      <div className="bg-gray-800/70 border-t border-b border-electric-red/50 w-full max-w-sm px-6 py-8 sm:px-8 sm:py-10 rounded-xl backdrop-blur-sm">
         {gameOverOverlay.ranking[0]?.name === playerName ? (
           <div className="flex flex-col items-center">
             <Crown
