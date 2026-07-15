@@ -60,8 +60,8 @@ function MainGrid() {
     return (
         <>
             <div
-                className={`flex flex-col items-center w-[calc(10*clamp(14px,3.8dvh,32px))] ${
-                    shakeAnimationClasses[shakingLevel] || ""
+                className={`flex flex-col items-center w-[calc(10*clamp(15px,4.1dvh,36px))] ${
+                    shakingLevel ? shakeAnimationClasses[shakingLevel] : ""
                 }`}
             >
                 <div className="flex items-center gap-4 py-1">
@@ -72,7 +72,7 @@ function MainGrid() {
                     grid={grid.board}
                     gridColsClass="grid-cols-10"
                     gridRowsClass="grid-rows-20"
-                    cellSizeClass="w-[clamp(14px,3.8dvh,32px)] h-[clamp(14px,3.8dvh,32px)]"
+                    cellSizeClass="w-[clamp(15px,4.1dvh,36px)] h-[clamp(15px,4.1dvh,36px)]"
                 />
                 <Score score={grid.score} level={grid.level} />
             </div>
