@@ -53,10 +53,11 @@ describe("App routing", () => {
         const { container } = renderAtRoute("/");
         const wrapper = container.firstChild as HTMLElement;
         expect(wrapper).toHaveClass(
-            "min-h-screen",
+            "h-dvh",
             "bg-gray-900",
             "font-tetris",
             "text-white",
+            "overflow-y-hidden"
         );
     });
 });

@@ -3,6 +3,20 @@ import { render, screen } from "@testing-library/react";
 import { describe, test, expect } from "vitest";
 import { ControlsHelp } from "../../components/ControlsHelp";
 
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => false,
+  }),
+});
+
 describe("ControlsHelp Component", () => {
     test("Affiche toutes les touches et leurs actions associées", () => {
         render(<ControlsHelp />);

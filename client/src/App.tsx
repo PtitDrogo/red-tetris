@@ -30,7 +30,7 @@ function TitleWrapper() {
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-900 font-tetris text-white">
+    <div className="h-dvh bg-gray-900 font-tetris text-white overflow-y-hidden">
       <TitleWrapper />
       <Routes>
         <Route path="/" element={<Home />} />

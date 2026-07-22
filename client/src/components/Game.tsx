@@ -60,7 +60,7 @@ function MainGrid() {
     return (
         <>
             <div
-                className={`flex flex-col items-center w-[calc(10*clamp(15px,4.1dvh,36px))] ${
+                className={`flex flex-col shrink-0 items-center w-[calc(10*clamp(15px,4.1dvh,36px))] ${
                     shakingLevel ? shakeAnimationClasses[shakingLevel] : ""
                 }`}
             >
@@ -99,7 +99,7 @@ function OpponentGrid({ id }: { id: number }) {
                     }
                     gridColsClass="grid-cols-10"
                     gridRowsClass="grid-rows-20"
-                    cellSizeClass="w-4 h-4"
+                    cellSizeClass="w-[clamp(8px,1.8dvh,16px)] h-[clamp(8px,1.8dvh,16px)]"
                 />
                 <Score score={grids[id]?.score ?? 0} />
             </div>
@@ -182,7 +182,7 @@ function Game() {
 
     return (
         <>
-            <div className="pointer-events-none fixed inset-0 flex flex-col justify-center items-center z-50 px-2">
+            <div className="fixed inset-0 flex flex-col justify-center items-center z-50 px-2">
                 {gameStartButton && (
                     <div className="flex flex-col items-center w-full">
                         <label className="pointer-events-auto bg-gray-700/90 px-3 py-1 rounded-xl flex items-center gap-2 text-white text-lg select-none mb-2">
@@ -229,13 +229,13 @@ function Game() {
                 <GameOverOverlay />
             </div>
 
-            <div className="min-h-dvh flex justify-center items-center pt-4 sm:pt-10 lg:pt-20 gap-8 xl:gap-40 overflow-y-auto">
-                <div className="hidden md:flex flex-col gap-20">
+            <div className="h-dvh flex justify-center items-center pt-4 pb-8 gap-[clamp(12px,8.8dvw,160px)]">
+                <div className="hidden md:flex flex-col shrink-0 gap-[clamp(12px,8dvh,80px)]">
                     <OpponentGrid id={0}></OpponentGrid>
                     <OpponentGrid id={1}></OpponentGrid>
                 </div>
                 <MainGrid />
-                <div className="hidden md:flex flex-col gap-20">
+                <div className="hidden md:flex flex-col shrink-0 gap-[clamp(12px,8dvh,80px)]">
                     <OpponentGrid id={2}></OpponentGrid>
                     <OpponentGrid id={3}></OpponentGrid>
                 </div>
@@ -256,7 +256,7 @@ function Game() {
                     </button>
                 </div>
             )}
-            <div className="fixed bottom-3 right-3">
+            <div className="pointer-events-auto fixed bottom-3 right-3 z-51">
                 <button
                     type="button"
                     className="border border-white opacity-50 bg-gray-700 rounded-xl px-3 py-2 sm:px-4 hover:opacity-100 transform hover:scale-105 transition-all"

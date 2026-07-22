@@ -65,7 +65,7 @@ describe("GameOverOverlay Component", () => {
             ranking: mockRanking,
         });
 
-        expect(screen.getByText(/Congratulations !/i)).toBeInTheDocument();
+        expect(screen.getByText(/Congratulations!/i)).toBeInTheDocument();
 
         const scoreElements = screen.getAllByText(/Score : 1200/i);
         expect(scoreElements.length).toBeGreaterThanOrEqual(1);
