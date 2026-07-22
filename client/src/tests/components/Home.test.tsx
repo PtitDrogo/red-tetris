@@ -45,7 +45,7 @@ const renderHomeWithRedux = () => {
 };
 
 describe("Home Component", () => {
-    test("Rendu initial stable et déclenchement des actions d'init/cleanup dans le useEffect", () => {
+    test("Initial stable render and triggers init/cleanup actions in useEffect", () => {
         const { dispatchSpy, unmount } = renderHomeWithRedux();
 
         expect(
@@ -60,7 +60,7 @@ describe("Home Component", () => {
         });
     });
 
-    test("Branche d'erreur : Affiche un message si le nom fait moins de 3 caractères", () => {
+    test("Error branch: Displays a message if the name is less than 3 characters long", () => {
         renderHomeWithRedux();
         const input = screen.getByRole("textbox");
         const button = screen.getByRole("button", { name: /PLAY NOW!/i });
@@ -74,7 +74,7 @@ describe("Home Component", () => {
         expect(setPlayerName).not.toHaveBeenCalled();
     });
 
-    test("Branche d'erreur : Affiche un message si le nom dépasse la taille maximale", () => {
+    test("Error branch: Displays a message if the name exceeds the maximum length", () => {
         renderHomeWithRedux();
         const input = screen.getByRole("textbox");
         const button = screen.getByRole("button", { name: /PLAY NOW!/i });
@@ -90,7 +90,7 @@ describe("Home Component", () => {
         expect(setPlayerName).not.toHaveBeenCalled();
     });
 
-    test("Branche de succès (Clic Bouton) : Enregistre le nom et appelle l'action de connexion", () => {
+    test("Success branch (Button Click): Saves the name and calls the connection action", () => {
         const { dispatchSpy } = renderHomeWithRedux();
         const input = screen.getByRole("textbox");
         const button = screen.getByRole("button", { name: /PLAY NOW!/i });
@@ -105,7 +105,7 @@ describe("Home Component", () => {
         });
     });
 
-    test("Branche de succès (Touche Enter) : Soumet le formulaire à l'appui sur Enter", () => {
+    test("Success branch (Enter Key): Submits the form when pressing Enter", () => {
         const { dispatchSpy } = renderHomeWithRedux();
         const input = screen.getByRole("textbox");
 
@@ -120,7 +120,7 @@ describe("Home Component", () => {
         });
     });
 
-    test("Ne fait rien à l'appui d'une autre touche que Enter", () => {
+    test("Does nothing when pressing a key other than Enter", () => {
         const { dispatchSpy } = renderHomeWithRedux();
         const input = screen.getByRole("textbox");
 

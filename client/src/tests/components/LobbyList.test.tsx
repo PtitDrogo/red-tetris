@@ -48,7 +48,7 @@ describe("LobbyList Component (100% Coverage)", () => {
         vi.clearAllMocks();
     });
 
-    test("Rendu initial sans salon et cycle de vie complet du useEffect", () => {
+    test("Initial render without room and complete useEffect lifecycle", () => {
         const { dispatchSpy, unmount } = renderLobbyListWithRedux([]);
 
         expect(screen.getByText(/Welcome Alex/i)).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe("LobbyList Component (100% Coverage)", () => {
         });
     });
 
-    test("Clic sur 'Create Room' propage la bonne action Redux/Socket", () => {
+    test("Clicking 'Create Room' dispatches the correct Redux/Socket action", () => {
         const { dispatchSpy } = renderLobbyListWithRedux([]);
 
         const createButton = screen.getByRole("button", {
@@ -85,7 +85,7 @@ describe("LobbyList Component (100% Coverage)", () => {
         });
     });
 
-    test("Rendu complet de salons actifs et remplissage des slots de joueurs manquants", () => {
+    test("Full render of active rooms and filling missing player slots", () => {
         const mockLobbies = [
             {
                 id: "room-101",
@@ -103,7 +103,7 @@ describe("LobbyList Component (100% Coverage)", () => {
         expect(emptyLabels.length).toBe(2);
     });
 
-    test("Rendu d'un salon sans aucun joueur principal (cas limite Empty)", () => {
+    test("Render of a room with no primary player (Empty edge case)", () => {
         const mockLobbies = [
             {
                 id: "room-empty",
@@ -117,7 +117,7 @@ describe("LobbyList Component (100% Coverage)", () => {
         expect(emptyLabels.length).toBe(5);
     });
 
-    test("Clic sur un salon appelle la fonction joinLobby avec le bon payload", () => {
+    test("Clicking on a room calls joinLobby with the correct payload", () => {
         const mockLobbies = [
             {
                 id: "room-abc",

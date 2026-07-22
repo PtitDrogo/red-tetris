@@ -51,7 +51,7 @@ describe("GameOverOverlay Component", () => {
         { name: "Bob", points: 800, level: 1 },
     ];
 
-    test("Branche Inactif : retourne null si active est false", () => {
+    test("Inactive branch: returns null if active is false", () => {
         const { container } = renderOverlayWithRedux("Alex", {
             active: false,
             ranking: [],
@@ -59,7 +59,7 @@ describe("GameOverOverlay Component", () => {
         expect(container.firstChild).toBeNull();
     });
 
-    test("Branche Gagnant : affiche les félicitations et la couronne si le joueur est premier", () => {
+    test("Winner branch: displays congratulations and the crown if the player is first", () => {
         renderOverlayWithRedux("Alex", {
             active: true,
             ranking: mockRanking,
@@ -73,7 +73,7 @@ describe("GameOverOverlay Component", () => {
         expect(screen.getByText(/Level : 2/i)).toBeInTheDocument();
     });
 
-    test("Branche Perdant : affiche 'You lost...' si un autre joueur a gagné", () => {
+    test("Loser branch: displays 'You lost...' if another player won", () => {
         renderOverlayWithRedux("Bob", {
             active: true,
             ranking: mockRanking,
@@ -83,7 +83,7 @@ describe("GameOverOverlay Component", () => {
         expect(screen.getByText(/Winner : Alex/i)).toBeInTheDocument();
     });
 
-    test("Clic sur Continue déclenche le dispatch de clearGameOver", () => {
+    test("Clicking Continue triggers the dispatch of clearGameOver", () => {
         renderOverlayWithRedux("Alex", {
             active: true,
             ranking: mockRanking,
@@ -95,7 +95,7 @@ describe("GameOverOverlay Component", () => {
         expect(clearGameOver).toHaveBeenCalled();
     });
 
-    test("Branche de secours (Fallbacks) : gère le classement vide ou partiel", () => {
+    test("Fallback branch: handles empty or partial ranking", () => {
         renderOverlayWithRedux("Alex", {
             active: true,
             ranking: [{ name: "Alex", points: 100, level: 0 }, undefined, {}],

@@ -65,7 +65,7 @@ const renderGameWithRedux = (customGameState = {}) => {
 };
 
 describe("Game Component", () => {
-    test("Rendu initial stable : affiche le joueur, le score et le bouton Quit", () => {
+    test("Initial stable render: displays the player, score, and Quit button", () => {
         renderGameWithRedux();
         expect(screen.getByText("Alex")).toBeInTheDocument();
         expect(screen.getByText("Score: 450")).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe("Game Component", () => {
         expect(quitButton).toBeInTheDocument();
     });
 
-    test("Prend en compte les pressions de touches de clavier pour le Tetris", () => {
+    test("Handle keyboard key presses for Tetris", () => {
         renderGameWithRedux();
 
         fireEvent.keyDown(window, { key: "ArrowLeft" });
@@ -86,14 +86,14 @@ describe("Game Component", () => {
         expect(screen.getByText("Alex")).toBeInTheDocument();
     });
 
-    test("Branche Adversaires : Affiche 'Empty' s'il n'y a pas assez d'adversaires", () => {
+    test("Opponents branch: Displays 'Empty' if there aren't enough opponents", () => {
         renderGameWithRedux();
 
         const emptyLabels = screen.getAllByText("Empty");
         expect(emptyLabels.length).toBeGreaterThanOrEqual(3);
     });
 
-    test("Clic sur le bouton Quit redirige vers la liste des salons", async () => {
+    test("Clicking the Quit button redirects to the room list", async () => {
         renderGameWithRedux();
 
         const quitButton = screen.getByRole("button", { name: /quit/i });
@@ -103,7 +103,7 @@ describe("Game Component", () => {
     });
 });
 
-describe("Game Component - Effet de secousse (shake)", () => {
+describe("Game Component - Shake effect", () => {
     beforeEach(() => {
         vi.useFakeTimers();
     });
@@ -125,7 +125,7 @@ describe("Game Component - Effet de secousse (shake)", () => {
         nextPiece: "I",
     };
 
-    test("Applique la classe de secousse correspondant au nombre de lignes effacées", () => {
+    test("Applies the shake class corresponding to the number of cleared lines", () => {
         const { container } = renderGameWithRedux({
             myGrid: { ...baseMyGrid, clearedLinesIndexes: [3, 7] },
         });
@@ -155,18 +155,21 @@ describe("Game Component - Effet de secousse (shake)", () => {
         },
     );
 
-    test("Ne secoue pas la grille quand aucune ligne n'est effacée", () => {
+    test("Does not shake the grid when no lines are cleared", () => {
         const { container } = renderGameWithRedux({
             myGrid: { ...baseMyGrid, clearedLinesIndexes: [] },
         });
-        ["animate-shake-1", "animate-shake-2", "animate-shake-3", "animate-shake-4"].forEach(
-            (cls) => {
-                expect(container.querySelector(`.${cls}`)).not.toBeInTheDocument();
-            },
-        );
+        [
+            "animate-shake-1",
+            "animate-shake-2",
+            "animate-shake-3",
+            "animate-shake-4",
+        ].forEach((cls) => {
+            expect(container.querySelector(`.${cls}`)).not.toBeInTheDocument();
+        });
     });
 
-    test("Retire la classe de secousse après 300ms", async () => {
+    test("Removes the shake class after 300ms", async () => {
         const { container } = renderGameWithRedux({
             myGrid: { ...baseMyGrid, clearedLinesIndexes: [1, 2, 3] },
         });
@@ -176,6 +179,8 @@ describe("Game Component - Effet de secousse (shake)", () => {
             vi.advanceTimersByTime(300);
         });
 
-        expect(container.querySelector(".animate-shake-3")).not.toBeInTheDocument();
+        expect(
+            container.querySelector(".animate-shake-3"),
+        ).not.toBeInTheDocument();
     });
 });

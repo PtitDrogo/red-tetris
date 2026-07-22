@@ -15,7 +15,7 @@ const mockStore = configureStore({
 });
 
 describe("PiecePreview Component", () => {
-    test("Branche de garde : utilise la pièce vide (N) si le type n'est pas fourni", () => {
+    test("Guard branch: uses empty piece (N) if type is not provided", () => {
         const { container } = render(
             <Provider store={mockStore}>
                 <PiecePreview type={undefined} />
@@ -34,7 +34,7 @@ describe("PiecePreview Component", () => {
         expect(cells?.[0]).toHaveClass("w-4 h-4");
     });
 
-    test("Rendu d'une pièce valide (ex: la pièce en I) et dessin des blocs", () => {
+    test("Renders a valid piece (e.g., I-piece) and draws the blocks", () => {
         const { container } = render(
             <Provider store={mockStore}>
                 <PiecePreview type={"I" as PieceType} />
@@ -54,7 +54,7 @@ describe("PiecePreview Component", () => {
         expect(cells?.[0]).toHaveClass("w-4 h-4");
     });
 
-    test("Rendu d'une autre forme (ex: la pièce en O) pour maximiser la couverture des boucles forEach", () => {
+    test("Renders another shape (e.g., O-piece) to maximize forEach loop coverage", () => {
         const { container } = render(
             <Provider store={mockStore}>
                 <PiecePreview type={"O" as PieceType} />
@@ -77,7 +77,7 @@ describe("PiecePreview Component - playWithBlessed branch", () => {
         },
     });
 
-    test("playWithBlessed=true et type non fourni : utilise la pièce B et affiche le tooltip", () => {
+    test("playWithBlessed=true and type not provided: uses B piece and displays the tooltip", () => {
         const { container } = render(
             <Provider store={blessedStore}>
                 <PiecePreview type={undefined} />
@@ -95,7 +95,7 @@ describe("PiecePreview Component - playWithBlessed branch", () => {
         expect(gridContainer?.children.length).toBe(12);
     });
 
-    test("playWithBlessed=true mais un type explicite est fourni : le type fourni prime sur B, tooltip toujours affiché", () => {
+    test("playWithBlessed=true but an explicit type is provided: provided type takes precedence over B, tooltip still displayed", () => {
         render(
             <Provider store={blessedStore}>
                 <PiecePreview type={"O" as PieceType} />

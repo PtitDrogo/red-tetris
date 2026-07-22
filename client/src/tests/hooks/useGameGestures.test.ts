@@ -39,7 +39,7 @@ describe("useGameGestures", () => {
     return event;
   };
 
-  it("ne fait rien si isEnabled est à false", () => {
+  it("does nothing if isEnabled is false", () => {
     renderHook(() => useGameGestures(false));
 
     window.dispatchEvent(createTouchEvent("touchstart", 100, 100));
@@ -48,7 +48,7 @@ describe("useGameGestures", () => {
     expect(mockDispatch).not.toHaveBeenCalled();
   });
 
-  it("ignore les gestes déclenchés sur un bouton", () => {
+  it("ignores gestures triggered on a button", () => {
     renderHook(() => useGameGestures(true));
 
     const button = document.createElement("button");
@@ -61,7 +61,7 @@ describe("useGameGestures", () => {
     document.body.removeChild(button);
   });
 
-  it("émet GameInput.RIGHT si le swipe dépasse CELL_WIDTH vers la droite", () => {
+  it("emits GameInput.RIGHT if the swipe exceeds CELL_WIDTH to the right", () => {
     renderHook(() => useGameGestures(true));
 
     window.dispatchEvent(createTouchEvent("touchstart", 100, 100));
@@ -73,7 +73,7 @@ describe("useGameGestures", () => {
     });
   });
 
-  it("émet GameInput.LEFT si le swipe dépasse CELL_WIDTH vers la gauche", () => {
+  it("emits GameInput.LEFT if the swipe exceeds CELL_WIDTH to the left", () => {
     renderHook(() => useGameGestures(true));
 
     window.dispatchEvent(createTouchEvent("touchstart", 100, 100));
@@ -85,7 +85,7 @@ describe("useGameGestures", () => {
     });
   });
 
-  it("émet GameInput.DOWN si le mouvement vertical dépasse 8px vers le bas", () => {
+  it("emits GameInput.DOWN if vertical movement exceeds 8px downward", () => {
     renderHook(() => useGameGestures(true));
 
     window.dispatchEvent(createTouchEvent("touchstart", 100, 100));
@@ -97,7 +97,7 @@ describe("useGameGestures", () => {
     });
   });
 
-  it("émet GameInput.SPACE lors d'un flick rapide vers le bas", () => {
+  it("emits GameInput.SPACE during a fast downward flick", () => {
     renderHook(() => useGameGestures(true));
 
     vi.spyOn(Date, "now").mockReturnValue(1000);
@@ -112,7 +112,7 @@ describe("useGameGestures", () => {
     });
   });
 
-  it("émet GameInput.ROTATE lors d'un simple tap rapide sans mouvement", () => {
+  it("emits GameInput.ROTATE during a simple fast tap without movement", () => {
     renderHook(() => useGameGestures(true));
 
     vi.spyOn(Date, "now").mockReturnValue(1000);
@@ -127,7 +127,7 @@ describe("useGameGestures", () => {
     });
   });
 
-  it("nettoie les listeners window au démontage", () => {
+  it("cleans up window listeners on unmount", () => {
     const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
     const { unmount } = renderHook(() => useGameGestures(true));
 

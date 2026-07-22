@@ -18,7 +18,7 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 describe("ControlsHelp Component", () => {
-    test("Affiche toutes les touches et leurs actions associées", () => {
+    test("Show all keys and their associated actions", () => {
         render(<ControlsHelp />);
 
         expect(screen.getByText("←")).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe("ControlsHelp Component", () => {
         expect(screen.getByText("Hard Drop")).toBeInTheDocument();
     });
 
-    test("Utilise des éléments <kbd> pour chaque touche", () => {
+    test("Use <kbd> elements for each key", () => {
         const { container } = render(<ControlsHelp />);
         const kbdElements = container.querySelectorAll("kbd");
         expect(kbdElements.length).toBe(5);

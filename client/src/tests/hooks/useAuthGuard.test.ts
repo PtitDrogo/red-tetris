@@ -20,7 +20,7 @@ describe("useAuthGuard (100% Coverage)", () => {
         vi.mocked(useNavigate).mockReturnValue(mockNavigate);
     });
 
-    test("devrait rediriger vers '/' si le nom du joueur est vide", () => {
+    test("should redirect to '/' if the player name is empty", () => {
         vi.mocked(useSelector).mockImplementation((selectorFn: any) => {
             return selectorFn({ player: { name: "" } });
         });
@@ -30,7 +30,7 @@ describe("useAuthGuard (100% Coverage)", () => {
         expect(mockNavigate).toHaveBeenCalledWith("/");
     });
 
-    test("ne devrait pas rediriger si le nom du joueur est présent", () => {
+    test("should not redirect if the player name is present", () => {
         vi.mocked(useSelector).mockImplementation((selectorFn: any) => {
             return selectorFn({ player: { name: "Alex" } });
         });
