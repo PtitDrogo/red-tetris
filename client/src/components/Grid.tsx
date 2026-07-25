@@ -9,25 +9,27 @@ type GridProps = {
 };
 
 function Grid({
-  grid,
-  gridColsClass,
-  gridRowsClass,
-  cellSizeClass,
+    grid,
+    gridColsClass,
+    gridRowsClass,
+    cellSizeClass,
 }: GridProps) {
-  return (
-    <div
-      className={`grid ${gridColsClass} ${gridRowsClass} border-l border-t border-white/50 select-none cursor-default`}
-    >
-      {grid.map((row, rowIndex) =>
-        row.map((cell, colIndex) => (
-          <div
-            key={`${rowIndex}-${colIndex}`}
-            className={`border-r border-b border-white/50 ${cellSizeClass} ${cellColor[cell]}`}
-          />
-        )),
-      )}
-    </div>
-  );
+    return (
+        <div
+            className={`grid ${gridColsClass} ${gridRowsClass} border-t border-white/50 select-none cursor-default`}
+        >
+            {grid.map((row, rowIndex) =>
+                row.map((cell, colIndex) => (
+                    <div
+                        key={`${rowIndex}-${colIndex}`}
+                        className={`border-r border-b border-white/50 ${
+                            colIndex === 0 ? "border-l" : ""
+                        } ${cellSizeClass} ${cellColor[cell]}`}
+                    />
+                )),
+            )}
+        </div>
+    );
 }
 
 export default Grid;
