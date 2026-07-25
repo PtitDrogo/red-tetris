@@ -241,7 +241,7 @@ function Game() {
                 </div>
             </div>
             {gameStatus === GameStatus.ONGOING && (
-                <div className="fixed right-1 bottom-1/2 sm:hidden">
+                <div className="pointer-events-auto fixed right-1 bottom-1/2 sm:hidden z-51">
                     <button
                         type="button"
                         className="border border-white opacity-50 bg-gray-700 rounded-xl px-3 py-2 hover:opacity-100 transform hover:scale-105 transition-all"
