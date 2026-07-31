@@ -59,9 +59,27 @@ export class SocketRouter {
                 }
             });
 
-        socket.on(ClientMessage.START_GAME, (payload: { playWithBlessed: boolean}) => {
+            socket.on(
+                ClientMessage.START_GAME,
+                (payload: { playWithBlessed: boolean }) => {
+                    try {
+                        NavigationController.start(
+                            socket,
+                            this.io,
+                            payload.playWithBlessed,
+                        );
+                    } catch (error) {
+                        socket.emit(
+                            ServerMessage.ERROR,
+                            getErrorMessage(error),
+                        );
+                    }
+                },
+            );
+
+            socket.on(ClientMessage.GET_SCORES, () => {
                 try {
-                    NavigationController.start(socket, this.io, payload.playWithBlessed);
+                    NavigationController.getScores(socket, this.io);
                 } catch (error) {
                     socket.emit(ServerMessage.ERROR, getErrorMessage(error));
                 }

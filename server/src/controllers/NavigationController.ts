@@ -9,6 +9,7 @@ import { gameService } from "../services/GameService.js";
 import { roomManager } from "../services/RoomManager.js";
 import { UpdateManager } from "../services/UpdatesManager.js";
 import { SocketType } from "../types/types.js";
+import { getTopScores } from "../db/controler.js";
 
 export class NavigationController {
     static leave(socket: SocketType, io: Server) {
@@ -101,5 +102,10 @@ export class NavigationController {
 
         UpdateManager.updateRoomAndLobby(room, io);
         newGame.start();
+    }
+
+    static getScores(socket: SocketType, io: Server) {
+        getTopScores();
+        UpdateManager.updateRoomAndLobby(updatedRoom, io);
     }
 }
