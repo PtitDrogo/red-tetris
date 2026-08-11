@@ -16,6 +16,7 @@ export enum ClientMessage {
     LEAVE_ROOM = "l",
     START_GAME = "s",
     PLAYER_INPUT = "i",
+    GET_SCORES = "d",
 }
 
 export enum GameInput {
