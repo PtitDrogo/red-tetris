@@ -112,6 +112,7 @@ function Game() {
     const myGrid = useSelector((state: RootState) => state.game.myGrid);
     const ownerId = useSelector((state: RootState) => state.game.ownerId);
     const gameStatus = useSelector((state: RootState) => state.game.status);
+    let lastSpaceTime = Date.now();
 
     const dispatch = useDispatch();
 
@@ -168,6 +169,10 @@ function Game() {
                     break;
                 case " ":
                     e.preventDefault();
+                    if (Date.now() - lastSpaceTime < 150) {
+                        break;
+                    }
+                    lastSpaceTime = Date.now();
                     dispatch({
                         type: "socket/emit",
                         payload: { event: "i", data: GameInput.SPACE },
