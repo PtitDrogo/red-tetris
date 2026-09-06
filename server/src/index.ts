@@ -14,6 +14,8 @@ const io = new Server(httpServer, {
             "http://localhost:4173",
             "https://tetris-battles.vercel.app",
             "https://ptitdrogo.com",
+            "https://www.tetris.ptitdrogo.com",
+            "https://tetris.ptitdrogo.com",
             ORIGIN ?? "",
         ],
     },
