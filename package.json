@@ -24,5 +24,8 @@
     "homepage": "https://github.com/PtitDrogo/red-tetris#readme",
     "devDependencies": {
         "concurrently": "^10.0.3"
+    },
+    "engines": {
+        "node": ">=20.19.0"
     }
 }
