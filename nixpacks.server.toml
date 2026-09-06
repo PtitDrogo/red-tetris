@@ -5,4 +5,4 @@ cmds = ["cd server && npm ci"]
 cmds = ["cd server && npm run build"]
 
 [start]
-cmd = "cd server && npm start --omit=dev"
+cmd = "cd server && npm start"
