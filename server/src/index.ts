@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import { SocketRouter } from "./routers/SocketRouter.js";
 
 const PORT = process.env.PORT || 3000;
+const ORIGIN = process.env.CLIENT_ORIGIN;
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -12,6 +13,8 @@ const io = new Server(httpServer, {
             "http://localhost:5173",
             "http://localhost:4173",
             "https://tetris-battles.vercel.app",
+            "https://ptitdrogo.com",
+            ORIGIN ?? "",
         ],
     },
 });
